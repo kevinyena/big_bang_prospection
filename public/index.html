@@ -145,6 +145,8 @@
             <select id="email-campaign-select" class="form-control campaign-select">
               <option value="">Chargement...</option>
             </select>
+            <button class="btn-edit-campaign" id="btn-edit-email-campaign" title="Modifier la campagne">✏️</button>
+            <button class="btn-relaunch-campaign" id="btn-relaunch-email-campaign" title="Relancer la campagne">🚀</button>
             <button class="btn-delete-campaign" id="btn-delete-email-campaign" title="Supprimer la campagne">🗑️</button>
             <button class="btn-reload-campaign" id="btn-reload-email-campaign" title="Rafraîchir les données">🔄</button>
           </div>
@@ -205,6 +207,8 @@
             <select id="x-dm-campaign-select" class="form-control campaign-select">
               <option value="">Chargement...</option>
             </select>
+            <button class="btn-edit-campaign" id="btn-edit-x-dm-campaign" title="Modifier la campagne">✏️</button>
+            <button class="btn-relaunch-campaign" id="btn-relaunch-x-dm-campaign" title="Relancer la campagne">🚀</button>
             <button class="btn-delete-campaign" id="btn-delete-x-dm-campaign" title="Supprimer la campagne">🗑️</button>
             <button class="btn-reload-campaign" id="btn-reload-x-dm-campaign" title="Rafraîchir les données">🔄</button>
           </div>
@@ -264,6 +268,8 @@
             <select id="x-comment-campaign-select" class="form-control campaign-select">
               <option value="">Chargement...</option>
             </select>
+            <button class="btn-edit-campaign" id="btn-edit-x-comment-campaign" title="Modifier la campagne">✏️</button>
+            <button class="btn-relaunch-campaign" id="btn-relaunch-x-comment-campaign" title="Relancer la campagne">🚀</button>
             <button class="btn-delete-campaign" id="btn-delete-x-comment-campaign" title="Supprimer la campagne">🗑️</button>
             <button class="btn-reload-campaign" id="btn-reload-x-comment-campaign" title="Rafraîchir les données">🔄</button>
           </div>
@@ -300,6 +306,8 @@
             <select id="reddit-campaign-select" class="form-control campaign-select">
               <option value="">Chargement...</option>
             </select>
+            <button class="btn-edit-campaign" id="btn-edit-reddit-campaign" title="Modifier la campagne">✏️</button>
+            <button class="btn-relaunch-campaign" id="btn-relaunch-reddit-campaign" title="Relancer la campagne">🚀</button>
             <button class="btn-delete-campaign" id="btn-delete-reddit-campaign" title="Supprimer la campagne">🗑️</button>
             <button class="btn-reload-campaign" id="btn-reload-reddit-campaign" title="Rafraîchir les données">🔄</button>
           </div>
@@ -530,6 +538,117 @@
         <div class="modal-footer">
           <button type="button" class="btn-signout" id="btn-cancel-reddit-campaign">Annuler</button>
           <button type="submit" class="btn-action-primary">Lancer la campagne</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Campaign Modal -->
+  <div id="modal-edit-campaign" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>✏️ Modifier la Campagne</h3>
+        <button class="btn-close-modal" id="btn-close-edit-modal">&times;</button>
+      </div>
+      <form id="form-edit-campaign" class="modal-form">
+        <input type="hidden" name="campaignId" id="edit-campaign-id" />
+        <input type="hidden" name="kind" id="edit-campaign-kind" />
+        
+        <div class="form-group">
+          <label>Nom de la campagne</label>
+          <input type="text" name="name" id="edit-campaign-name" class="form-control" placeholder="ex: Cabinet Dentaire IDF" required />
+        </div>
+
+        <!-- Section: Email Manual -->
+        <div id="edit-section-email-manual" class="form-section hidden">
+          <div class="form-group">
+            <label>Liste d'emails (séparés par des virgules)</label>
+            <textarea name="emailsList" id="edit-email-manual-list" class="form-control" placeholder="ex: dr.smith@example.com, contact@dentist.fr" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Objet de l'email</label>
+            <input type="text" name="subject" id="edit-email-manual-subject" class="form-control" placeholder="ex: Améliorez votre SEO en 2026" />
+          </div>
+          <div class="form-group">
+            <label>Corps du message</label>
+            <textarea name="body" id="edit-email-manual-body" class="form-control" placeholder="Bonjour, ..." rows="5"></textarea>
+          </div>
+        </div>
+
+        <!-- Section: Email Automated -->
+        <div id="edit-section-email-automated" class="form-section hidden">
+          <div class="form-group">
+            <label>Mots-clés de recherche LinkedIn (séparés par des virgules)</label>
+            <textarea name="linkedinKeywords" id="edit-email-auto-keywords" class="form-control" placeholder="ex: accounting firm owner, solo CPA" rows="2"></textarea>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-group">
+              <label>Localisation / Pays</label>
+              <input type="text" name="linkedinLocation" id="edit-email-auto-location" class="form-control" placeholder="ex: United States, France" />
+            </div>
+            <div class="form-group">
+              <label>Fonction / Postes</label>
+              <input type="text" name="linkedinFunction" id="edit-email-auto-function" class="form-control" placeholder="ex: Owner, CPA, Managing Partner" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Nombre total d'emails à chercher</label>
+            <input type="number" name="limit" id="edit-email-auto-limit" class="form-control" placeholder="10" min="1" max="100" />
+          </div>
+          <div class="form-group">
+            <label>Objet de l'email</label>
+            <input type="text" name="subject" id="edit-email-auto-subject" class="form-control" placeholder="ex: Améliorez votre SEO en 2026" />
+          </div>
+          <div class="form-group">
+            <label>Corps du message</label>
+            <textarea name="body" id="edit-email-auto-body" class="form-control" placeholder="Bonjour, ..." rows="5"></textarea>
+          </div>
+        </div>
+
+        <!-- Section: X DMs -->
+        <div id="edit-section-x-dm" class="form-section hidden">
+          <div class="form-group">
+            <label>Liste des handles (séparés par des virgules)</label>
+            <textarea name="handlesList" id="edit-xdm-handles" class="form-control" placeholder="ex: @elonmusk, @paulg" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Template du message (reçoit {handle})</label>
+            <textarea name="template" id="edit-xdm-template" class="form-control" placeholder="Hey {handle}, j'adore ce que vous faites..." rows="5"></textarea>
+          </div>
+        </div>
+
+        <!-- Section: X Comments -->
+        <div id="edit-section-x-reply" class="form-section hidden">
+          <div class="form-group">
+            <label>Mot-clé à rechercher sur X</label>
+            <input type="text" name="keyword" id="edit-xreply-keyword" class="form-control" placeholder="ex: side business automatisation" />
+          </div>
+          <div class="form-group">
+            <label>Consignes / Instructions pour ChatGPT</label>
+            <textarea name="template" id="edit-xreply-template" class="form-control" placeholder="Montre de l'intérêt pour le post..." rows="5"></textarea>
+          </div>
+        </div>
+
+        <!-- Section: Reddit -->
+        <div id="edit-section-reddit" class="form-section hidden">
+          <div class="form-group">
+            <label>Subreddits (séparés par des virgules)</label>
+            <input type="text" name="subreddits" id="edit-reddit-subreddits" class="form-control" placeholder="ex: startup, sidehustle" />
+          </div>
+          <div class="form-group">
+            <label>Sujet / Expérience à raconter (ChatGPT génère le post)</label>
+            <textarea name="template" id="edit-reddit-template" class="form-control" placeholder="Raconte comment un utilisateur..." rows="5"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Fréquence d'envoi (minutes, min 1, max 30)</label>
+          <input type="number" name="send_interval_minutes" id="edit-campaign-interval" class="form-control" min="1" max="30" value="5" required />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-signout" id="btn-cancel-edit-campaign">Annuler</button>
+          <button type="submit" class="btn-action-primary">Enregistrer les modifications</button>
         </div>
       </form>
     </div>

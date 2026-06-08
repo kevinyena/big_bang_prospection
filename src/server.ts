@@ -1518,9 +1518,259 @@ app.post('/api/prospection/scrape/preview', async (req: Request, res: Response) 
   }
 });
 
+// Stands for running campaign outreach in background
+async function runCampaignOutreach(campaignId: string, kind: string, payload: any) {
+  const {
+    type,
+    emailsList,
+    linkedinKeywords,
+    linkedinLocation,
+    linkedinFunction,
+    limit,
+    subject,
+    body,
+    template,
+    handlesList,
+    keyword,
+    subreddits,
+    send_interval_minutes
+  } = payload;
+
+  let interval = 5;
+  if (send_interval_minutes !== undefined) {
+    const parsed = parseInt(send_interval_minutes, 10);
+    if (!isNaN(parsed)) {
+      interval = Math.max(1, Math.min(30, parsed));
+    }
+  }
+
+  if (kind === 'email') {
+    // Fetch or create mailbox
+    const mbRes = await pool.query("SELECT id FROM public.mailboxes WHERE business_id = $1 AND email_address = 'grace@sideloot.xyz' LIMIT 1", [BUSINESS_ID]);
+    let mailboxId = mbRes.rows[0]?.id;
+    if (!mailboxId) {
+      await pool.query("DELETE FROM public.mailboxes WHERE business_id = $1 AND position_id = 'sales_rep'", [BUSINESS_ID]);
+      mailboxId = crypto.randomUUID();
+      await pool.query(`
+        INSERT INTO public.mailboxes (id, business_id, email_address, position_id, local_part, status)
+        VALUES ($1, $2, 'grace@sideloot.xyz', 'sales_rep', 'grace', 'active')
+      `, [mailboxId, BUSINESS_ID]);
+    }
+
+    if (type === 'manual') {
+      const emails = (emailsList || '').split(',').map((e: string) => e.trim()).filter(Boolean);
+      
+      // Send emails in background
+      (async () => {
+        for (let i = 0; i < emails.length; i++) {
+          if (i > 0) {
+            await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
+          }
+          const email = emails[i];
+          let finalLeadId;
+          const existingLead = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
+          if (existingLead.rows.length > 0) {
+            finalLeadId = existingLead.rows[0].id;
+          } else {
+            finalLeadId = crypto.randomUUID();
+            await pool.query(`
+              INSERT INTO public.leads (id, business_id, full_name, email, source)
+              VALUES ($1, $2, $3, $4, 'manual')
+              ON CONFLICT DO NOTHING
+            `, [finalLeadId, BUSINESS_ID, email.split('@')[0], email]);
+            
+            const retryFetch = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
+            if (retryFetch.rows.length > 0) {
+              finalLeadId = retryFetch.rows[0].id;
+            }
+          }
+
+          const threadId = crypto.randomUUID();
+          await pool.query(`
+            INSERT INTO public.email_threads (id, business_id, mailbox_id, lead_id, subject)
+            VALUES ($1, $2, $3, $4, $5)
+          `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, subject]);
+
+          try {
+            await sendMailgunEmail(email, subject || '', body || '');
+            await pool.query(`
+              INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, sent_at, campaign_id)
+              VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'sent', NOW(), $7)
+            `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, campaignId]);
+          } catch (err) {
+            console.error(`[Manual Email Campaign] Failed for ${email}:`, err);
+            await pool.query(`
+              INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, error, sent_at, campaign_id)
+              VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'failed', $7, NOW(), $8)
+            `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, (err as Error).message, campaignId]);
+          }
+        }
+      })();
+    } else if (type === 'automated') {
+      // Run Apify scraping in background
+      (async () => {
+        try {
+          const prospects = await fetchLinkedInProspects({
+            keywords: linkedinKeywords || '',
+            location: linkedinLocation || '',
+            functionName: linkedinFunction || '',
+            limit: Number(limit) || 10
+          });
+          
+          let first = true;
+          for (const p of prospects) {
+            if (p.email) {
+              const email = p.email;
+              if (!first) {
+                await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
+              }
+              first = false;
+
+              let finalLeadId;
+              const existingLead = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
+              if (existingLead.rows.length > 0) {
+                finalLeadId = existingLead.rows[0].id;
+              } else {
+                finalLeadId = crypto.randomUUID();
+                await pool.query(`
+                  INSERT INTO public.leads (id, business_id, full_name, email, source)
+                  VALUES ($1, $2, $3, $4, 'linkedin')
+                  ON CONFLICT DO NOTHING
+                `, [finalLeadId, BUSINESS_ID, p.name, email]);
+                
+                const retryFetch = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
+                if (retryFetch.rows.length > 0) {
+                  finalLeadId = retryFetch.rows[0].id;
+                }
+              }
+
+              const threadId = crypto.randomUUID();
+              await pool.query(`
+                INSERT INTO public.email_threads (id, business_id, mailbox_id, lead_id, subject)
+                VALUES ($1, $2, $3, $4, $5)
+              `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, subject]);
+
+              try {
+                await sendMailgunEmail(email, subject || '', body || '');
+                await pool.query(`
+                  INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, sent_at, campaign_id)
+                  VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'sent', NOW(), $7)
+                `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, campaignId]);
+              } catch (err) {
+                await pool.query(`
+                  INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, error, sent_at, campaign_id)
+                  VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'failed', $7, NOW(), $8)
+                `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, (err as Error).message, campaignId]);
+              }
+            }
+          }
+        } catch (err) {
+          console.error('[Apify LinkedIn Scrape Campaign Error]:', err);
+        }
+      })();
+    }
+  } else if (kind === 'x_dm') {
+    const handles = (handlesList || '').split(',').map((h: string) => h.trim()).filter(Boolean);
+    
+    const xAccRes = await pool.query('SELECT id FROM public.x_accounts WHERE business_id = $1 LIMIT 1', [BUSINESS_ID]);
+    let xAccountId = xAccRes.rows[0]?.id;
+    if (!xAccountId) {
+      xAccountId = crypto.randomUUID();
+      await pool.query(`
+        INSERT INTO public.x_accounts (id, business_id, owner_position_id, x_user_id, handle, display_name, status)
+        VALUES ($1, $2, 'sales_rep', '123456', 'sideloot_outreach', 'Sideloot Outreach', 'connected')
+      `, [xAccountId, BUSINESS_ID]);
+    }
+
+    (async () => {
+      for (let i = 0; i < handles.length; i++) {
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
+        }
+        const handle = handles[i];
+        const messageText = template.replace('{handle}', handle);
+        await pool.query(`
+          INSERT INTO public.x_messages (
+            id, x_account_id, business_id, direction, recipient_handle, body, status, sent_at, campaign_id
+          ) VALUES (
+            gen_random_uuid(), $1, $2, 'out', $3, $4, 'sent', NOW(), $5
+          )
+        `, [xAccountId, BUSINESS_ID, handle, messageText, campaignId]);
+      }
+    })();
+  } else if (kind === 'x_reply') {
+    (async () => {
+      for (let i = 0; i < 5; i++) {
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
+        }
+        try {
+          const prompt = `Rédige une réponse courte à un commentaire Twitter/X.
+Sujet de recherche de feed : ${keyword}
+Consignes : ${template}
+Fais une réponse concise, percutante, naturelle (moins de 250 caractères). Pas de hashtags.`;
+
+          const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 200
+          });
+
+          const aiResponse = completion.choices[0]?.message?.content || '';
+          const mockUser = `@user_${Math.floor(Math.random() * 900) + 100}`;
+          
+          await pool.query(`
+            INSERT INTO public.prospection_sends (
+              id, campaign_id, campaign_kind, recipient, body, status, sent_at, created_at
+            ) VALUES (
+              gen_random_uuid(), $1, 'x_reply', $2, $3, 'sent', NOW(), NOW()
+            )
+          `, [campaignId, mockUser, aiResponse]);
+        } catch (err) {
+          console.error('[X Reply Campaign Error]:', err);
+        }
+      }
+    })();
+  } else if (kind === 'reddit') {
+    const subList = (subreddits || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+
+    (async () => {
+      for (let i = 0; i < subList.length; i++) {
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
+        }
+        const sub = subList[i];
+        try {
+          const prompt = `Rédige un post Reddit de partage d'expérience pour la communauté ${sub}.
+Sujet : ${template}
+Génère un titre accrocheur et un court texte de partage d'expérience.`;
+
+          const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 300
+          });
+
+          const aiResponse = completion.choices[0]?.message?.content || '';
+
+          await pool.query(`
+            INSERT INTO public.prospection_sends (
+              id, campaign_id, campaign_kind, recipient, body, status, sent_at, created_at
+            ) VALUES (
+              gen_random_uuid(), $1, 'reddit', $2, $3, 'sent', NOW(), NOW()
+            )
+          `, [campaignId, sub, aiResponse]);
+        } catch (err) {
+          console.error('[Reddit Campaign Error]:', err);
+        }
+      }
+    })();
+  }
+}
+
 app.post('/api/prospection/campaigns', async (req: Request, res: Response) => {
   try {
-    const { name, kind, type, emailsList, mapsQuery, city, limit, subject, body, template, handlesList, bioKeywords, keyword, subreddits, send_interval_minutes, linkedinKeywords, linkedinLocation, linkedinFunction } = req.body;
+    const { name, kind, send_interval_minutes, subject, body, template } = req.body;
     if (!name || !kind) {
       return res.status(400).json({ error: 'name et kind requis' });
     }
@@ -1535,241 +1785,119 @@ app.post('/api/prospection/campaigns', async (req: Request, res: Response) => {
       }
     }
     
-    // Save campaign to database
+    // Save campaign to database including target_filters
     await pool.query(`
       INSERT INTO public.prospection_campaigns (
-        id, business_id, kind, name, active, created_at, updated_at, email_subject, email_body, email_from_local, send_interval_minutes
+        id, business_id, kind, name, active, created_at, updated_at, email_subject, email_body, email_from_local, send_interval_minutes, target_filters
       ) VALUES (
-        $1, $2, $3, $4, true, NOW(), NOW(), $5, $6, 'grace', $7
+        $1, $2, $3, $4, true, NOW(), NOW(), $5, $6, 'grace', $7, $8
       )
-    `, [campaignId, BUSINESS_ID, kind, name, subject || null, body || template || null, interval]);
+    `, [campaignId, BUSINESS_ID, kind, name, subject || null, body || template || null, interval, JSON.stringify(req.body)]);
 
-    // Handle specific campaign flows
-    if (kind === 'email') {
-      // Fetch or create mailbox
-      const mbRes = await pool.query("SELECT id FROM public.mailboxes WHERE business_id = $1 AND email_address = 'grace@sideloot.xyz' LIMIT 1", [BUSINESS_ID]);
-      let mailboxId = mbRes.rows[0]?.id;
-      if (!mailboxId) {
-        // Delete any existing mailbox with position_id 'sales_rep' to avoid unique constraint issues
-        await pool.query("DELETE FROM public.mailboxes WHERE business_id = $1 AND position_id = 'sales_rep'", [BUSINESS_ID]);
-        mailboxId = crypto.randomUUID();
-        await pool.query(`
-          INSERT INTO public.mailboxes (id, business_id, email_address, position_id, local_part, status)
-          VALUES ($1, $2, 'grace@sideloot.xyz', 'sales_rep', 'grace', 'active')
-        `, [mailboxId, BUSINESS_ID]);
-      }
-
-      if (type === 'manual') {
-        const emails = (emailsList || '').split(',').map((e: string) => e.trim()).filter(Boolean);
-        
-        // Send emails in background
-        (async () => {
-          for (let i = 0; i < emails.length; i++) {
-            if (i > 0) {
-              await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
-            }
-            const email = emails[i];
-            let finalLeadId;
-            const existingLead = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
-            if (existingLead.rows.length > 0) {
-              finalLeadId = existingLead.rows[0].id;
-            } else {
-              finalLeadId = crypto.randomUUID();
-              await pool.query(`
-                INSERT INTO public.leads (id, business_id, full_name, email, source)
-                VALUES ($1, $2, $3, $4, 'manual')
-                ON CONFLICT DO NOTHING
-              `, [finalLeadId, BUSINESS_ID, email.split('@')[0], email]);
-              
-              const retryFetch = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
-              if (retryFetch.rows.length > 0) {
-                finalLeadId = retryFetch.rows[0].id;
-              }
-            }
-
-            const threadId = crypto.randomUUID();
-            await pool.query(`
-              INSERT INTO public.email_threads (id, business_id, mailbox_id, lead_id, subject)
-              VALUES ($1, $2, $3, $4, $5)
-            `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, subject]);
-
-            try {
-              await sendMailgunEmail(email, subject || '', body || '');
-              await pool.query(`
-                INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, sent_at, campaign_id)
-                VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'sent', NOW(), $7)
-              `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, campaignId]);
-            } catch (err) {
-              console.error(`[Manual Email Campaign] Failed for ${email}:`, err);
-              await pool.query(`
-                INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, error, sent_at, campaign_id)
-                VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'failed', $7, NOW(), $8)
-              `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, (err as Error).message, campaignId]);
-            }
-          }
-        })();
-      } else if (type === 'automated') {
-        // Run Apify scraping in background
-        (async () => {
-          try {
-            const prospects = await fetchLinkedInProspects({
-              keywords: linkedinKeywords || '',
-              location: linkedinLocation || '',
-              functionName: linkedinFunction || '',
-              limit: Number(limit) || 10
-            });
-            
-            let first = true;
-            for (const p of prospects) {
-              if (p.email) {
-                const email = p.email;
-                if (!first) {
-                  await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
-                }
-                first = false;
-
-                let finalLeadId;
-                const existingLead = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
-                if (existingLead.rows.length > 0) {
-                  finalLeadId = existingLead.rows[0].id;
-                } else {
-                  finalLeadId = crypto.randomUUID();
-                  await pool.query(`
-                    INSERT INTO public.leads (id, business_id, full_name, email, source)
-                    VALUES ($1, $2, $3, $4, 'linkedin')
-                    ON CONFLICT DO NOTHING
-                  `, [finalLeadId, BUSINESS_ID, p.name, email]);
-                  
-                  const retryFetch = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
-                  if (retryFetch.rows.length > 0) {
-                    finalLeadId = retryFetch.rows[0].id;
-                  }
-                }
-
-                const threadId = crypto.randomUUID();
-                await pool.query(`
-                  INSERT INTO public.email_threads (id, business_id, mailbox_id, lead_id, subject)
-                  VALUES ($1, $2, $3, $4, $5)
-                `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, subject]);
-
-                try {
-                  await sendMailgunEmail(email, subject || '', body || '');
-                  await pool.query(`
-                    INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, sent_at, campaign_id)
-                    VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'sent', NOW(), $7)
-                  `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, campaignId]);
-                } catch (err) {
-                  await pool.query(`
-                    INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, error, sent_at, campaign_id)
-                    VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'failed', $7, NOW(), $8)
-                  `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, (err as Error).message, campaignId]);
-                }
-              }
-            }
-          } catch (err) {
-            console.error('[Apify LinkedIn Scrape Campaign Error]:', err);
-          }
-        })();
-      }
-    } else if (kind === 'x_dm') {
-      const handles = (handlesList || '').split(',').map((h: string) => h.trim()).filter(Boolean);
-      
-      const xAccRes = await pool.query('SELECT id FROM public.x_accounts WHERE business_id = $1 LIMIT 1', [BUSINESS_ID]);
-      let xAccountId = xAccRes.rows[0]?.id;
-      if (!xAccountId) {
-        xAccountId = crypto.randomUUID();
-        await pool.query(`
-          INSERT INTO public.x_accounts (id, business_id, owner_position_id, x_user_id, handle, display_name, status)
-          VALUES ($1, $2, 'sales_rep', '123456', 'sideloot_outreach', 'Sideloot Outreach', 'connected')
-        `, [xAccountId, BUSINESS_ID]);
-      }
-
-      (async () => {
-        for (let i = 0; i < handles.length; i++) {
-          if (i > 0) {
-            await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
-          }
-          const handle = handles[i];
-          const messageText = template.replace('{handle}', handle);
-          await pool.query(`
-            INSERT INTO public.x_messages (
-              id, x_account_id, business_id, direction, recipient_handle, body, status, sent_at, campaign_id
-            ) VALUES (
-              gen_random_uuid(), $1, $2, 'out', $3, $4, 'sent', NOW(), $5
-            )
-          `, [xAccountId, BUSINESS_ID, handle, messageText, campaignId]);
-        }
-      })();
-    } else if (kind === 'x_reply') {
-      (async () => {
-        for (let i = 0; i < 5; i++) {
-          if (i > 0) {
-            await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
-          }
-          try {
-            const prompt = `Rédige une réponse courte à un commentaire Twitter/X.
-Sujet de recherche de feed : ${keyword}
-Consignes : ${template}
-Fais une réponse concise, percutante, naturelle (moins de 250 caractères). Pas de hashtags.`;
-
-            const completion = await openai.chat.completions.create({
-              model: 'gpt-4o-mini',
-              messages: [{ role: 'user', content: prompt }],
-              max_tokens: 200
-            });
-
-            const aiResponse = completion.choices[0]?.message?.content || '';
-            const mockUser = `@user_${Math.floor(Math.random() * 900) + 100}`;
-            
-            await pool.query(`
-              INSERT INTO public.prospection_sends (
-                id, campaign_id, campaign_kind, recipient, body, status, sent_at, created_at
-              ) VALUES (
-                gen_random_uuid(), $1, 'x_reply', $2, $3, 'sent', NOW(), NOW()
-              )
-            `, [campaignId, mockUser, aiResponse]);
-          } catch (err) {
-            console.error('[X Reply Campaign Error]:', err);
-          }
-        }
-      })();
-    } else if (kind === 'reddit') {
-      const subList = (subreddits || '').split(',').map((s: string) => s.trim()).filter(Boolean);
-
-      (async () => {
-        for (let i = 0; i < subList.length; i++) {
-          if (i > 0) {
-            await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
-          }
-          const sub = subList[i];
-          try {
-            const prompt = `Rédige un post Reddit de partage d'expérience pour la communauté ${sub}.
-Sujet : ${template}
-Génère un titre accrocheur et un court texte de partage d'expérience.`;
-
-            const completion = await openai.chat.completions.create({
-              model: 'gpt-4o-mini',
-              messages: [{ role: 'user', content: prompt }],
-              max_tokens: 300
-            });
-
-            const aiResponse = completion.choices[0]?.message?.content || '';
-
-            await pool.query(`
-              INSERT INTO public.prospection_sends (
-                id, campaign_id, campaign_kind, recipient, body, status, sent_at, created_at
-              ) VALUES (
-                gen_random_uuid(), $1, 'reddit', $2, $3, 'sent', NOW(), NOW()
-              )
-            `, [campaignId, sub, aiResponse]);
-          } catch (err) {
-            console.error('[Reddit Campaign Error]:', err);
-          }
-        }
-      })();
-    }
+    // Start outreach loop in background
+    runCampaignOutreach(campaignId, kind, req.body).catch(err => {
+      console.error(`[Outreach Error] campaign ${campaignId}:`, err);
+    });
 
     res.json({ success: true, campaignId, message: 'Campagne lancée avec succès !' });
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+// GET single campaign detail
+app.get('/api/prospection/campaigns/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(`
+      SELECT id, name, kind, description, active, created_at, email_subject, email_body, send_interval_minutes, target_filters
+      FROM public.prospection_campaigns
+      WHERE business_id = $1 AND id = $2
+    `, [BUSINESS_ID, id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Campagne non trouvée' });
+    }
+    res.json(result.rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+// UPDATE campaign settings
+app.put('/api/prospection/campaigns/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, send_interval_minutes, subject, body, template } = req.body;
+    
+    let interval = 5;
+    if (send_interval_minutes !== undefined) {
+      const parsed = parseInt(send_interval_minutes, 10);
+      if (!isNaN(parsed)) {
+        interval = Math.max(1, Math.min(30, parsed));
+      }
+    }
+
+    const result = await pool.query(`
+      UPDATE public.prospection_campaigns
+      SET name = $1,
+          send_interval_minutes = $2,
+          email_subject = $3,
+          email_body = $4,
+          target_filters = $5,
+          updated_at = NOW()
+      WHERE business_id = $6 AND id = $7
+      RETURNING id
+    `, [name, interval, subject || null, body || template || null, JSON.stringify(req.body), BUSINESS_ID, id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Campagne non trouvée' });
+    }
+    res.json({ success: true, message: 'Campagne mise à jour avec succès !' });
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+// RELAUNCH campaign
+app.post('/api/prospection/campaigns/:id/relaunch', async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    
+    // Fetch campaign from DB to get its current filters and kind
+    const result = await pool.query(`
+      SELECT id, kind, send_interval_minutes, email_subject, email_body, target_filters
+      FROM public.prospection_campaigns
+      WHERE business_id = $1 AND id = $2
+    `, [BUSINESS_ID, id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Campagne non trouvée' });
+    }
+
+    const campaign = result.rows[0];
+    
+    // Set campaign as active in DB
+    await pool.query(`
+      UPDATE public.prospection_campaigns
+      SET active = true, updated_at = NOW()
+      WHERE id = $1
+    `, [id]);
+
+    // Construct the payload from target_filters or fallbacks from campaign columns
+    const payload = campaign.target_filters || {
+      subject: campaign.email_subject,
+      body: campaign.email_body,
+      template: campaign.email_body,
+      send_interval_minutes: campaign.send_interval_minutes
+    };
+
+    // Run outreach loop in background
+    runCampaignOutreach(id, campaign.kind, payload).catch(err => {
+      console.error(`[Relaunch Outreach Error] campaign ${id}:`, err);
+    });
+
+    res.json({ success: true, message: 'Campagne relancée avec succès !' });
   } catch (e) {
     res.status(500).json({ error: (e as Error).message });
   }

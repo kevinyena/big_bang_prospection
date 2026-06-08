@@ -18,6 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initTabs();
   initDateFilters();
   initModals();
+  initEditForm();
   initDrawerKeyboard();
   initDrawerStatusListener();
 
@@ -388,6 +389,41 @@ async function loadTabCampaigns(kind: string, selectId: string, loadDataFn: (cam
       };
     }
 
+    const editBtnId = 'btn-edit-' + selectId.replace('-select', '');
+    const editBtn = document.getElementById(editBtnId) as HTMLButtonElement | null;
+    if (editBtn) {
+      editBtn.onclick = async () => {
+        const campaignId = select.value;
+        if (!campaignId || campaignId === 'none') return;
+        await openEditCampaignModal(campaignId);
+      };
+    }
+
+    const relaunchBtnId = 'btn-relaunch-' + selectId.replace('-select', '');
+    const relaunchBtn = document.getElementById(relaunchBtnId) as HTMLButtonElement | null;
+    if (relaunchBtn) {
+      relaunchBtn.onclick = async () => {
+        const campaignId = select.value;
+        if (!campaignId || campaignId === 'none') return;
+
+        const campaignName = select.options[select.selectedIndex]?.text || '';
+        if (!confirm(`Voulez-vous relancer la campagne "${campaignName}" ?`)) return;
+
+        try {
+          relaunchBtn.disabled = true;
+          const relRes = await fetch(`/api/prospection/campaigns/${campaignId}/relaunch`, { method: 'POST' });
+          if (!relRes.ok) throw new Error('Failed to relaunch campaign');
+          const data = await relRes.json();
+          alert(data.message || 'Campagne relancée avec succès !');
+          loadDataFn(campaignId);
+        } catch (err) {
+          showError('Erreur lors de la relance : ' + (err as Error).message);
+        } finally {
+          relaunchBtn.disabled = false;
+        }
+      };
+    }
+
     const reloadBtnId = 'btn-reload-' + selectId.replace('-select', '');
     const reloadBtn = document.getElementById(reloadBtnId) as HTMLButtonElement | null;
     if (reloadBtn) {
@@ -408,10 +444,9 @@ async function loadTabCampaigns(kind: string, selectId: string, loadDataFn: (cam
 
     if (campaigns.length === 0 && kind !== 'email') {
       select.innerHTML = '<option value="">Aucune campagne active</option>';
-      if (deleteBtn) {
-        deleteBtn.style.opacity = '0.5';
-        deleteBtn.disabled = true;
-      }
+      if (deleteBtn) deleteBtn.style.opacity = '0.5';
+      if (editBtn) editBtn.style.opacity = '0.5';
+      if (relaunchBtn) relaunchBtn.style.opacity = '0.5';
       loadDataFn('');
       return;
     }
@@ -424,14 +459,18 @@ async function loadTabCampaigns(kind: string, selectId: string, loadDataFn: (cam
     });
 
     const updateDeleteBtnState = () => {
+      const hasVal = select.value && select.value !== 'none';
       if (deleteBtn) {
-        if (!select.value || select.value === 'none') {
-          deleteBtn.style.opacity = '0.5';
-          deleteBtn.disabled = true;
-        } else {
-          deleteBtn.style.opacity = '1';
-          deleteBtn.disabled = false;
-        }
+        deleteBtn.style.opacity = hasVal ? '1' : '0.5';
+        deleteBtn.disabled = !hasVal;
+      }
+      if (editBtn) {
+        editBtn.style.opacity = hasVal ? '1' : '0.5';
+        editBtn.disabled = !hasVal;
+      }
+      if (relaunchBtn) {
+        relaunchBtn.style.opacity = hasVal ? '1' : '0.5';
+        relaunchBtn.disabled = !hasVal;
       }
     };
 
@@ -445,6 +484,121 @@ async function loadTabCampaigns(kind: string, selectId: string, loadDataFn: (cam
   } catch (err) {
     showError(`Error loading campaigns for ${kind}: ` + (err as Error).message);
   }
+}
+
+async function openEditCampaignModal(campaignId: string) {
+  try {
+    const res = await fetch(`/api/prospection/campaigns/${campaignId}`);
+    if (!res.ok) throw new Error('Failed to fetch campaign details');
+    const campaign = await res.json();
+    
+    // Show modal
+    $('modal-edit-campaign').classList.remove('hidden');
+    
+    // Set hidden fields
+    $<HTMLInputElement>('edit-campaign-id').value = campaign.id;
+    $<HTMLInputElement>('edit-campaign-kind').value = campaign.kind;
+    
+    // Populate standard fields
+    $<HTMLInputElement>('edit-campaign-name').value = campaign.name || '';
+    $<HTMLInputElement>('edit-campaign-interval').value = campaign.send_interval_minutes || '5';
+    
+    // Hide all sections
+    const sections = [
+      'edit-section-email-manual',
+      'edit-section-email-automated',
+      'edit-section-x-dm',
+      'edit-section-x-reply',
+      'edit-section-reddit'
+    ];
+    sections.forEach(id => $(id).classList.add('hidden'));
+    
+    const filters = campaign.target_filters || {};
+    
+    if (campaign.kind === 'email') {
+      const type = filters.type || 'manual';
+      if (type === 'manual') {
+        $('edit-section-email-manual').classList.remove('hidden');
+        $<HTMLTextAreaElement>('edit-email-manual-list').value = filters.emailsList || '';
+        $<HTMLInputElement>('edit-email-manual-subject').value = campaign.email_subject || '';
+        $<HTMLTextAreaElement>('edit-email-manual-body').value = campaign.email_body || '';
+      } else {
+        $('edit-section-email-automated').classList.remove('hidden');
+        $<HTMLTextAreaElement>('edit-email-auto-keywords').value = filters.linkedinKeywords || '';
+        $<HTMLInputElement>('edit-email-auto-location').value = filters.linkedinLocation || '';
+        $<HTMLInputElement>('edit-email-auto-function').value = filters.linkedinFunction || '';
+        $<HTMLInputElement>('edit-email-auto-limit').value = filters.limit || '10';
+        $<HTMLInputElement>('edit-email-auto-subject').value = campaign.email_subject || '';
+        $<HTMLTextAreaElement>('edit-email-auto-body').value = campaign.email_body || '';
+      }
+    } else if (campaign.kind === 'x_dm') {
+      $('edit-section-x-dm').classList.remove('hidden');
+      $<HTMLTextAreaElement>('edit-xdm-handles').value = filters.handlesList || '';
+      $<HTMLTextAreaElement>('edit-xdm-template').value = campaign.email_body || filters.template || '';
+    } else if (campaign.kind === 'x_reply') {
+      $('edit-section-x-reply').classList.remove('hidden');
+      $<HTMLInputElement>('edit-xreply-keyword').value = filters.keyword || '';
+      $<HTMLTextAreaElement>('edit-xreply-template').value = campaign.email_body || filters.template || '';
+    } else if (campaign.kind === 'reddit') {
+      $('edit-section-reddit').classList.remove('hidden');
+      $<HTMLInputElement>('edit-reddit-subreddits').value = filters.subreddits || '';
+      $<HTMLTextAreaElement>('edit-reddit-template').value = campaign.email_body || filters.template || '';
+    }
+  } catch (err) {
+    showError('Erreur de chargement des détails : ' + (err as Error).message);
+  }
+}
+
+function initEditForm() {
+  const form = $('form-edit-campaign') as HTMLFormElement;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const campaignId = $<HTMLInputElement>('edit-campaign-id').value;
+    const kind = $<HTMLInputElement>('edit-campaign-kind').value;
+    
+    const formData = new FormData(form);
+    const data: Record<string, any> = {};
+    formData.forEach((value, key) => { data[key] = value; });
+    
+    // For email campaign, check outreach type manually
+    if (kind === 'email') {
+      const manualSection = $('edit-section-email-manual');
+      data.type = manualSection.classList.contains('hidden') ? 'automated' : 'manual';
+    }
+    
+    try {
+      const res = await fetch(`/api/prospection/campaigns/${campaignId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to update campaign');
+      }
+      
+      alert('Campagne modifiée avec succès !');
+      $('modal-edit-campaign').classList.add('hidden');
+      
+      // Reload dropdown based on campaign kind
+      if (kind === 'email') {
+        await loadTabCampaigns('email', 'email-campaign-select', loadEmails);
+      } else if (kind === 'x_dm') {
+        await loadTabCampaigns('x_dm', 'x-dm-campaign-select', loadXDMs);
+      } else if (kind === 'x_reply') {
+        await loadTabCampaigns('x_reply', 'x-comment-campaign-select', loadXComments);
+      } else if (kind === 'reddit') {
+        await loadTabCampaigns('reddit', 'reddit-campaign-select', loadRedditPosts);
+      }
+    } catch (err) {
+      showError('Erreur lors de la mise à jour : ' + (err as Error).message);
+    }
+  });
+
+  const closeModal = () => $('modal-edit-campaign').classList.add('hidden');
+  $('btn-close-edit-modal').addEventListener('click', closeModal);
+  $('btn-cancel-edit-campaign').addEventListener('click', closeModal);
 }
 
 // --- Modals ---
