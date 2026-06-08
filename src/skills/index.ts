@@ -16,8 +16,6 @@ import { CreateBusinessIdeaSkill } from './video_ugc/CreateBusinessIdeaSkill.js'
 import { GenerateVideoScriptSkill } from './video_ugc/GenerateVideoScriptSkill.js';
 import { AdaptToVeoPromptSkill } from './video_ugc/AdaptToVeoPromptSkill.js';
 import { GenerateVeoVideoSkill } from './video_ugc/GenerateVeoVideoSkill.js';
-import { PickNewsletterTopicSkill } from './newsletter/PickNewsletterTopicSkill.js';
-import { GenerateNewsletterSkill } from './newsletter/GenerateNewsletterSkill.js';
 import { CreateProspectableBusinessSkill } from './prospection/CreateProspectableBusinessSkill.js';
 import { ChooseProspectionSkill } from './prospection/ChooseProspectionSkill.js';
 import { CreateLocalBusinessSkill } from './maps_grounding/CreateLocalBusinessSkill.js';
@@ -27,12 +25,9 @@ import { FindXProspectsSkill } from './x_dm/FindXProspectsSkill.js';
 import { ExpandXKeywordsSkill } from './x_dm/ExpandXKeywordsSkill.js';
 import { GenerateXDMSkill } from './x_dm/GenerateXDMSkill.js';
 import { SendXDMsSkill } from './x_dm/SendXDMsSkill.js';
-import { PostTikTokVideoSkill } from './tiktok/PostTikTokVideoSkill.js';
-import { GenerateTikTokCaptionSkill } from './tiktok/GenerateTikTokCaptionSkill.js';
 import { PostInstagramVideoSkill } from './insta/PostInstagramVideoSkill.js';
 import { GenerateInstagramCaptionSkill } from './insta/GenerateInstagramCaptionSkill.js';
 import { WhatsAppExchangeSkill } from './whatsapp/WhatsAppExchangeSkill.js';
-import { BuildSaaSSkill } from './saas/BuildSaaSSkill.js';
 
 
 export { type BaseSkill, type SkillContext, type SkillType } from './BaseSkill.js';
@@ -43,8 +38,6 @@ export {
   GenerateVideoScriptSkill,
   AdaptToVeoPromptSkill,
   GenerateVeoVideoSkill,
-  PickNewsletterTopicSkill,
-  GenerateNewsletterSkill,
   CreateProspectableBusinessSkill,
   ChooseProspectionSkill,
   CreateLocalBusinessSkill,
@@ -54,12 +47,9 @@ export {
   ExpandXKeywordsSkill,
   GenerateXDMSkill,
   SendXDMsSkill,
-  PostTikTokVideoSkill,
-  GenerateTikTokCaptionSkill,
   PostInstagramVideoSkill,
   GenerateInstagramCaptionSkill,
   WhatsAppExchangeSkill,
-  BuildSaaSSkill,
 };
 
 /** All registered skills. New skills: import + add here. */
@@ -68,8 +58,6 @@ export const ALL_SKILLS: ReadonlyArray<BaseSkill> = [
   new GenerateVideoScriptSkill(),
   new AdaptToVeoPromptSkill(),
   new GenerateVeoVideoSkill(),
-  new PickNewsletterTopicSkill(),
-  new GenerateNewsletterSkill(),
   new CreateProspectableBusinessSkill(),
   new ChooseProspectionSkill(),
   new CreateLocalBusinessSkill(),
@@ -79,12 +67,9 @@ export const ALL_SKILLS: ReadonlyArray<BaseSkill> = [
   new ExpandXKeywordsSkill(),
   new GenerateXDMSkill(),
   new SendXDMsSkill(),
-  new PostTikTokVideoSkill(),
-  new GenerateTikTokCaptionSkill(),
   new PostInstagramVideoSkill(),
   new GenerateInstagramCaptionSkill(),
   new WhatsAppExchangeSkill(),
-  new BuildSaaSSkill(),
 ];
 
 /** Look up a skill by its technical `name`. */
@@ -148,14 +133,11 @@ export function serializeSkill(skill: BaseSkill): SerializedSkill {
  */
 const CATEGORY_DISPLAY: Record<string, { name: string; icon: string; order: number }> = {
   video_ugc: { name: 'Video UGC', icon: '🎬', order: 1 },
-  newsletter: { name: 'Newsletter', icon: '📨', order: 2 },
   prospection: { name: 'Choose Prospection', icon: '🎯', order: 3 },
   maps_grounding: { name: 'Maps Grounding', icon: '🗺️', order: 4 },
-  tiktok: { name: 'TikTok', icon: '🎵', order: 5 },
   x_dm: { name: 'X DM', icon: '𝕏', order: 6 },
   insta: { name: 'Instagram', icon: '📸', order: 7 },
   whatsapp_ceo: { name: 'WhatsApp CEO', icon: '💬', order: 8 },
-  saas: { name: 'Build SaaS', icon: '🚀', order: 9 },
 };
 
 function defaultDisplay(category: string, fallbackOrder: number) {

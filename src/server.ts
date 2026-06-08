@@ -21,14 +21,7 @@ import {
 } from './skills/runtime/x-api.js';
 import { runSendDMs, SendXDMsInputSchema } from './skills/x_dm/SendXDMsSkill.js';
 import { loadQuota as loadXDmQuota, resetQuota as resetXDmQuota } from './skills/runtime/x-dm-quota.js';
-import {
-  buildAuthorizeUrl as buildTikTokAuthUrl,
-  handleCallback as handleTikTokCallback,
-  getStatus as getTikTokStatus,
-  unlink as tikTokUnlink,
-  fetchPublishStatus as fetchTikTokPublishStatus,
-  postVideo as postTikTokVideo,
-} from './skills/runtime/zernio-api.js';
+
 import {
   buildAuthorizeUrl as buildInstaAuthUrl,
   handleCallback as handleInstaCallback,
@@ -52,8 +45,6 @@ import {
   sendWhatsAppMessage,
   initiateWhatsAppConversation,
 } from './skills/runtime/whatsapp-api.js';
-
-type TikTokPostMode = 'inbox' | 'direct';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -399,84 +390,6 @@ app.post('/api/x-dm/send-stream', async (req: Request, res: Response) => {
   }
 });
 
-// ---------- TikTok OAuth ----------
-app.get('/api/auth/tiktok/login', async (req: Request, res: Response) => {
-  try {
-    const { url } = await buildTikTokAuthUrl(req.headers.host);
-    res.redirect(url);
-  } catch (e) {
-    res.status(500).send(`TikTok OAuth login failed: ${(e as Error).message}`);
-  }
-});
-
-app.get('/api/auth/tiktok/callback', async (req: Request, res: Response) => {
-  const error = req.query.error as string | undefined;
-  const errorMessage = req.query.error_message as string | undefined;
-  if (error) {
-    return res.status(400).send(`
-      <!doctype html><meta charset="utf-8">
-      <title>Erreur de connexion</title>
-      <style>body{font-family:system-ui;background:#0b0d12;color:#e7eaf0;padding:40px;max-width:520px;margin:auto}
-        a{color:#7c5cff}.err{color:#ff5050}</style>
-      <h1 class="err">✗ Échec de la connexion TikTok</h1>
-      <p><strong>Détails :</strong> ${escapeHtml(errorMessage ?? error)}</p>
-      <p>Essaie de fermer cet onglet et de recliquer sur le bouton de connexion.</p>
-      <a href="/">Retour</a>
-    `);
-  }
-
-  const accountId = req.query.accountId as string | undefined;
-  const username = req.query.username as string | undefined;
-  const profileId = req.query.profileId as string | undefined;
-
-  if (!accountId || !username || !profileId) {
-    return res.status(400).send(`
-      <!doctype html><meta charset="utf-8">
-      <title>Erreur de connexion</title>
-      <style>body{font-family:system-ui;background:#0b0d12;color:#e7eaf0;padding:40px;max-width:520px;margin:auto}
-        a{color:#7c5cff}</style>
-      <h1>Callback Zernio invalide</h1>
-      <p>Les paramètres requis sont absents de la réponse Zernio.</p>
-      <a href="/">Retour</a>
-    `);
-  }
-  try {
-    const stored = await handleTikTokCallback({
-      accountId,
-      username,
-      profileId,
-    });
-    res.send(`
-      <!doctype html><meta charset="utf-8">
-      <title>TikTok linked</title>
-      <style>body{font-family:system-ui;background:#0b0d12;color:#e7eaf0;padding:40px;max-width:520px;margin:auto}
-        a{color:#7c5cff}.ok{color:#2bd4a0}</style>
-      <h1>✓ Compte TikTok linké via Zernio</h1>
-      <p>Connecté en tant que <strong>${stored.username}</strong></p>
-      <p>Tu peux fermer cet onglet et retourner sur <a href="/">l'app</a>.</p>
-      <script>window.opener && window.opener.postMessage({type:'tiktok_linked', displayName:'${stored.username}'}, '*'); setTimeout(()=>window.close(), 1500);</script>
-    `);
-  } catch (e) {
-    res.status(500).send(`<h1>TikTok OAuth failed</h1><pre>${(e as Error).message}</pre><a href="/">Retour</a>`);
-  }
-});
-
-app.get('/api/auth/tiktok/status', async (_req: Request, res: Response) => {
-  try {
-    res.json(await getTikTokStatus());
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
-app.post('/api/auth/tiktok/logout', async (_req: Request, res: Response) => {
-  try {
-    await tikTokUnlink();
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
 
 // ---------- Instagram OAuth ----------
 app.get('/api/auth/insta/login', async (req: Request, res: Response) => {
@@ -598,76 +511,6 @@ app.get('/api/insta/publish-status', async (req: Request, res: Response) => {
   }
 });
 
-// ---------- TikTok: upload + post a LOCAL FILE ----------
-// Used when the user picks "Upload fichier" in the TikTok panel instead of
-// posting a Veo-generated URI. Body is raw video bytes; metadata travels in
-// headers so we don't need a multipart parser library.
-app.post(
-  '/api/tiktok/upload-and-post',
-  // Accept any content type — we'll trust the X-Content-Type header for the
-  // actual MIME (browser sends the file's real type). 64MB cap matches TikTok's
-  // single-chunk upload limit.
-  express.raw({ type: '*/*', limit: '64mb' }),
-  async (req: Request, res: Response) => {
-    try {
-      const buffer = req.body as Buffer;
-      if (!Buffer.isBuffer(buffer) || buffer.byteLength === 0) {
-        return res.status(400).json({ error: 'Body vide — envoie les bytes vidéo dans le POST body.' });
-      }
-      const mode = (req.headers['x-tiktok-mode'] as TikTokPostMode | undefined) ?? 'direct';
-      const privacy =
-        (req.headers['x-tiktok-privacy'] as
-          | 'PUBLIC_TO_EVERYONE'
-          | 'MUTUAL_FOLLOW_FRIENDS'
-          | 'SELF_ONLY'
-          | undefined) ?? 'SELF_ONLY';
-      // Caption is base64-encoded so it can carry newlines + emoji safely
-      // inside an HTTP header.
-      const captionB64 = req.headers['x-tiktok-caption'] as string | undefined;
-      const caption = captionB64
-        ? Buffer.from(captionB64, 'base64').toString('utf8')
-        : undefined;
-
-      const { publishId, finalStatus, fellBackToInbox, fallbackReason } = await postTikTokVideo({
-        videoBuffer: buffer,
-        caption,
-        mode,
-        privacyLevel: privacy,
-      });
-
-      let status: 'inbox_delivered' | 'published' | 'failed' | 'pending';
-      switch (finalStatus.status) {
-        case 'SEND_TO_USER_INBOX': status = 'inbox_delivered'; break;
-        case 'PUBLISH_COMPLETE':    status = 'published'; break;
-        case 'FAILED':              status = 'failed'; break;
-        default:                    status = 'pending';
-      }
-      res.json({
-        publishId,
-        status,
-        failReason: finalStatus.failReason,
-        publicPostId: finalStatus.publicalyAvailablePostId,
-        videoSizeBytes: buffer.byteLength,
-        fellBackToInbox,
-        fallbackReason,
-      });
-    } catch (e) {
-      res.status(500).json({ error: (e as Error).message });
-    }
-  },
-);
-
-// Allow the UI to re-poll TikTok's publish status when the inbox processing
-// takes longer than the skill's internal poll timeout.
-app.get('/api/tiktok/publish-status', async (req: Request, res: Response) => {
-  try {
-    const publishId = req.query.publishId as string | undefined;
-    if (!publishId) return res.status(400).json({ error: 'publishId manquant' });
-    res.json(await fetchTikTokPublishStatus(publishId));
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
 
 // ---------- WhatsApp CEO IA & Sentinel ----------
 
@@ -2433,12 +2276,10 @@ Donne un titre accrocheur et un court texte récapitulatif.`;
   }
 });
 
-if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(
-      `AI Skills Hub on http://localhost:${PORT} — ${ALL_SKILLS.length} skills registered`,
-    );
-  });
-}
+app.listen(PORT, () => {
+  console.log(
+    `AI Skills Hub on http://localhost:${PORT} — ${ALL_SKILLS.length} skills registered`,
+  );
+});
 
 export default app;

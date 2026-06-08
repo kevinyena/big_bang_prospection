@@ -14,7 +14,6 @@ public/app.js.map
 # Claude-local dev config (contains personal ngrok domain, launch configs).
 # Each dev should generate their own.
 .claude/
-.vercel
 
 # Temporary testing scripts
 test_*.js
