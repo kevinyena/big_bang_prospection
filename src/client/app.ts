@@ -14,7 +14,52 @@ let currentPayingCustomers: any[] = [];
 let currentChurnedCustomers: any[] = [];
 
 // Initialize
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  initLoginForm();
+  
+  const authenticated = await checkAuth();
+  if (authenticated) {
+    initDashboard();
+  }
+});
+
+async function checkAuth(): Promise<boolean> {
+  try {
+    const res = await fetch('/api/auth/me');
+    if (!res.ok) {
+      showLoginScreen();
+      return false;
+    }
+    const data = await res.json();
+    showDashboardScreen(data.email);
+    return true;
+  } catch (err) {
+    showLoginScreen();
+    return false;
+  }
+}
+
+function showLoginScreen() {
+  $('login-overlay').classList.remove('hidden');
+  $('app-dashboard-wrapper').classList.add('hidden');
+}
+
+function showDashboardScreen(email: string) {
+  $('login-overlay').classList.add('hidden');
+  $('app-dashboard-wrapper').classList.remove('hidden');
+  
+  const headerEmail = $('header-user-email');
+  if (headerEmail) {
+    headerEmail.textContent = email;
+  }
+}
+
+let dashboardInitialized = false;
+
+function initDashboard() {
+  if (dashboardInitialized) return;
+  dashboardInitialized = true;
+
   initTabs();
   initDateFilters();
   initModals();
@@ -22,9 +67,67 @@ window.addEventListener('DOMContentLoaded', () => {
   initDrawerKeyboard();
   initDrawerStatusListener();
 
-  // Initial load
+  // Setup Sign out button click
+  const signOutBtn = $('signOutBtn');
+  if (signOutBtn) {
+    signOutBtn.onclick = async () => {
+      try {
+        const res = await fetch('/api/auth/logout', { method: 'POST' });
+        if (res.ok) {
+          window.location.reload();
+        }
+      } catch (err) {
+        showError('Erreur lors de la déconnexion');
+      }
+    };
+  }
+
+  // Load metrics initially
   loadMetrics();
-});
+}
+
+function initLoginForm() {
+  const form = $('form-login') as HTMLFormElement;
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = ($('login-email') as HTMLInputElement).value;
+    const password = ($('login-password') as HTMLInputElement).value;
+    const rememberMe = ($('login-remember-me') as HTMLInputElement).checked;
+
+    const errorBox = $('login-error-box');
+    errorBox.classList.add('hidden');
+    errorBox.textContent = '';
+
+    const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = 'Connexion...';
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, rememberMe })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Identifiants incorrects.');
+      }
+
+      const data = await res.json();
+      showDashboardScreen(data.email);
+      initDashboard();
+    } catch (err) {
+      errorBox.textContent = (err as Error).message;
+      errorBox.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Se connecter';
+    }
+  });
+}
 
 // Tab Navigation Manager
 function initTabs() {

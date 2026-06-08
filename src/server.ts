@@ -1027,6 +1027,180 @@ const openai = new OpenAI({
 
 const BUSINESS_ID = '8490ff47-45cf-4b96-b149-aa1961280032';
 
+// Initialize Auth DB Tables & Seed admin user
+async function initAuthDatabase() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS public.dashboard_users (
+        id UUID PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS public.dashboard_sessions (
+        token VARCHAR(255) PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `);
+
+    const checkUser = await pool.query("SELECT id FROM public.dashboard_users WHERE email = $1 LIMIT 1", ['toedembo@gmail.com']);
+    if (checkUser.rows.length === 0) {
+      const password = 'SideBiBang35!@';
+      const salt = crypto.randomBytes(16).toString('hex');
+      const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+      const passwordHash = `${salt}:${hash}`;
+      
+      await pool.query(`
+        INSERT INTO public.dashboard_users (id, email, password_hash, created_at)
+        VALUES ($1, $2, $3, NOW())
+      `, [crypto.randomUUID(), 'toedembo@gmail.com', passwordHash]);
+      console.log('[Auth DB] Seeded admin user: toedembo@gmail.com');
+    }
+  } catch (err) {
+    console.error('[Auth DB] Initialization failed:', err);
+  }
+}
+
+initAuthDatabase();
+
+// Cookie Parser Helper
+function parseCookies(cookieHeader: string | undefined): Record<string, string> {
+  const list: Record<string, string> = {};
+  if (!cookieHeader) return list;
+  cookieHeader.split(';').forEach(cookie => {
+    const parts = cookie.split('=');
+    list[parts.shift()!.trim()] = decodeURI(parts.join('='));
+  });
+  return list;
+}
+
+// Password Verification Helper
+function verifyPassword(password: string, stored: string): boolean {
+  const [salt, hash] = stored.split(':');
+  if (!salt || !hash) return false;
+  const checkHash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return hash === checkHash;
+}
+
+// requireAuth Middleware
+async function requireAuth(req: any, res: any, next: any) {
+  try {
+    const cookies = parseCookies(req.headers.cookie);
+    const token = cookies['sideloot_session'];
+    
+    if (!token) {
+      return res.status(401).json({ error: 'Non authentifié. Session expirée.' });
+    }
+
+    const sessionRes = await pool.query(`
+      SELECT email, expires_at FROM public.dashboard_sessions 
+      WHERE token = $1 LIMIT 1
+    `, [token]);
+
+    if (sessionRes.rows.length === 0) {
+      return res.status(401).json({ error: 'Session invalide ou inexistante.' });
+    }
+
+    const session = sessionRes.rows[0];
+    if (new Date(session.expires_at) < new Date()) {
+      await pool.query("DELETE FROM public.dashboard_sessions WHERE token = $1", [token]);
+      return res.status(401).json({ error: 'Session expirée. Veuillez vous reconnecter.' });
+    }
+
+    req.adminEmail = session.email;
+    next();
+  } catch (err) {
+    console.error('[Auth Middleware Error]:', err);
+    res.status(500).json({ error: (err as Error).message });
+  }
+}
+
+// Apply authentication to prospection namespace
+app.use('/api/prospection', requireAuth);
+
+// Auth Endpoints
+app.post('/api/auth/login', async (req: Request, res: Response) => {
+  try {
+    const { email, password, rememberMe } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email et mot de passe requis.' });
+    }
+
+    const userRes = await pool.query("SELECT password_hash FROM public.dashboard_users WHERE email = $1 LIMIT 1", [email.trim().toLowerCase()]);
+    if (userRes.rows.length === 0) {
+      return res.status(401).json({ error: 'Identifiants invalides.' });
+    }
+
+    const dbUser = userRes.rows[0];
+    const isPasswordValid = verifyPassword(password, dbUser.password_hash);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Identifiants invalides.' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const isRemembered = rememberMe === true || rememberMe === 'true';
+    const durationMs = isRemembered ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+    const expiresAt = new Date(Date.now() + durationMs);
+
+    await pool.query(`
+      INSERT INTO public.dashboard_sessions (token, email, expires_at, created_at)
+      VALUES ($1, $2, $3, NOW())
+    `, [token, email.trim().toLowerCase(), expiresAt]);
+
+    res.setHeader('Set-Cookie', `sideloot_session=${token}; HttpOnly; Path=/; SameSite=Lax${isRemembered ? `; Max-Age=${durationMs / 1000}` : ''}`);
+    res.json({ success: true, email: email.trim().toLowerCase() });
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+app.get('/api/auth/me', async (req: Request, res: Response) => {
+  try {
+    const cookies = parseCookies(req.headers.cookie);
+    const token = cookies['sideloot_session'];
+
+    if (!token) {
+      return res.status(401).json({ error: 'Non connecté' });
+    }
+
+    const sessionRes = await pool.query("SELECT email, expires_at FROM public.dashboard_sessions WHERE token = $1 LIMIT 1", [token]);
+    if (sessionRes.rows.length === 0) {
+      return res.status(401).json({ error: 'Session non trouvée' });
+    }
+
+    const session = sessionRes.rows[0];
+    if (new Date(session.expires_at) < new Date()) {
+      await pool.query("DELETE FROM public.dashboard_sessions WHERE token = $1", [token]);
+      return res.status(401).json({ error: 'Session expirée' });
+    }
+
+    res.json({ email: session.email });
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+app.post('/api/auth/logout', async (req: Request, res: Response) => {
+  try {
+    const cookies = parseCookies(req.headers.cookie);
+    const token = cookies['sideloot_session'];
+
+    if (token) {
+      await pool.query("DELETE FROM public.dashboard_sessions WHERE token = $1", [token]);
+    }
+
+    res.setHeader('Set-Cookie', 'sideloot_session=; HttpOnly; Path=/; Max-Age=0');
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
 // Stripe Caching & Fetcher
 let cachedStripeData: {
   subscriptions: any[];
@@ -1373,7 +1547,7 @@ app.get('/api/prospection/leads', async (_req: Request, res: Response) => {
 });
 
 // 3. Subscribers list
-app.get('/api/subscribers', async (_req: Request, res: Response) => {
+app.get('/api/subscribers', requireAuth, async (_req: Request, res: Response) => {
   try {
     const subsRes = await pool.query(`
       SELECT p.email, p.display_name, s.plan_id, s.status, s.billing_interval, s.current_period_end
@@ -1388,7 +1562,7 @@ app.get('/api/subscribers', async (_req: Request, res: Response) => {
 });
 
 // 4. Workers and Positions lists
-app.get('/api/workers', async (_req: Request, res: Response) => {
+app.get('/api/workers', requireAuth, async (_req: Request, res: Response) => {
   try {
     const posRes = await pool.query(`
       SELECT id, display_name, emoji, multi_hire, sort_order, description
@@ -1416,7 +1590,7 @@ app.get('/api/workers', async (_req: Request, res: Response) => {
 });
 
 // 5. Plan Features list
-app.get('/api/plans', async (_req: Request, res: Response) => {
+app.get('/api/plans', requireAuth, async (_req: Request, res: Response) => {
   try {
     const plansRes = await pool.query(`
       SELECT id, display_name, monthly_price_usd, annual_price_usd, monthly_credits, description
