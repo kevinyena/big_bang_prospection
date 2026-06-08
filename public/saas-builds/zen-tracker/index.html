@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VentureMatch — Le Tinder du Venture Capital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- NAV -->
+<nav class="nav">
+  <a class="logo" href="#"><i class="fa-solid fa-bolt"></i> VentureMatch</a>
+  <div class="nav-links">
+    <a href="#how">Comment ça marche</a>
+    <a href="#vc">Investisseurs</a>
+    <a href="#founders">Founders</a>
+  </div>
+  <button class="btn-ghost" onclick="openApp()">Lancer la démo</button>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <span class="pill"><i class="fa-solid fa-heart"></i> Swipe. Match. Fund.</span>
+    <h1>Le <span class="grad">match parfait</span><br>entre capital & ambition</h1>
+    <p>VentureMatch met en relation investisseurs et fondateurs early-stage par un simple swipe. Quand l'intérêt est mutuel, le deal commence.</p>
+    <div class="role-toggle">
+      <button class="active" data-role="vc" onclick="setRole('vc')">Je suis Investisseur</button>
+      <button data-role="founder" onclick="setRole('founder')">Je suis Founder</button>
+    </div>
+    <button class="btn-primary" onclick="openApp()">Commencer à swiper <i class="fa-solid fa-arrow-right"></i></button>
+    <div class="stats"><div><b>12k+</b><span>Matchs réalisés</span></div><div><b>$340M</b><span>Levés via la plateforme</span></div></div>
+  </div>
+  <div class="hero-deck" id="heroDeck"></div>
+</header>
+
+<!-- LOGOS -->
+<section class="logos"><span>Ils nous font confiance</span><div>Sequoia · a16z · Y Combinator · Kima · Partech</div></section>
+
+<!-- HOW -->
+<section class="how" id="how">
+  <h2>Trois étapes vers votre prochain deal</h2>
+  <div class="steps">
+    <div class="step"><div class="step-ic grad-bg"><i class="fa-solid fa-hand-pointer"></i></div><h3>1. Swipe</h3><p>Parcourez des pitchs de startups ou des thèses d'investisseurs. Droite pour aimer, gauche pour passer.</p></div>
+    <div class="step"><div class="step-ic grad-bg"><i class="fa-solid fa-heart"></i></div><h3>2. Match</h3><p>Quand l'intérêt est réciproque, c'est un It's a Match ! célébré par des confettis.</p></div>
+    <div class="step"><div class="step-ic grad-bg"><i class="fa-solid fa-comments"></i></div><h3>3. Chat</h3><p>Un chat privé s'ouvre instantanément pour entamer la discussion de deal.</p></div>
+  </div>
+</section>
+
+<!-- VC / FOUNDERS -->
+<section class="split" id="vc">
+  <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=700&q=80" alt="">
+  <div><span class="tag">Pour les investisseurs</span><h2>Un deal flow qualifié, sans le bruit</h2><p>Filtrez par secteur, stade et ticket. Découvrez des startups en avance sur le marché et discutez en un swipe.</p><a class="btn-primary" onclick="openApp()">Voir des pitchs</a></div>
+</section>
+<section class="split rev" id="founders">
+  <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=700&q=80" alt="">
+  <div><span class="tag">Pour les founders</span><h2>Rencontrez les bons investisseurs</h2><p>Accédez aux thèses, tickets et portfolios. Lancez la conversation avec ceux qui croient vraiment en votre vision.</p><a class="btn-primary" onclick="openApp()">Trouver mon VC</a></div>
+</section>
+
+<!-- CTA -->
+<section class="cta"><h2>Votre prochain match vous attend</h2><button class="btn-primary big" onclick="openApp()">Lancer la démo <i class="fa-solid fa-heart"></i></button></section>
+<footer>© 2024 VentureMatch — Made for founders & investors.</footer>
+
+<!-- APP MODAL -->
+<div class="app-overlay" id="app">
+  <div class="app-head"><span class="logo"><i class="fa-solid fa-bolt"></i> VentureMatch</span><button class="close" onclick="closeApp()"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="deck-wrap"><div class="deck" id="deck"></div>
+    <div class="swipe-btns">
+      <button class="sb nope" onclick="swipe('left')"><i class="fa-solid fa-xmark"></i></button>
+      <button class="sb like" onclick="swipe('right')"><i class="fa-solid fa-heart"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- MATCH -->
+<div class="match-overlay" id="match">
+  <div class="confetti" id="confetti"></div>
+  <div class="match-card">
+    <h1 class="grad">It's a Match!</h1>
+    <p id="matchTxt"></p>
+    <div class="chat">
+      <div class="msgs" id="msgs"></div>
+      <div class="chat-in"><input id="msgIn" placeholder="Écrivez un message..."><button onclick="sendMsg()"><i class="fa-solid fa-paper-plane"></i></button></div>
+    </div>
+    <button class="btn-ghost" onclick="closeMatch()">Continuer à swiper</button>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

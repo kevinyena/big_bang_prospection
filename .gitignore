@@ -1,0 +1,24 @@
+node_modules/
+.env
+.DS_Store
+videos/
+*.log
+
+# build artifacts
+public/app.js
+public/app.js.map
+
+# runtime data (X OAuth tokens, etc.)
+.data/
+
+# Claude-local dev config (contains personal ngrok domain, launch configs).
+# Each dev should generate their own.
+.claude/
+.vercel
+
+# Temporary testing scripts
+test_*.js
+test_*.ts
+src/test_*.ts
+src/check_*.ts
+scratch/

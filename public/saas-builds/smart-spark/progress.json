@@ -1,0 +1,95 @@
+{
+  "status": "completed",
+  "step": 4,
+  "totalSteps": 4,
+  "statusText": "Génération complétée avec succès !",
+  "files": [
+    "index.html",
+    "app.tsx",
+    "api.js"
+  ],
+  "mobbinLandingQueries": [
+    "startup fundraising landing page dark mode gradient hero",
+    "matchmaking app landing page with swipe cards preview neon",
+    "B2B marketplace landing page two-sided platform clean card layout professional",
+    "investor network platform landing page minimal light SaaS hero with feature cards",
+    "fintech SaaS landing page flat illustration two-sided connection hero light theme reproducible sections",
+    "professional networking platform landing page vector illustrations no photos clean CSS-friendly feature grid",
+    "B2B SaaS landing page with rounded swipe profile cards and match concept, flat solid colors, no photos, clean reproducible sections light theme",
+    "playful professional matchmaking platform landing page hero with simple card stack illustration, bold typography, pastel duotone palette, CSS-friendly feature grid",
+    "two-sided matching SaaS landing page hero with overlapping profile cards and accept/decline buttons, flat solid colors, bold sans-serif headline, simple feature rows, no photos, light theme",
+    "professional matchmaking SaaS landing page with chat/match concept section, duotone illustration-free layout, clean card grid, geometric shapes instead of photos, modern startup typography, reproducible HTML CSS",
+    "modern fintech SaaS landing page with bold gradient hero, swipe-style profile match concept, flat geometric shapes and solid colors, no stock photos, clean section grid reproducible in plain HTML CSS",
+    "playful B2B marketplace landing page connecting two parties, big sans-serif headline, simple flat profile cards with accept/reject buttons, soft pastel and accent colors, minimal illustrations, easily reproducible structure light theme"
+  ],
+  "mobbinSelectionAttempts": 6,
+  "mobbinLandingScreens": [
+    {
+      "id": "7ca16157-d86e-45df-bd2b-27f3d820e90d",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.kN49A3lV4Q_susS-.HmC3s-glXWaufoIq-IFe471ymApZ3eH5hArQ95hFRumSTrLCKpRUe-Jp3yJ-i62gwBdQGPZy8fW67LshWJhzHSDJYC2Rh-hcXPKRrwo8jZ679ZVNWXtpOYen3bL3BME6E4dQvy4B7X_gJeVJlt8Dqjip_lQSx3SCgcq53w1pb4Vci5NFYicgtC2LzhGWSfla-BlJweKQzzkr24K_2mD7DZDRp7xYrwa6JI_NsZ-T9NsIf_WoIo1dmvpGzVM3SdKSWqQ2mCGcMovTNk39KK0ssOiCzwQcoZH9ynRmccgrs9qnZt3jJeqYteg07CyU-UiofHcVU6ijNZE_ly9dJSDIfrVX9iYS37uOsVJWMVrOA7ZDeidNxn9fcLUIneruRlL1CrI-wT87muQbfSIp31Dr2pUXs3dz_e34l5706Z1xGZDkiznfsDNwhNsSvni6cvk",
+      "mobbin_url": "https://mobbin.com/screens/7ca16157-d86e-45df-bd2b-27f3d820e90d",
+      "app_name": "Bumble",
+      "platform": "web",
+      "relevanceScore": 85,
+      "reproducibilityScore": 70
+    }
+  ],
+  "mobbinSelectedScreen": {
+    "id": "7ca16157-d86e-45df-bd2b-27f3d820e90d",
+    "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.kN49A3lV4Q_susS-.HmC3s-glXWaufoIq-IFe471ymApZ3eH5hArQ95hFRumSTrLCKpRUe-Jp3yJ-i62gwBdQGPZy8fW67LshWJhzHSDJYC2Rh-hcXPKRrwo8jZ679ZVNWXtpOYen3bL3BME6E4dQvy4B7X_gJeVJlt8Dqjip_lQSx3SCgcq53w1pb4Vci5NFYicgtC2LzhGWSfla-BlJweKQzzkr24K_2mD7DZDRp7xYrwa6JI_NsZ-T9NsIf_WoIo1dmvpGzVM3SdKSWqQ2mCGcMovTNk39KK0ssOiCzwQcoZH9ynRmccgrs9qnZt3jJeqYteg07CyU-UiofHcVU6ijNZE_ly9dJSDIfrVX9iYS37uOsVJWMVrOA7ZDeidNxn9fcLUIneruRlL1CrI-wT87muQbfSIp31Dr2pUXs3dz_e34l5706Z1xGZDkiznfsDNwhNsSvni6cvk",
+    "mobbin_url": "https://mobbin.com/screens/7ca16157-d86e-45df-bd2b-27f3d820e90d",
+    "app_name": "Bumble",
+    "platform": "web",
+    "relevanceScore": 85,
+    "reproducibilityScore": 70
+  },
+  "mobbinAppQueries": [
+    "tinder swipe card stack interface dating app gestures",
+    "matchmaking chat messaging interface match screen mobile",
+    "investor startup profile card fintech dark neon dashboard"
+  ],
+  "mobbinAppScreens": [
+    {
+      "id": "9eeb1f9f-bc06-42de-b34a-69df72516204",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.uoWXRzaFeSSCRjo4.u767WRYPrcf2ckxtDRCugusaUvmHsQ2YMA_TFtBcXu0pobEAnsYTI6c_XBFRHFGhhKJe3JmAtUMkIb2uJlQRONd_TzkLkSQBZtoJve6HIc8j1kOvTpZl0hXEgGv-PXBJSONiL9C8As64WF9hU4vNTxr17IMwnG6kBzc6zXrRTTYiu5QRHOSYg-NilyJ-bcwiiYMI_OiqVLnoEo3T2_iTYqBVIEWMuiBEZD16ZCRHLSqIPI1ktqKeLZE-wb_FFKKXEgOHn30ttaDDawWfAhO13LoU56jMp8IYLbRDOygyOLlUmQtQFLmKL7hL4g88y0UxTBHyi1APmch0TzHlP-fHYaHsO8PvMb8CO052BJkfG6IJ7K0lTPs9cnSjQRBkWBsRUyH4SK302p8njiBMERTGjw9nm683zdLdxku9PTDbC6py27pS-vRrbCPYfw2sQRg",
+      "mobbin_url": "https://mobbin.com/screens/9eeb1f9f-bc06-42de-b34a-69df72516204",
+      "app_name": "Bumble",
+      "platform": "web"
+    },
+    {
+      "id": "7ca16157-d86e-45df-bd2b-27f3d820e90d",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.kN49A3lV4Q_susS-.HmC3s-glXWaufoIq-IFe471ymApZ3eH5hArQ95hFRumSTrLCKpRUe-Jp3yJ-i62gwBdQGPZy8fW67LshWJhzHSDJYC2Rh-hcXPKRrwo8jZ679ZVNWXtpOYen3bL3BME6E4dQvy4B7X_gJeVJlt8Dqjip_lQSx3SCgcq53w1pb4Vci5NFYicgtC2LzhGWSfla-BlJweKQzzkr24K_2mD7DZDRp7xYrwa6JI_NsZ-T9NsIf_WoIo1dmvpGzVM3SdKSWqQ2mCGcMovTNk39KK0ssOiCzwQcoZH9ynRmccgrs9qnZt3jJeqYteg07CyU-UiofHcVU6ijNZE_ly9dJSDIfrVX9iYS37uOsVJWMVrOA7ZDeidNxn9fcLUIneruRlL1CrI-wT87muQbfSIp31Dr2pUXs3dz_e34l5706Z1xGZDkiznfsDNwhNsSvni6cvk",
+      "mobbin_url": "https://mobbin.com/screens/7ca16157-d86e-45df-bd2b-27f3d820e90d",
+      "app_name": "Bumble",
+      "platform": "web"
+    },
+    {
+      "id": "546936cf-2e70-47d7-a663-b903ce1cd99b",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.FibLdq1gy_G7uRvu.MQeONHjDHOAxo8OIhtZy8kouAFX2g_9R8xcvstxo7UFJPkK_USyGwFZ8nPp3o2fmDNGeKLmpsVfH_yvjtpsMxoNfVFBcT6me62ZOD9Bqyt_R9kS0WcLyqHY6WVb7IWQzaYSGmL8NkMYiRiXaXbkkjjyOEZnh7SuyJpbIZWWT82z6wClpznadERR12AafgdcaAZ1b4xrX7MqPRN1oalUxg-CqnLvl_BV2_yG0mSlI5z1cYX7L7N_jHaPjGQDZ_92_lHVt3LWJjtG-wSwxfbnZeiY7OoTO_-s8u4GHQkr97rgMNA93Zsg_gfXhjerOB7VfTWMqd0QYYICCHIrJFgCJDihha18g8tnS38roo0-uY10Q6QfCVnI7y-3YqlLSJiwIb4MGPEbROtYfmQdZ2S00AUsPAbvmFwQSo-pS-j-ucqdFhxizyj_ESkUkSz9I-NA",
+      "mobbin_url": "https://mobbin.com/screens/546936cf-2e70-47d7-a663-b903ce1cd99b",
+      "app_name": "Bumble",
+      "platform": "web"
+    },
+    {
+      "id": "d4219595-6b5a-4d08-9f82-2d1daf787211",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.0vUVPRJKtK-LKmdG.2qTVO2pRDV_s1VQh5z9T2Si038V7apzSD3G6hJuzWYmC9gEDEzaIeVSCsq9fZ2Noq5WF59RpQZ5pdMJKcEBwY2MQonRabGSkU2OMsyLzV2aWIlyu1gOP8zLAqWtwrunm-TBN5X37nBuM9vRWpW9gVyoDe9akbXGuqeZFE-HJWMzx2oi-VSAehF5zhFVYImjav1E_HyWDmDNX0miTBVMaSZLDQRCC410dVBOfdk2htt4BL1xmWQHsSj6dsijGmD0MsBOWW54WAJe7fiWPY5huK_rPEtX_o5AxUOaLmeHqaXuueDdLIU9gduOCsBwn91sHefjxguhshgV20OC_b-gjVZgTTQXYznNkCGXV9WRWLy8869DJrE8d4AyoZPzQ_WRhIyVk0zrp6cg1SZumMUhDeOT5uGjSp5VyZSh_pHGvK8lWhrNi5aCgLEaFyIDNAjE",
+      "mobbin_url": "https://mobbin.com/screens/d4219595-6b5a-4d08-9f82-2d1daf787211",
+      "app_name": "Bumble",
+      "platform": "web"
+    },
+    {
+      "id": "d9223593-f3c2-4a80-819e-959b17c68b82",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.Y0pLVjYQfDWLsJih.ORY-LZfE4VzOkompl51QhAvdL9lUOxPGk-19hfA6pdrJ3aHgRZLXe5P5O34APVp98lZZJ_KiTD6kIQZon_SuHhCfOtlT0IMB66mQXP8ttKTro1KlOl6rY68wM0y87DTLI8_ar3aX6DPL9TySH-q6Ss6Lf8-IFQX8e-dJm0a84ri-qD_a3HF0Xdbgx8P4SV7-x67hsEIZPuq5weWI36y4dZBhyy9xNT28dZpRTrBFSJshPWjzIhY-5Znyf1TJHlxbg-t7uBvMyXySIKKx1NTOOa-utaa205FiUH1T7p9eE--jNyW-22ULdQ4woB5Oyf2FFY9ks5PgkjPkK9H4pV9yYoHbrtOw3YnsJguiKSfPzBJoXpRTY6vEEIOSXpVZHnZGdD-6HTvVDQwGN5OTs7d3-JlmJiPsqaA8tu2QNW758cfWsTWKS2vqsb5Nfm6NmtI",
+      "mobbin_url": "https://mobbin.com/screens/d9223593-f3c2-4a80-819e-959b17c68b82",
+      "app_name": "Wise",
+      "platform": "web"
+    },
+    {
+      "id": "a40db155-9228-4d5e-8144-be155a65db02",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.L8xCkw-ecs-2s48v.pzQPnvkeE_l8ZF_HWKXzpvgyqHvaVTAOzgCFVm__WxDDRJD8jmsADQYciqmbfcyqKJJW4nKTtk_QrhvdWHJ5HxEgpQc9cCAjP4Fyp5IuB4oHoLKHhuOCuB5ZKettO1Z2igb6cpiws2eto_89J72zqM_ot-dWE02wkopW0eQm9XYSAScchJXJPEHxYM759kKXssySLHzP0ot-XlU-2gbZijywEstnptbqnP4YR1EblMd6iEg7z8J68KgiBObSgTJ2lTTkLpZUOf7Zplhg9uYMPJ4Qe7a2IqJof2475erxpHAyWSVKTuoBfdEzPs9JTJGUD4GqrMmdMa9lj69BG4WOe2BF1Br2L5kfSsh-FctrE_KtmYy739wwTA-VUg_Qk0dqf6Rp8sOHZvE9D4IyauWEDAc2c013WfeH0dcCWySdtAMNoCfmXorvQoEwzCV-6wk",
+      "mobbin_url": "https://mobbin.com/screens/a40db155-9228-4d5e-8144-be155a65db02",
+      "app_name": "Cake Equity",
+      "platform": "web"
+    }
+  ]
+}

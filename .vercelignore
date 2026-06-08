@@ -1,0 +1,13 @@
+public/saas-builds
+ouss_design
+.data
+.gemini
+.claude
+check_actual_counts.js
+delete_no_campaign_emails.js
+delete_mock_campaigns.js
+test_apify_actor.ts
+test_columns.ts
+test_mailgun_domains.js
+test_pg.ts
+test_supabase.ts

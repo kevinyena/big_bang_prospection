@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GridForge — Budget Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-bg"></div>
+
+<div class="app-shell">
+  <!-- ====== SIDEBAR ====== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-logo"><i class="fa-solid fa-bolt-lightning"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">GridForge</span>
+        <span class="brand-tag">Budget OS</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <span class="nav-label">Menu</span>
+      <a href="#" class="nav-item active" data-view="overview"><i class="fa-solid fa-gauge-high"></i><span>Overview</span></a>
+      <a href="#" class="nav-item" data-view="transactions"><i class="fa-solid fa-arrow-right-arrow-left"></i><span>Transactions</span></a>
+      <a href="#" class="nav-item" data-view="analytics"><i class="fa-solid fa-chart-pie"></i><span>Analytics</span></a>
+      <a href="#" class="nav-item" data-view="categories"><i class="fa-solid fa-layer-group"></i><span>Categories</span></a>
+
+      <span class="nav-label">Système</span>
+      <a href="#" class="nav-item" data-view="settings"><i class="fa-solid fa-sliders"></i><span>Settings</span></a>
+    </nav>
+
+    <div class="sidebar-card">
+      <div class="sc-glow"></div>
+      <i class="fa-solid fa-shield-halved"></i>
+      <p class="sc-title">Privacy-first</p>
+      <p class="sc-sub">Toutes vos données restent sur cet appareil.</p>
+    </div>
+  </aside>
+
+  <!-- ====== MAIN ====== -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="icon-btn mobile-only" id="menuToggle" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      <div class="page-head">
+        <h1 id="pageTitle">Overview</h1>
+        <p id="pageSub">Votre santé financière en un coup d'œil</p>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="month-selector">
+          <button class="ms-arrow" id="prevMonth" aria-label="Mois précédent"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="ms-current" id="currentMonth">Janvier 2025</div>
+          <button class="ms-arrow" id="nextMonth" aria-label="Mois suivant"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <button class="ghost-btn" id="allMonthsBtn"><i class="fa-solid fa-calendar-days"></i><span>Tous</span></button>
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="globalSearch" placeholder="Rechercher…">
+        </div>
+        <button class="primary-btn" id="addTxBtn"><i class="fa-solid fa-plus"></i><span>Transaction</span></button>
+        <div class="avatar">GF</div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content" id="content">
+
+      <!-- ===== OVERVIEW VIEW ===== -->
+      <section class="view active" id="view-overview">
+        <div class="kpi-grid">
+          <article class="glass kpi" data-accent="cyan">
+            <div class="kpi-top">
+              <span class="kpi-icon"><i class="fa-solid fa-wallet"></i></span>
+              <span class="kpi-trend up" id="trendBalance"><i class="fa-solid fa-arrow-trend-up"></i> 0%</span>
+            </div>
+            <p class="kpi-label">Solde total</p>
+            <p class="kpi-value" id="kpiBalance" data-count="0">€0</p>
+            <div class="kpi-spark"><span></span></div>
+          </article>
+
+          <article class="glass kpi" data-accent="green">
+            <div class="kpi-top">
+              <span class="kpi-icon"><i class="fa-solid fa-arrow-down-long"></i></span>
+              <span class="kpi-trend up" id="trendIncome"><i class="fa-solid fa-arrow-trend-up"></i> 0%</span>
+            </div>
+            <p class="kpi-label">Revenus du mois</p>
+            <p class="kpi-value" id="kpiIncome" data-count="0">€0</p>
+            <div class="kpi-spark"><span></span></div>
+          </article>
+
+          <article class="glass kpi" data-accent="magenta">
+            <div class="kpi-top">
+              <span class="kpi-icon"><i class="fa-solid fa-arrow-up-long"></i></span>
+              <span class="kpi-trend down" id="trendExpense"><i class="fa-solid fa-arrow-trend-down"></i> 0%</span>
+            </div>
+            <p class="kpi-label">Dépenses du mois</p>
+            <p class="kpi-value" id="kpiExpense" data-count="0">€0</p>
+            <div class="kpi-spark"><span></span></div>
+          </article>
+
+          <article class="glass kpi" data-accent="violet">
+            <div class="kpi-top">
+              <span class="kpi-icon"><i class="fa-solid fa-piggy-bank"></i></span>
+              <span class="kpi-trend up" id="trendSavings"><i class="fa-solid fa-arrow-trend-up"></i> 0%</span>
+            </div>
+            <p class="kpi-label">Épargne nette</p>
+            <p class="kpi-value" id="kpiSavings" data-count="0">€0</p>
+            <div class="kpi-spark"><span></span></div>
+          </article>
+        </div>
+
+        <div class="charts-grid">
+          <article class="glass chart-card span-2">
+            <div class="card-head">
+              <div>
+                <h3>Flux de trésorerie</h3>
+                <p class="card-sub">Revenus vs Dépenses · évolution du solde</p>
+              </div>
+              <div class="legend">
+                <span class="lg lg-cyan">Solde</span>
+                <span class="lg lg-green">Revenus</span>
+                <span class="lg lg-magenta">Dépenses</span>
+              </div>
+            </div>
+            <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+          </article>
+
+          <article class="glass chart-card">
+            <div class="card-head">
+              <div><h3>Par catégorie</h3><p class="card-sub">Répartition des dépenses</p></div>
+            </div>
+            <div class="donut-wrap">
+              <canvas id="donutChart"></canvas>
+              <div class="donut-center">
+                <span class="dc-label">Dépenses</span>
+                <span class="dc-value" id="donutTotal">€0</span>
+              </div>
+            </div>
+            <ul class="cat-legend" id="catLegend"></ul>
+          </article>
+        </div>
+
+        <div class="charts-grid">
+          <article class="glass chart-card span-2">
+            <div class="card-head">
+              <div><h3>Comparatif mensuel</h3><p class="card-sub">Revenus / Dépenses sur 6 mois</p></div>
+            </div>
+            <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+          </article>
+
+          <article class="glass chart-card recent-card">
+            <div class="card-head">
+              <div><h3>Activité récente</h3><p class="card-sub">Dernières transactions</p></div>
+              <button class="link-btn" data-view="transactions">Voir tout</button>
+            </div>
+            <ul class="recent-list" id="recentList"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- ===== TRANSACTIONS VIEW ===== -->
+      <section class="view" id="view-transactions">
+        <div class="glass table-card">
+          <div class="table-toolbar">
+            <div class="filter-pills" id="typeFilter">
+              <button class="pill active" data-type="all">Toutes</button>
+              <button class="pill" data-type="income">Revenus</button>
+              <button class="pill" data-type="expense">Dépenses</button>
+            </div>
+            <div class="toolbar-right">
+              <select class="select" id="catFilter"><option value="all">Toutes catégories</option></select>
+              <select class="select" id="sortBy">
+                <option value="date-desc">Date ↓</option>
+                <option value="date-asc">Date ↑</option>
+                <option value="amount-desc">Montant ↓</option>
+                <option value="amount-asc">Montant ↑</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="tx-table">
+              <thead>
+                <tr><th>Transaction</th><th>Catégorie</th><th>Date</th><th class="ta-r">Montant</th><th></th></tr>
+              </thead>
+              <tbody id="txTableBody"></tbody>
+            </table>
+            <div class="empty-state" id="txEmpty" hidden>
+              <i class="fa-solid fa-inbox"></i>
+              <p>Aucune transaction pour cette période</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ANALYTICS VIEW ===== -->
+      <section class="view" id="view-analytics">
+        <div class="charts-grid">
+          <article class="glass chart-card span-2">
+            <div class="card-head"><div><h3>Tendance annuelle</h3><p class="card-sub">Solde cumulé</p></div></div>
+            <div class="chart-wrap"><canvas id="analyticsLine"></canvas></div>
+          </article>
+          <article class="glass chart-card">
+            <div class="card-head"><div><h3>Top catégories</h3><p class="card-sub">Dépenses dominantes</p></div></div>
+            <ul class="cat-legend big" id="topCats"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- ===== CATEGORIES VIEW ===== -->
+      <section class="view" id="view-categories">
+        <div class="cat-grid" id="catGrid"></div>
+      </section>
+
+      <!-- ===== SETTINGS VIEW ===== -->
+      <section class="view" id="view-settings">
+        <div class="glass settings-card">
+          <h3>Préférences</h3>
+          <div class="set-row">
+            <div><p class="set-title">Devise</p><p class="set-sub">Symbole utilisé pour les montants</p></div>
+            <select class="select" id="currencySelect">
+              <option value="EUR">€ EUR</option>
+              <option value="USD">$ USD</option>
+              <option value="GBP">£ GBP</option>
+            </select>
+          </div>
+          <div class="set-row">
+            <div><p class="set-title">Données de démonstration</p><p class="set-sub">Recharger un jeu de données d'exemple</p></div>
+            <button class="ghost-btn" id="seedBtn"><i class="fa-solid fa-wand-magic-sparkles"></i> Régénérer</button>
+          </div>
+          <div class="set-row danger">
+            <div><p class="set-title">Tout effacer</p><p class="set-sub">Supprime définitivement vos données locales</p></div>
+            <button class="danger-btn" id="wipeBtn"><i class="fa-solid fa-trash"></i> Effacer</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ====== SLIDE-IN TRANSACTION PANEL ====== -->
+<div class="overlay" id="overlay"></div>
+<aside class="tx-panel" id="txPanel" aria-hidden="true">
+  <div class="panel-head">
+    <h2 id="panelTitle">Nouvelle transaction</h2>
+    <button class="icon-btn" id="closePanel" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <form class="tx-form" id="txForm" novalidate>
+    <input type="hidden" id="txId">
+    <div class="type-toggle">
+      <label class="tt-opt"><input type="radio" name="type" value="expense" checked><span class="tt-pill expense"><i class="fa-solid fa-arrow-up"></i> Dépense</span></label>
+      <label class="tt-opt"><input type="radio" name="type" value="income"><span class="tt-pill income"><i class="fa-solid fa-arrow-down"></i> Revenu</span></label>
+    </div>
+
+    <div class="field">
+      <label for="txAmount">Montant</label>
+      <div class="amount-input">
+        <span class="cur" id="curSymbol">€</span>
+        <input type="number" id="txAmount" step="0.01" min="0" placeholder="0.00" required>
+      </div>
+      <span class="err" id="errAmount"></span>
+    </div>
+
+    <div class="field">
+      <label for="txCategory">Catégorie</label>
+      <select id="txCategory" required></select>
+    </div>
+
+    <div class="field">
+      <label for="txDate">Date</label>
+      <input type="date" id="txDate" required>
+    </div>
+
+    <div class="field">
+      <label for="txDesc">Description</label>
+      <input type="text" id="txDesc" placeholder="Ex : Courses hebdomadaires" maxlength="60">
+    </div>
+
+    <div class="panel-actions">
+      <button type="button" class="ghost-btn wide" id="cancelTx">Annuler</button>
+      <button type="submit" class="primary-btn wide" id="saveTx"><i class="fa-solid fa-check"></i> Enregistrer</button>
+    </div>
+  </form>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

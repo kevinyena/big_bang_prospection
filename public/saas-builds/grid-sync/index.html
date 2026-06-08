@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GridSync — Barber & Grooming Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<header id="nav" class="nav">
+  <div class="nav__inner">
+    <a href="#/" class="logo" data-link><i class="fa-solid fa-scissors"></i> GridSync</a>
+    <nav class="nav__links">
+      <a href="#/" data-link>Accueil</a>
+      <a href="#/services" data-link>Prestations</a>
+      <a href="#/barbers" data-link>Équipe</a>
+      <a href="#contact" class="js-scroll">Contact</a>
+    </nav>
+    <div class="nav__actions">
+      <span class="nav__phone"><i class="fa-solid fa-phone"></i> 01 84 25 60 12</span>
+      <a href="#/booking" class="btn btn--gold" data-link>Réserver</a>
+    </div>
+    <button class="nav__burger" id="burger"><i class="fa-solid fa-bars"></i></button>
+  </div>
+</header>
+
+<!-- APP ROOT -->
+<main id="app"></main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__grid">
+    <div class="footer__brand">
+      <a class="logo logo--lg"><i class="fa-solid fa-scissors"></i> GridSync</a>
+      <p>Le studio de barbier & grooming où le savoir-faire rencontre l'élégance contemporaine.</p>
+      <div class="footer__social">
+        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+      </div>
+    </div>
+    <div><h4>Studio</h4><a href="#/services" data-link>Prestations</a><a href="#/barbers" data-link>Notre équipe</a><a href="#/booking" data-link>Réserver</a></div>
+    <div><h4>Visiter</h4><p>14 rue des Artisans<br>75011 Paris</p><p>Lun–Sam · 9h–20h</p></div>
+    <div><h4>Newsletter</h4><p>Les coulisses du studio, en avant-première.</p>
+      <form class="footer__news" onsubmit="return false"><input type="email" placeholder="Votre email"><button class="btn btn--gold"><i class="fa-solid fa-arrow-right"></i></button></form>
+    </div>
+  </div>
+  <div class="footer__bottom"><span>© 2024 GridSync Studio. Tous droits réservés.</span><span>Conçu avec soin à Paris</span></div>
+</footer>
+
+<div class="grain"></div>
+<script src="app.js"></script>
+</body>
+</html>

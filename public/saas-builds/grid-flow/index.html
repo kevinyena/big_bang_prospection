@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Hospitality Management Software of the Future | grid-flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#101010',
+            'ink-soft': '#1C1C1C',
+            'text-primary': '#1A1A1A',
+            'text-secondary': '#5C5C5C',
+            'text-muted': '#6B6B6B',
+            'bg-base': '#FFFFFF',
+            'bg-alt': '#F5F5F3',
+            'bg-soft': '#F7F7F5',
+            border: '#E5E5E5',
+            'border-soft': '#EAEAEA',
+            accent: '#6E3AFF',
+            coral: '#FF5A5F',
+            lime: '#C6E64A',
+            pink: '#F0AEDA',
+          },
+          fontFamily: {
+            sans: ['Inter', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="bg-bg-base font-sans text-text-primary antialiased">
+  <div id="root"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.27.2/babel.min.js"></script>
+  <script type="text/babel" data-presets="react" src="app.tsx"></script>
+</body>
+</html>

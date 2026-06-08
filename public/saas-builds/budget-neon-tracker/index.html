@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Neon Tracker — Suivi de budget personnel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <span class="brand-logo"><i class="fa-solid fa-bolt"></i></span>
+        <span class="brand-name">Budget<span class="neon-cyan">Neon</span></span>
+      </div>
+      <nav class="nav">
+        <a href="#/" class="nav-link active" data-route="/"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
+        <a href="#/transactions" class="nav-link" data-route="/transactions"><i class="fa-solid fa-arrow-right-arrow-left"></i><span>Transactions</span></a>
+        <a href="#/budgets" class="nav-link" data-route="/budgets"><i class="fa-solid fa-bullseye"></i><span>Budgets</span></a>
+        <a href="#/categories" class="nav-link" data-route="/categories"><i class="fa-solid fa-tags"></i><span>Catégories</span></a>
+        <a href="#/settings" class="nav-link" data-route="/settings"><i class="fa-solid fa-gear"></i><span>Préférences</span></a>
+      </nav>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="upgrade-card">
+        <p class="upgrade-title">Passez au <span class="neon-magenta">Pro</span></p>
+        <p class="upgrade-sub">Insights illimités & export</p>
+        <button class="btn btn-glow-magenta btn-block">Améliorer</button>
+      </div>
+      <div class="user-chip">
+        <img src="https://i.pravatar.cc/80?img=12" alt="avatar">
+        <div class="user-meta">
+          <span class="user-name">Alex Moreau</span>
+          <span class="user-mail">alex@neon.io</span>
+        </div>
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+      <div class="search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Rechercher une transaction, catégorie…">
+        <kbd>⌘K</kbd>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" aria-label="Notifications"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+        <button class="btn btn-glow-cyan" id="addTxTop"><i class="fa-solid fa-plus"></i> Ajouter</button>
+      </div>
+    </header>
+
+    <main id="view" class="view"></main>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="txModal" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Nouvelle transaction</h3>
+      <button class="icon-btn" id="closeTxModal" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="txForm" class="modal-body">
+      <div class="seg" id="txTypeSeg">
+        <button type="button" class="seg-btn active" data-type="expense"><i class="fa-solid fa-arrow-down"></i> Dépense</button>
+        <button type="button" class="seg-btn" data-type="income"><i class="fa-solid fa-arrow-up"></i> Revenu</button>
+      </div>
+      <label class="field amount-field">
+        <span>Montant</span>
+        <div class="amount-input"><em>€</em><input type="number" id="txAmount" step="0.01" placeholder="0,00" required></div>
+      </label>
+      <div class="field-row">
+        <label class="field">
+          <span>Catégorie</span>
+          <select id="txCategory"></select>
+        </label>
+        <label class="field">
+          <span>Date</span>
+          <input type="date" id="txDate" required>
+        </label>
+      </div>
+      <label class="field">
+        <span>Note</span>
+        <input type="text" id="txNote" placeholder="Ex. Courses du week-end">
+      </label>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" id="cancelTx">Annuler</button>
+        <button type="submit" class="btn btn-glow-cyan">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

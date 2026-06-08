@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>apex-flow | Apprends une nouvelle langue rien qu'en parlant</title>
+  <meta name="description" content="apex-flow t'écoute, te corrige et te fait progresser à l'oral grâce à un coach vocal IA disponible 24/7. Pas de manuels, juste ta voix." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base: '#0A0A0B',
+            surface: '#16171A',
+            surface2: '#1B1C1F',
+            ink: '#F5F5F7',
+            muted: '#9A9AA0',
+            faint: '#6E6E76',
+            accent: '#FF6B4A',
+            accentSoft: '#FF8A6E',
+            line: 'rgba(255,255,255,0.08)'
+          },
+          fontFamily: {
+            display: ['Sora', 'sans-serif'],
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-base font-sans text-ink antialiased">
+  <div id="root"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.27.2/babel.min.js"></script>
+  <script type="text/babel" data-presets="react" src="app.tsx"></script>
+</body>
+</html>

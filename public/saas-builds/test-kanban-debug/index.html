@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowBoard — Kanban Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="aurora"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo"><i class="fa-solid fa-diagram-project"></i></div>
+      <div class="brand-text">
+        <h1>FlowBoard</h1>
+        <span>Kanban Premium</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="stats-pill" id="statsPill">
+        <i class="fa-solid fa-layer-group"></i>
+        <span id="totalCount">0</span> tâches
+      </div>
+      <button class="btn btn-primary" id="openModalBtn">
+        <i class="fa-solid fa-plus"></i> Nouvelle tâche
+      </button>
+    </div>
+  </header>
+
+  <main class="board-wrapper">
+    <div class="board" id="board"></div>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="modalTitle">Nouvelle tâche</h2>
+        <button class="modal-close" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="taskForm">
+        <input type="hidden" id="taskId" />
+        <label>Titre
+          <input type="text" id="taskTitle" placeholder="Ex: Concevoir la maquette" required />
+        </label>
+        <label>Description
+          <textarea id="taskDesc" rows="3" placeholder="Détails de la tâche..."></textarea>
+        </label>
+        <div class="form-row">
+          <label>Priorité
+            <select id="taskPriority">
+              <option value="low">Basse</option>
+              <option value="medium" selected>Moyenne</option>
+              <option value="high">Haute</option>
+            </select>
+          </label>
+          <label>Colonne
+            <select id="taskStatus">
+              <option value="todo">À faire</option>
+              <option value="doing">En cours</option>
+              <option value="done">Terminé</option>
+            </select>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelBtn">Annuler</button>
+          <button type="submit" class="btn btn-primary" id="saveBtn">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

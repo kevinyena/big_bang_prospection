@@ -1,0 +1,15 @@
+{
+  "status": "completed",
+  "step": 4,
+  "totalSteps": 4,
+  "statusText": "Génération complétée avec succès !",
+  "files": [
+    "index.html",
+    "app.tsx",
+    "api.js"
+  ],
+  "referenceUrl": "https://www.hear.ai/",
+  "referencePageTitle": "Hear | AI Contact Center Intelligence Platform For CX Leaders",
+  "referenceScreenshotUrl": "/saas-builds/apex-flow/reference-screenshot.png",
+  "referenceHtmlLength": 15023
+}

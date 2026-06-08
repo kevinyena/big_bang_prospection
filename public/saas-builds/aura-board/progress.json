@@ -1,0 +1,95 @@
+{
+  "status": "completed",
+  "step": 5,
+  "totalSteps": 5,
+  "statusText": "Génération complétée avec succès !",
+  "files": [
+    "index.html",
+    "style.css",
+    "app.js",
+    "api.js"
+  ],
+  "mobbinLandingQueries": [
+    "dating app landing page dark mode neon gradient hero",
+    "premium SaaS marketplace landing page glassmorphism purple"
+  ],
+  "mobbinLandingScreens": [
+    {
+      "id": "3e299f78-7290-4469-a99f-0e95f9ee2b17",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.CnzjPGdxkCt-GJxm.bkw4xYSyLrwNrVPfScv9oSeXJ3gzRvJ8OcsCygBgBTePrEdCeDbOiOSUhtHG8-cmY3lN5mdkxzllvhG30ThG1sQVg-OlZsmNTMX-93ASPcBuP30jX9PwNRSv_dtoE9YIPx4t9kteeKPkWn9LbqVuahHBY-oJchZika5t8RfYMTHH9DT6Fui9nWafB1Xp3sYeGzNy-X2ayZXmGeI9j_TNmSu2o-EgMd534CDYPllLytRxtQV1RsxFXjgcgVko_yRaJNvL4HkxL_V-EwYmzErIV3CrT7AKZqfnxa9mhr1pD5D9GJ8ATMwgCBhkJZ5f8jF_ljSCgLsRJBNGanUzbWTUJpg0GOYhdTwZLxo5AFnEZmOdFfyFdA3ckKqIzyOQ8okhiLbzRYsK7ClF7WY9KL6Ng2uUceXZwTkxVL9-sw-4ecTsTrwv_q0IKc4wHoUprTM",
+      "mobbin_url": "https://mobbin.com/screens/3e299f78-7290-4469-a99f-0e95f9ee2b17",
+      "app_name": "Prime Video",
+      "platform": "web"
+    },
+    {
+      "id": "09b477d9-3b36-402b-9778-917483d01327",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.FAJtvAFDO5C5k9et.g_qbNNvnPI05DUjoFXnS31piJMUQD619e8RvETqDX4QhmEC2W7B-AWissmiwQIoyBEUk8MnLEzyCgXLy4dsf5hh0tIUmjyqIQTv4lKZ-R6rzpnk_XsLHNyxJHHrKbScwKgknT8F-OIDZxjnTh39OF1WpmK0jFGtdj5HM60CUiTf40TmRsXW2bjVJRQSX_0fPghc9yhV_gwW14iYxXG-4UGgE3PLg8UeZcmsVI9J9xhPjT-CAWGtSk3x8KH7Tvdf1QeO3SyDPR9W_uAuFHLfRvdfwCjRk4JIJ9YIKsjRZX9LYeuv5t7tW8OqwY3DFXwFSHZi1hN47xwC1Bum2uz_msaYRe_sO0l9lLFJQkrg4VBKED02cI9en39vM54nsdGc9TnYkAOx36ndCgk_lh8APEgCLb9JhdZDMZtnLT6wnxJV8jJyjtk-cXsnDVRpO2AI",
+      "mobbin_url": "https://mobbin.com/screens/09b477d9-3b36-402b-9778-917483d01327",
+      "app_name": "Clay",
+      "platform": "web"
+    },
+    {
+      "id": "b7eb92dd-7046-4712-bacf-c337eb9cc4a7",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.QdC0biFTyl7WMUAt.wyVpYOYbV8TUb4B4hcYjGh1sAbBDmNqqQJ-Zf-rMoJ9KGNVfrXG-BmQDLkYvbif5iVfo3d9rz0MGklaoH2vtJIobXHPpRNWWAMv1ktsUINhhSUMN2Lvho4nHRkzhcciRN4ybuE4lCc41aKKP6o7tKQEU6FaqGTKl2mHCX2mjnnPw7jZVXHiITWHeeJVQptMpv33R9lPRIwzxSINGKNiW7gFoVF7crpIJvpXzaq0w3PvSHG7AVQNSJ2cHFqUVGWGdLRAbWqc7ZNcDqzFfG07W83rqKIZESuUHbabfEiD-q97rylvh1j3O8MFVUYiKYb8wx7Kg341nNkWhVrUyjCwWww6Onup_7qYb_KZoRbpku1kviAHZ0dd2E_z6wm-8dqxRD_rVbJB9sBmirAVs3s9GG8AKXqE02mxBybR1Cmrd5u_YRWb6PPn5pVE0BoC-dx0",
+      "mobbin_url": "https://mobbin.com/screens/b7eb92dd-7046-4712-bacf-c337eb9cc4a7",
+      "app_name": "Shop",
+      "platform": "web"
+    },
+    {
+      "id": "786bc6d8-8954-47ce-b6ff-59951af840e9",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.77vjVUu2sPN1ZskD.BxYklnE8aZAVdT6uhYTnsQLDZDrEGP3RjXyfDX6RcdDEmIXu04cQLI1HjLJtBuWPe9TVPmeZt3T3TRMShiJNpHaSTsL2DmeX9mIYUKcQk_0qrTlYoKVdw3XGVWbRRryxXaQ1-jCwS94MjhLUgF0C3kuaGeHI5uN20NJ0HtWWaLDclMmyJNrypurJGt5LwKPjZTusb3d_Fdy-XMoq2s_hz1_BJq2Qud_qQV6SUdP0WLTCC8FtWeRqQ2FPuTSIXUOC2_4JUAr8Kou2FKlKzPovtaCZPE8HKxzVUGck1ouC1sfUx4vF4M2lONoLVGpHhbJLCsWQhnDcjajrSHve35DaFMlxkgKuvMJvO3-Vr82QebZS9pCrFjgXGUauT9PNRATfGPWM9fqw9NCbAW4tZzXmpMy-udcJpmfEEdLyp4GYka0ssQOCLTBvfTUMMfdxf8k",
+      "mobbin_url": "https://mobbin.com/screens/786bc6d8-8954-47ce-b6ff-59951af840e9",
+      "app_name": "ClickUp",
+      "platform": "web"
+    }
+  ],
+  "mobbinAppQueries": [
+    "tinder swipe card deck interface dark mode",
+    "match modal celebration screen dating app",
+    "chat messaging interface dark glassmorphism conversation"
+  ],
+  "mobbinAppScreens": [
+    {
+      "id": "3d7ed4c8-047c-49cc-87c4-6fea63c5fbce",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.vj6Aht4jDVTEkkZM.jO_Jz36cnXfJae3kzfN-QdCbH91kE3JXpDtx6_vOB-rYCF1v8E6p8QVXsYv2BMJDyJbHbCtrHM5ExKdfiayFw1WKqqT6PqV7_Bg8st9AzFHNX1xh2lCJU9X7amPEGINrPRlv-XbcMOWzExhk072PHT7N6OAlbkF1rMIOuO1dses5gkZiHadlO-aHZFzM98gNty3_0xSmUeAIBUMDojpu-Czp01ACPFPocIzaVh0MVvTcWbHG_MvxjDAXYbbx7HTz_sIWftaOP0dFGZk2nKeiwvKlrTsU_LL5ahwMDqcK4ZLCh1wAVkviM0wQoVMKYlGqJ-x4WNXirzoVXDucEa5fUq3-voOehymt3ivLdHEjYvqfInmDXHTAZ70vc3iTYq5AMwCyVDFQME5-wZFxfr_rq6wf6tdEZd572Z9CIfQTEW9rmNsVAAW-dLFhaOeNiq8",
+      "mobbin_url": "https://mobbin.com/screens/3d7ed4c8-047c-49cc-87c4-6fea63c5fbce",
+      "app_name": "Sora",
+      "platform": "web"
+    },
+    {
+      "id": "24d215a2-1026-47b5-af0e-31d3acd9d963",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.Aa7olZykv8D1fZlv.EO7Bl8DLeqSZQUg23unUVORllrfvEoR3sPtt5VTQGwZbh-F7EY3Q0u1Jzi8MBsXaX7M2l6tj33TdilosirVi3MIBRNvLVW3IjRczEsejXgIN8VLpZEa4vWBtM-KZIswt7y-3Fsjt6Owk8guXbATEm856fEotfr_w5W4XgG6rGzxVprwFPcdvJ1hE8vi6YlFSY-mvcTo1hJkDyKEDeP5e_Wkgn1vf9d5FddRBmRtGQNVvEf4up1Di8XciBMuagcoIipZ_aMv8cI8GtGeIvIwToHr_7-eE05IY83RC89IB6qhkBsV6LaTs7-xJwVbDHhKkidbXvKFsMtI6MdgQ8LOi_0JeA6DfLOdIpijmNtTEnJxbv9yWOpDEaMpzbymSynVY8DZaBsMyPWeaNBlSfekkKA9W8uox1tS4Qs7cM-mwaBGOpKKgOpQl_61dwcIAtMs",
+      "mobbin_url": "https://mobbin.com/screens/24d215a2-1026-47b5-af0e-31d3acd9d963",
+      "app_name": "Chronicle",
+      "platform": "web"
+    },
+    {
+      "id": "ed989f82-e86b-467a-86d3-94365db16da7",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.3qVtrwD7XJRxmVFK.XbR7-s0ZmxCQXho3GmNFX_JT5Mmea-QQU0gB0C5ZMBMXSeHW0NTZDER24dAnf_vLwk5cqMPrisM9azNGfl7qgNZqjM1tADTIinzlaDjoyMIBnO9KKZcoJggELMmcbV4qcqgwWpPVEdCRkHlNGzV5L2zvk76A3ReOYBf77NqSHD5_idHXP0sTVTqphKgNIamkKNNkBLo6NR-_YVXxg4QdjUWPcVtu5VX5lq_oHWCG8McjUwn-W1qyXtqVDFGjUXGyXKtdxHFxk50pgKvW3RlsziFWKxRvWDi4tuBv2dfh0xl7gV9s-z8wmdpsIJpZcZQKpzjFPUPLslbB4PY3d2qCfCTjCncgzYpklfj0IsSbarSEVj2CFGrL3dCOl5cBNcHyNu5mFgqqdtj6IrMAnGKbaqw4YRpionSz5YvEkD9xFX_Uxf_962KYsgGQQNmPtLk",
+      "mobbin_url": "https://mobbin.com/screens/ed989f82-e86b-467a-86d3-94365db16da7",
+      "app_name": "Bumble",
+      "platform": "web"
+    },
+    {
+      "id": "127a5d30-fadc-46c8-9895-006a67b0a34b",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.KRhHOOfGtdVFaYqz.YmCJkc67TTZAEmDgSAh5Ht3cnvuHE4iUVyReVqejk0U2-gG_3Y66G3uIZDFanGdMBlFO77p77TO92lj9URceqc-Mmh6ABkWGnnnZodgsfagAQZFqtCMjbssxCAumeX8Fbt0F1iGDr_IEQsdJNWVaIp2NRKphi6IDuPxzWqNZMxZ-dKvy4k9Lg3ZVMTjJ5GStUYLvKf5pUBzVHgnhqgcpHcld7s5E9S5bIh-A_cZN8GaN0D3WQjEjp8ejiGlw-_9a05hqUwMWKoenDlT8owsmd7km4fCCD-pt2n9r7Vo0Vv0nv9wQzoXS88vcnqoiSis8DSIVv2_0T5-JaxGq0PUum--fM4txeb2UykHSJ9UufGbQqx7Eihgv_4yTsifEVimWXhgqMK4UEJIWQ6_Oaw2jK_W66YkwjqshGIzytMFMsdp3LN-wlHkMzL22uT7oBlw",
+      "mobbin_url": "https://mobbin.com/screens/127a5d30-fadc-46c8-9895-006a67b0a34b",
+      "app_name": "Bumble",
+      "platform": "web"
+    },
+    {
+      "id": "78bc9526-f85f-4c37-aa3d-60026544707d",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.mkDA842Xk0voiRS7.Z9-vpnVXh73TP8-pX_nOD-pXI2-9CajayAQ68_wkG04waK59XtR6kO6yi509NbUP2007Z16vMoZ6mxogX5fwGmMp-DKP9aTWwhgg51InfPcf-c0WBpbSb8tntKSatczWgR4S5YPL1IGaJHjqcEg7CxlcztWlcIzKgLON_dj7dMBUaDxwbp8poiy_UIgKQ8oideWabuZOVE5_LclC-5LxTjgjD7do1pR2OHAQ4doOsZchFcCuwowmrkRj4w0L5WWrbNd4mpIHCmr8RIZXtG7yCetlxaf5cTyYXgymu_pcYAZG_hzaQSfmzkVUnr_2idizDZS447h008OJDw8ZBU_yPGZRjG3vYQOjJjd_qBz6FgfenxbZTba_SIwovPhIEGUGogVDUL6pw2uvNMpIoglBwxpQAs3x3TX6bV69O-5ylzbFEWCq6Q0wTgGIet1LfDc",
+      "mobbin_url": "https://mobbin.com/screens/78bc9526-f85f-4c37-aa3d-60026544707d",
+      "app_name": "Grok",
+      "platform": "web"
+    },
+    {
+      "id": "8e52b5bb-8076-478b-8566-b72aea0fd3cd",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.was_HtifI0qgN5QL.I5l4t_d0NzYjZXUC8Kr70FbAFRSKhNBydGJiFgrSLaxPjSndE6KQuNJE_4Ay5wAdSvS7O5H8WhQT-2bqt2jIaPSVfS77NQFPde-sopP2uw_ssNNruEvPIaxwikLsqfFmtv2uopnoyRSY0s0fMB621ulYLSkofoPlOd9Vga_one2LlT9-wFi0thBvpMkGs0LSYebRJAxOC5fo_7UgwjUfRh0J0EjH17_nrLtnymzwh76vrz-YQZAjnv_sWKbddw1U1tDEh6cbh3SNICT44vj_RgcNk02vDpMAHBWGNlUovS5uo_8DUOcmF7fQ8h5-SUAkyDfG53iKPxwc9ZLvYwkp9-3AddpnBNKd-2MofTrvgHUddGshiCs-63D-6IjIEmLsenk6lBISCeGovXChFLZ-T7pFPM4X5T6DDZC5ZInSkhY_Y7zESohjvlJOs7mmYBI",
+      "mobbin_url": "https://mobbin.com/screens/8e52b5bb-8076-478b-8566-b72aea0fd3cd",
+      "app_name": "Telegram",
+      "platform": "web"
+    }
+  ]
+}

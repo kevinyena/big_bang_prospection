@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aura Hub — Générateur de factures freelance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="aurora"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><i class="fa-solid fa-bolt"></i></div>
+      <div>
+        <h1>Aura Hub</h1>
+        <span>Factures freelance, sans effort</span>
+      </div>
+    </div>
+    <nav class="top-actions">
+      <button class="btn ghost" id="newInvoiceBtn"><i class="fa-solid fa-plus"></i> Nouvelle</button>
+      <button class="btn primary" id="exportPdfBtn"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <!-- COLONNE GAUCHE : EDITEUR -->
+    <section class="editor-pane">
+      <div class="card stats-card">
+        <div class="stat"><span class="stat-label">Factures</span><strong id="statCount">0</strong></div>
+        <div class="stat"><span class="stat-label">Total facturé</span><strong id="statTotal">0 €</strong></div>
+        <div class="stat"><span class="stat-label">Clients</span><strong id="statClients">0</strong></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2><i class="fa-solid fa-palette"></i> Modèle de couleur</h2></div>
+        <div class="theme-grid" id="themeGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2><i class="fa-solid fa-building"></i> Mon entreprise</h2></div>
+        <div class="grid-2">
+          <label class="field"><span>Nom / Société</span><input id="fromName" placeholder="Studio Aura" /></label>
+          <label class="field"><span>Email</span><input id="fromEmail" placeholder="hello@aura.studio" /></label>
+          <label class="field full"><span>Adresse</span><input id="fromAddress" placeholder="12 rue de la Création, Paris" /></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2><i class="fa-solid fa-user"></i> Client</h2>
+          <select id="clientSelect" class="mini-select"></select>
+        </div>
+        <div class="grid-2">
+          <label class="field"><span>Nom du client</span><input id="toName" placeholder="Acme Inc." /></label>
+          <label class="field"><span>Email</span><input id="toEmail" placeholder="contact@acme.com" /></label>
+          <label class="field full"><span>Adresse</span><input id="toAddress" placeholder="5 av. des Champs, Lyon" /></label>
+        </div>
+        <button class="btn ghost small" id="saveClientBtn"><i class="fa-solid fa-bookmark"></i> Enregistrer ce client</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2><i class="fa-solid fa-hashtag"></i> Détails facture</h2></div>
+        <div class="grid-2">
+          <label class="field"><span>Numéro</span><input id="invNumber" placeholder="INV-001" /></label>
+          <label class="field"><span>Date</span><input id="invDate" type="date" /></label>
+          <label class="field"><span>Échéance</span><input id="invDue" type="date" /></label>
+          <label class="field"><span>Taux TVA (%)</span><input id="invTax" type="number" value="20" min="0" step="0.1" /></label>
+          <label class="field"><span>Remise (%)</span><input id="invDiscount" type="number" value="0" min="0" step="0.1" /></label>
+          <label class="field"><span>Devise</span>
+            <select id="invCurrency"><option>€</option><option>$</option><option>£</option><option>CHF</option></select>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2><i class="fa-solid fa-list"></i> Prestations</h2>
+          <button class="btn primary small" id="addItemBtn"><i class="fa-solid fa-plus"></i> Ligne</button>
+        </div>
+        <div class="items-head">
+          <span>Description</span><span>Qté</span><span>Prix U.</span><span>Total</span><span></span>
+        </div>
+        <div id="itemsList"></div>
+      </div>
+
+      <div class="card">
+        <label class="field full"><span>Notes / Conditions</span><textarea id="invNotes" rows="2" placeholder="Paiement sous 30 jours. Merci de votre confiance !"></textarea></label>
+        <button class="btn primary block" id="saveInvoiceBtn"><i class="fa-solid fa-floppy-disk"></i> Sauvegarder la facture</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2><i class="fa-solid fa-clock-rotate-left"></i> Historique</h2></div>
+        <div id="historyList" class="history-list"></div>
+      </div>
+    </section>
+
+    <!-- COLONNE DROITE : APERCU -->
+    <section class="preview-pane">
+      <div class="preview-wrap">
+        <div class="invoice" id="invoicePaper">
+          <div class="inv-band" id="invBand"></div>
+          <div class="inv-top">
+            <div>
+              <div class="inv-logo" id="pvLogo">A</div>
+              <h3 id="pvFromName">Votre société</h3>
+              <p id="pvFromEmail"></p>
+              <p id="pvFromAddress"></p>
+            </div>
+            <div class="inv-title">
+              <h2>FACTURE</h2>
+              <p id="pvNumber">INV-001</p>
+            </div>
+          </div>
+          <div class="inv-meta">
+            <div><span>Facturé à</span><strong id="pvToName">Client</strong><p id="pvToEmail"></p><p id="pvToAddress"></p></div>
+            <div class="right"><span>Date</span><strong id="pvDate">—</strong><span>Échéance</span><strong id="pvDue">—</strong></div>
+          </div>
+          <table class="inv-table">
+            <thead><tr><th>Description</th><th>Qté</th><th>Prix U.</th><th>Total</th></tr></thead>
+            <tbody id="pvItems"></tbody>
+          </table>
+          <div class="inv-totals">
+            <div><span>Sous-total</span><b id="pvSubtotal">0 €</b></div>
+            <div id="pvDiscountRow"><span>Remise</span><b id="pvDiscount">0 €</b></div>
+            <div><span id="pvTaxLabel">TVA</span><b id="pvTax">0 €</b></div>
+            <div class="grand"><span>Total à payer</span><b id="pvGrand">0 €</b></div>
+          </div>
+          <p class="inv-notes" id="pvNotes"></p>
+          <div class="inv-footer">Généré avec <strong>Aura Hub</strong></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

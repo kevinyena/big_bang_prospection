@@ -1,0 +1,95 @@
+{
+  "status": "completed",
+  "step": 5,
+  "totalSteps": 5,
+  "statusText": "Génération complétée avec succès !",
+  "files": [
+    "index.html",
+    "style.css",
+    "app.js",
+    "api.js"
+  ],
+  "mobbinLandingQueries": [
+    "SaaS CRM landing page light mode with dashboard preview and indigo accent",
+    "minimal sales pipeline tool home page for freelancers"
+  ],
+  "mobbinLandingScreens": [
+    {
+      "id": "0806757c-5e5b-449c-9bf1-a42af089cfae",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.FNUwXmumPaomB6Z7.wAs_jW04ksjP1nNgFD--hI-guGjR_QipFwfcVzCN252aoYLrli4Th8T61krvsCs-xqzgnTO1kBFmhqZGz99hiROmuxOViltm66KImsMHgktkykueju7MYeikxIo_8b9GHZjEjGshhbmT6aOHSBKs83t-gPiC6nOTwY-heIEXQWvynH2ZZOoSvMTPShXN-McevxIyHlbvsSeXjRqDLutql4S2cYEmUGbmbZar4ZKzvoRxPMLR_92hAuw0yoQSRGz9SetAng9gvziW_LxXm1QwsMR67ImRP_so7_v4zBtij_YwR4z0SIWn0xyd1FBIUD8fzH66NEedhIIEKFxfAIm9iveZCLyrA-Ltq3OSYOlSGMUukPo5uuXkNfchmu3l0t91wgOJcDvRZayUsNqH28xXNKLucMo2uwX_WJgEkgWYta8RFwM6IJQDtkWWjYQuPeI",
+      "mobbin_url": "https://mobbin.com/screens/0806757c-5e5b-449c-9bf1-a42af089cfae",
+      "app_name": "Attio",
+      "platform": "web"
+    },
+    {
+      "id": "ef8b6fb8-8945-4a3c-817e-9797c03ed8f9",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.rDYGAhd-4j9yJoAL.BiBkx9Uhc4-r42a4Zl0eLFzMdNcIdqg63vaoyATRrnaZM_n93q2UcTLI4qTbxRdmnVNvn3f4CujbowXhEuSqoNjcNIyX-Nh3Rgl7AvDvueApreWc8vyBBZn6r-LxmlUF4EG3y5y5LYESBqJs08t6yYvtTqvRRmUxelrYUCKo2H32ve3VUPQE1ax99d97w29njl0oknyJGXNTSKN33ckhAwyra-tcD4xnPcO-L_yCFV5xp5q96PQY2ffpaQ5nJK4NmKO_M-C6jY8CDjjlGXqVehCeZ1UCV68V0Z6T9lMK4auhMAUbIbAxqv2wN4KVC7JuTKu7Pz45DQyLm_jHjtK4QsLUBmAMQyqAHKLBoz9gOUprdL0y_G43MCIJTGWjDXEWneqgyVsCQ_6ztwo9MvfjrehDowrnOvBGjcsxltywJYvZYLqIImtKy514yOWgN1Q",
+      "mobbin_url": "https://mobbin.com/screens/ef8b6fb8-8945-4a3c-817e-9797c03ed8f9",
+      "app_name": "Salesforce",
+      "platform": "web"
+    },
+    {
+      "id": "27d81e45-3e0d-4421-908c-2a16cca6d217",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.sZd0AMw2OFB5sMPY.k5eBCJtKqhbveKh1Sf709w4KqtZkJi9WmSTqi71X-n5W0wk2sonS6VnYZYb7Spv5L7yyplxhYhkncUmaQ9ttEGROQx5gMNYiccalssCPXvNqZIwPUxX_jmpuUpw2aU10GsPusuMcXn-36HKLjtvCX8WQ-YKF3IAXRMO9f9XBO7gRbSQ8S6Ek-rC1grpLPOVZNJ7chfw2Z0tZ7My331exHY0-sE42sxH_N_Fm4PK8vDZsUqkNFloz4TCPbvu15l1pYsPRJqWabM7_M3l3bzvvkwAf1jENGeW87BDcrBPhkGOPj-M529K_qpmFHGA6ZhFcZ608M98EjMvYFeKh8sIN4BLADv30FWCXYU0Wt6bMcE5bf1LSD_IUDwTvN8YYumLJNPqwp3fVFVVzHxpvENywruhIrZeqPYHcLxg90tMtB7O9tgW2Sm7aT7iRQiEo8Qw",
+      "mobbin_url": "https://mobbin.com/screens/27d81e45-3e0d-4421-908c-2a16cca6d217",
+      "app_name": "HoneyBook",
+      "platform": "web"
+    },
+    {
+      "id": "74096aa1-6b0b-4d15-a7ac-484ab7918c7a",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.huIh2IF6o8GYMDFZ.Bwn7_q7RYb_iw9gCPm04Y-8XSZssB96Et-wYNJPmgDfCwccFKZMLgDv8BTvHHwARINKTg9QAxbdZFey42thT7G8EnQhI2cxuXG92mFxhu1rQkOHe1DNfKT4A_q3h_sTcdgtjgh2_Z3FkfeAdyHfG3FjqWf9pGmBoldVT9RtBjIfhwS_46bISobUa0dXPDJg3qKlaj2d4z8kR31HI6m-BHVROYltIQhvw4JUa6wuUlG3CQolw57EX_Nku0ejbl0isIwTc03fiYe2dQgtiXh4DC5TeWfY86prC_Lm5tV7nGB34ekJqLAR4cqxiSJLdnlNVgIErkYOh_XqxOU0qi7cyxkf82GJU_PoqmTsphVXX79mVBmaDUTyqo6B0Xa3XgQu81Do0j0TZxTlCX27Iz9k-53yjmRp9o4Qi6nwzlg1KOipmkLyRoRH-pc7M2GffnVk",
+      "mobbin_url": "https://mobbin.com/screens/74096aa1-6b0b-4d15-a7ac-484ab7918c7a",
+      "app_name": "Notion",
+      "platform": "web"
+    }
+  ],
+  "mobbinAppQueries": [
+    "CRM analytics dashboard with KPI cards and conversion charts light theme",
+    "kanban sales pipeline board drag and drop minimal interface",
+    "contact detail page with activity timeline and notes CRM"
+  ],
+  "mobbinAppScreens": [
+    {
+      "id": "19c5402f-2f63-4efa-a560-e032b3d05055",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.Glo_dQXsc5x_dK4x.TA2t_1q3SjIkZ1B1smcMmxrh93RrLvnTig0pWwbl3aXxnGYiI6BMe7GDFL34mUqOPp_bgGKaHvGbdEpHAj8Y_wRhlSCxc8DtgTdVNF32q9yY2JGIGv7-rlpUdSO5c7SZ7oYya50K9t9rbGwHHgeobIFRJiH98PXaf56YyTeK3lMqwA0dq3d48aVuFKtIjPT17rBuzdRV0d9Ykj9PkqNkpNJxGuDfULirXXNqt__ii1FEv5kfUOf-jPzioxhTvpvdjEo4o8FRJNsOnterRCZef1msUiLQgwQqQGAqFgqPlaDrmD5f2QWDTbF_gff0Pp_1d6jKxOnag_Kn1FEPw5fBetXNd0G2QwtKe1sV6SLPOsB8aAwE_MyFcAswip84GPGi5UgR2OatEAOaL-5T6i29Nrp2dPLMnX8juT9gucm-qK_RCk8DGxirW1BSTC1dA5g",
+      "mobbin_url": "https://mobbin.com/screens/19c5402f-2f63-4efa-a560-e032b3d05055",
+      "app_name": "Zoho CRM",
+      "platform": "web"
+    },
+    {
+      "id": "eaa3f533-0b13-4d61-9923-a220b6e4fc5b",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.P5FeuyR4TK3o3jZg.r5_YerdAmT8XbdrSIuNnJxPD8OaLGmaTKjJaEvoJBPZIr1DryzQFG-AFJlcylqnsgdjRGsKt8uXRapIDZPs5ySaNUo4Up9YhZXCwSMtNvdIbaxUFYYE6j6wcBQIu5IFnI8txgJgAGd_QLwqFrumleAEbKtzKaNqrzx325Wu1PvgiswgukL8A1X0c7TUxAsvFfBCnF5qQAZgiciD2Z1QjdwKyGbCVWkIM0CEIJt9mTznArVNy4lJhGfZSJIM4aKQ7elr4-zfi70ZNFE5b3YLjBMXIcy9WwHDSh2Wttjyv-ATXgy3-paEdRF8AC3HWDVZfrhrdlO_oAyyLOvE-w2oMtp4smp4gJOqV23CnOuCGoL7WjTGSTMUHFK1s8NWhGYyFnEekNzjw6cKQvZhzfIt6Hph7jH6OC0ukeGxvxPlXqX2WP3P_4RONkctD7bOzafQ",
+      "mobbin_url": "https://mobbin.com/screens/eaa3f533-0b13-4d61-9923-a220b6e4fc5b",
+      "app_name": "Zoho CRM",
+      "platform": "web"
+    },
+    {
+      "id": "966b31f0-27e9-4bce-a23c-f18e07c26045",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.eJlhh4W-j2RtL5jH.7i6HSkVpgVKrc69v5g-CLtHMn_JpXXWKHsGHJK7-SwQD5aXsWzJLKMAHkHbHhU53ngxeb3-47ACrPxBQgeHVDPIJ3zI-3etU59d3ZFIppeUKwf6tVeMPObym_YGxNlqV-s830WrW8_p6gt5PrtapANQQSg0tbC_bahsr4ZKzmBwpMa1vNeJ7nrejQTQq55PNw68D3Yjcz67ftUw4f0pw292PwGBxcubsKKI9Dv4HQcYnncfYcf7WzJpqbOXrV_wf7U7kZI_HuzSUDE-ybDq1REJLnWAcVmMVqwXTctWnHX8TaOud0ysBPMvP5NcnN8R3gCAqbler7yPLHmWk0ZgiPMHw0BdshWVPD7wmz7mcI64iMymPO_pPZO_vQpoX-SylR0HxaDUKpqa6M4KMtCGeneZc0S9-erc0PqyPoyBbHXYhONWDQdIi7jB1t2xnsjI",
+      "mobbin_url": "https://mobbin.com/screens/966b31f0-27e9-4bce-a23c-f18e07c26045",
+      "app_name": "Lightfield",
+      "platform": "web"
+    },
+    {
+      "id": "fa0efe82-ea90-4864-ae99-ca3dd822c77b",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.HYXOWqEwRjDnTyqc._oM77oU_QvqFpgyiOP3WxxY_dqNfmN5oCZDjc66Sl_qnD1pto62jnthxqPpDw0xLUbT9jZfikpg_XboQ7jF5-S9yAVPXmr_jZ7lL8QavS5RadJ88zHIMVfIMWxsYqLfep4UWvnOWhMnstVHNGJsNnhxgVJqhm10IhNBHkWpppbqXmGbpsUOPhigQWDNHP7YNHHNvrNRheL6s_vsr_APrErxt7lE2MK0BW_UOvXx_I8-nLFqSC4uPxmJNNvA3nkLb2MXlM_A4An_v8oXrtt3UFuAtHNmqcjjUyuWbTmzZ5RVXObfhbvx51ceq6cUqxqs-6I7iGPSqAP7kRL7E24cvCkybynIsK0Y4cKSac8YqHttG7tKppRJ2MitYo4GCDy3S1nQ9ro2XrLDLFrlbghhpup8lTvSd151LA1rickGZvVkMa9Yr9uHSHwmiSl9AQ4k",
+      "mobbin_url": "https://mobbin.com/screens/fa0efe82-ea90-4864-ae99-ca3dd822c77b",
+      "app_name": "Pipedrive",
+      "platform": "web"
+    },
+    {
+      "id": "316878a5-0975-457c-84e7-3c0ef392657a",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.xYAw5SCMEFkrrKVP.9PTkD6lkrkpMZj2yoR4stK9dKc7J5I1EkpnAtVDe27yBhftslmMn482RuEdBNPvSNjK04OsLxDMom6pPNVnf961GbQv-OZs1N_xqLcphmI6YvyG0s3t8w4EIkSfEiDHg0bW95-vPYcPVu-tBRi0uWPqSt7Dn_pY8xgErg5O2DaJYiXVp13N9PtKXs9qfVgAdbomSO26FCRnKcO2JxrkvrPR7Ce8Uwnlys753hVFk2icSOce1yeC_mcvA0vvVR6In6fcVfwvppvOSjtZOyesHiRhtfq8eQ2QN3MeP7_cE8zMgrRFBivHQ98Li-V0DVAla-vGjIqtlz57GewN8_2kg0cFEewMtA8P-yKNF6ScRgXrzff20WGW870miAuFQU1q7MzuO7GQ4FvattX-HFvAN_gCQ-cFBUDtP8RPfPv7lFfcaFimxCO3zMFEuU3-CY6U",
+      "mobbin_url": "https://mobbin.com/screens/316878a5-0975-457c-84e7-3c0ef392657a",
+      "app_name": "HubSpot",
+      "platform": "web"
+    },
+    {
+      "id": "e1a5b857-6011-49b4-87a8-5e8f0ae53cf2",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.ijvNvx_dGUMLAnTr.tluImzVQV4nX4CrTTO7q1DQD1ACcKKOJFPIr42zJOB_gN2VHsbsHv-k3UphPesKFy6YT64GZwYg_HWw5corvdRCkP0PwNv_RR39MlBBCF0jBXZXr7VGGE_b5g0wzgysY73-MeCmBXU6ZUDiUidbsJFdQkAMnrvtA4fwIG3KZqisOEfhf77f_VqA7p2nTMwKSncTAioqoy4OAboIY8eHVviQGG6XDSYVQYdDmThg-t_QQmtaruFEMqvTlcEQ6Jvv6HSNVAXKQRF4i1XE7_jxR-_6Ic7n95aeErox8isyir0PCPW1n-m9-xE6Ie2a6HZNlfdXIuSJ1qnYMOqllg3owWr4uD8Fu-xSaNMy_1naba515BJZH6Vtdj7Wr4l2mm4CmIV9JMUA7WWrdvyO_3nU187T61THq92kD3SuOm-jeKF5Lw1AMDJz-yEmttNuz9BY",
+      "mobbin_url": "https://mobbin.com/screens/e1a5b857-6011-49b4-87a8-5e8f0ae53cf2",
+      "app_name": "Zoho CRM",
+      "platform": "web"
+    }
+  ]
+}

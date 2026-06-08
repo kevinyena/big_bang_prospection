@@ -1,0 +1,95 @@
+{
+  "status": "completed",
+  "step": 5,
+  "totalSteps": 5,
+  "statusText": "Génération complétée avec succès !",
+  "files": [
+    "index.html",
+    "style.css",
+    "app.js",
+    "api.js"
+  ],
+  "mobbinLandingQueries": [
+    "premium sports newsletter landing page dark mode with hero stadium image",
+    "subscription paywall landing page with pricing toggle and bold typography"
+  ],
+  "mobbinLandingScreens": [
+    {
+      "id": "471ef4f6-d521-4c5d-af05-28fcb9eeea69",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.gBUKPtou9e5ySbzz.snbYecPpgKl0DBTw5hKjRb4UGze9kHS5g0Yrdphdfn-5bAd03PnN3zEFVDf2L8iI1VDB2kvPLOK1y3yC4iT_9hYgiS7nIyBrj9OauaWkTDSciKbYZVIvRR9XHFk4LE2qSVfi26bYzTEMVhPJ4P45fMj9sQ9Q9KAy95HKNp3Nfmyh0trIIJAW_wMlMEChPFXcY3FYz-zOixXztGli1ksRIiBM__e7SobzCMV4yXWBmy8hmCq503HjvPAQJKBihklkBLgibufvjMUfuqKCZCunkELcpZ8AEgQ0Cj8__69Y5mXTOmxO5ATN5wMUyqfHYMlu4lYWUziH6RpkDEDzPwtKX2BqBq7DejcBROeOHKewWkWKY8xpPAxpd9arIoaq1Wf9oUmKsziMbYKpG8h74pm6DVrY9ejdU86_AtXcDnCaSwLfc4iKIkn1_YSblcHiYlU",
+      "mobbin_url": "https://mobbin.com/screens/471ef4f6-d521-4c5d-af05-28fcb9eeea69",
+      "app_name": "Bleacher Report",
+      "platform": "web"
+    },
+    {
+      "id": "97e4c70b-066d-4d50-9638-1560646f25d1",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.rCn1v3QbARnniEzu.OZIu6q_s6Q6xYGvDZ_EPavea1Gf6XUO5c0ub-speU1ghmFH0iWgG_DK6uHmcnBxA5DzOMTLsM3mr7Yk2VTYC2On_lZorAgYAWl_Q9ToqI5smo_UYVkUeoGBTXhWlwiNGICT1sr4cEpQawmMgA5hK2wQp-vTkIxho7OPTHuGTfEOjUYFu1dNPqyklD10ClkeFyAp_1iVSv-jspmM0BkmDMxfqh0HI0fU1-u9iNEJvT16vUNEfM2ImAY3gZw25V-eMwYN4AixbNQqXiWSp32RH1PlfKKl85hH3pC7Q6WEhhOAxYKMxkv7IWGgYoOEQNAjoaDyV7pOTMi22VGjuWK92rJ4agWw17PzO9_srNShaJyl4OO7--_dY3pzHVBDn6pWiDqZtidmNqVI02UQfqZrhJwm_CxmOUorqXIaNHAUUY4XqqP1G746W7iaD-nPaUPw",
+      "mobbin_url": "https://mobbin.com/screens/97e4c70b-066d-4d50-9638-1560646f25d1",
+      "app_name": "The Athletic",
+      "platform": "web"
+    },
+    {
+      "id": "70abf82c-a32a-4374-ac19-2ed92be31e21",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.TjG4-Wk8gsOG2JPX.XsDPFhCUxMZtMILZAwEtA9MPoNgqjI-FQPHSYF3p20776JZyfa33DRPYwr7TcDefLW0lKTa2-i5H27NrB9uhkR_mTT28Ccoqa8lubVxt9lNr6NjrXDiUnH0uQOuEucICeShjO-DdnQgHiSu7Mpr-UMLV_mCch_Ia7nUhRdlEjGQxrnjpsdQL-pMf8OIQKWw4lf_420QzBuvwcYBfSqR5gXuv49Y4dPswSDONgmeGN3Ak8BE1PnEF6Bb7t85S6g7B-FYE7lxFZm9N1VulOzBuIFBlugZX8Y8GKXxG0qsIpUaCokFgcX3k-hmEGzQ9bgDGQmCKwzb4b9YPGVqU1T-cuLMXSHBwoIJTqS2shlG7ULnK_DuJ2_8qPtCF2JnKOr_cykdRZWMOHoyPcl3vToZAudw-H2UbembewnsPHDsQYWGTF5dTo8XGyh6d5BTWm6Y",
+      "mobbin_url": "https://mobbin.com/screens/70abf82c-a32a-4374-ac19-2ed92be31e21",
+      "app_name": "Evernote",
+      "platform": "web"
+    },
+    {
+      "id": "c056e736-4a0e-4d18-a3cb-796ce1714bd6",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.mbdt2QsbvT_oHVTY.XFPlwHtOlc-YbTvMJUoMFNqMiv37J4miWEKwVSqPs4haR1pdfEDuO7G9lVeiLZ1bM6N6jlTNk0QUc0x0zWTJtGVqgJCxqCZsqi8JANfDLtAtTd2Edt8X82-oSFE3Kp2kiTWpTXHd04G9ZftiLxl9UwJSTTaiEFq1tPnvrkQoGBoew0z1MmSx2Kfvud3dPe6mzlT4WOUzAfUwqIiibiFtA0OScA5VutOPAM4KeOEJAPAyXZFFsRcP9--zNJ6Xn_NBW-dMjc0ULmTdUNWM83VlplOqZzULVpu94hXzs6w6_AlM4jPqH1v9LbQguQZuA1Wd7zX3GkoDl_PB-rgnTXq1xnJN_bkYKCJH3fW-742-E8I_5OP6QUujeE1OTzIO6-g7SOR-zGlA8-Ew3aIivkC2p6oq9zGjhB8Ck15baKEfDLy83C95ndkm-afGx38o7Pc",
+      "mobbin_url": "https://mobbin.com/screens/c056e736-4a0e-4d18-a3cb-796ce1714bd6",
+      "app_name": "Savee",
+      "platform": "web"
+    }
+  ],
+  "mobbinAppQueries": [
+    "subscription checkout modal with order summary and card payment form",
+    "newsletter admin dashboard with subscriber stats and MRR metrics",
+    "content editor compose newsletter interface minimal"
+  ],
+  "mobbinAppScreens": [
+    {
+      "id": "d7286abb-fa83-4931-8607-1d43efe9ee5c",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.xEDG3lRAp7Smi_Bi.GBeXNzekbJSMSVB2oYgl8JmPyZaV2g_4GHS5HmOEOxEF2WRoj4QYr6TjUKGDeFm6ZMVHrZYHPfTeSR5d_uJREYY7WU7EFp4xzz9qkV82HE-UC_ztPw-5-UY31zZOOpuECIVSrl0c6hsPcu8Rka5nYpNbdpgGlOw96CwbVhxbSOtiUQx3_VJzAKitYdMM2mVW0hFNPG7F3nXurkuBwzeB-BWXMW1066MVXmpzJ6MzfFEZ60hMz6yAPItm5Jv2zlWnmLA8gXmn2ECOb1uXJwxHg8v8Ei8DZAf4fTjsVSzMtTPoF2D52i13djZo3zcYiw-A2IJoonwYIAfMekaVKWD3BUWrv5_aoK4WLprcYPJ3d2ZWrZicuqqSVX8izAWeBUn7GQAnexMM5MelPDSpAL9eHaFohAeZy7Fn64gW0EIYhUQd7BEFjSibUyUEtvHrb_Y",
+      "mobbin_url": "https://mobbin.com/screens/d7286abb-fa83-4931-8607-1d43efe9ee5c",
+      "app_name": "Superhuman Mail",
+      "platform": "web"
+    },
+    {
+      "id": "a9812b48-284d-4dd9-846b-90e9091abaee",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.1YRnqifh_g6lj2Tm.0PpwoQFFj2fJc1iFcH97-N4gz6Gv2QR4VLRS97u9Ulq3oN7BHQIr3CQzhPjr5AO6IvTWMv6XaSEqWZvJJBlGZygw_eyTzZU5ls4Mvt0Z6P40m6DMgdyMtq988cn6rUSWtjv1xBmzcteEQvsm_XCDH10y779EBDdi7VqRD3wzQkUCyX49Y3rx35oAO3V_PXrvpZEXWT4ujnNzaEn5joqyZ0mZB4q9GedJ6Qcrfl4FAswEmodswVhEPrn_EC3irrG8RoYBiyDJAdXBNiSoHmwImQckQsMUu6ZM7ClrrmnghT97cQyE8CcbKycLPS8sB0IH8Ry4rBStFrVdWsYwZlR0pIgWhcVaV0egyacYtAkuhp_0gN6kbdgDPleown7ZAx_ti_9MzB1LSyY8aEbbqguwQGCD1vMSTcRmK4qoJXAvi_1GT05Xy10iyD7FQ7NuEvs",
+      "mobbin_url": "https://mobbin.com/screens/a9812b48-284d-4dd9-846b-90e9091abaee",
+      "app_name": "TikTok",
+      "platform": "web"
+    },
+    {
+      "id": "37045ddb-e22d-4cfe-a2dd-6833dfebe60d",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.IP8kC_ACg6zDadpl.onI86whqjPHVEU1m-PEftVTQZiQxAm9OBTG5QxfmAogTNNM6EgctPPCcyJKb96lgRfXJX0RWEXL55V8JEDnBqrT07A2_Eb2vL1KKXoIWMQ1slubZv9G81481V9QY5jDiJLX1uaYfi8XRLnwNfPNcssAwyrzdQz0NFBQUjMFH25zo1jR5F4zBVU2FbsZRRtPT1aTzpanIrCj8iX-ve68YysQNffQRgDr1dMShPlxJu057rQtDT2vY8eHs0v4-2ac1-ZJdkRikz5lynrTSPbGHaGkW6SoH1Ok63CrkDWBmaqzBtB-il_c2Yr9KEamT8hdEQiXFHhiFYZWd_25sIkzhbeZ7TM6v4R7Gk72SRuc4Xoep3ltn_bHTbru9fdjZKql7B5BV48e7dHOk8uJ-rO8-qsobCwPm8fydKdNKGudNw4L6XtdvKZrCZCmRbxh8e7w",
+      "mobbin_url": "https://mobbin.com/screens/37045ddb-e22d-4cfe-a2dd-6833dfebe60d",
+      "app_name": "beehiiv",
+      "platform": "web"
+    },
+    {
+      "id": "9cd7b6fe-489a-4839-ade7-7c05a4ab2299",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.HZ--mICs0Km5D3r7.yFOS4zWFaj3Z3ZbYrNTklyksHBGRUK0E41wW9uMPMGtcmv6VrfT4LPxRFq3efDg7nzwpNEVeV8jPVmZfo4hyGzW2NSdvn9YdafeGmZ_YYu5BhLyeo8FRzUeC0dviKdxXUD5tFUo64YPeIhz3Z28fliyjui56R8yVqQApZn_NVVFEAnoM7ZOGMYFa9b_lWrw4vLJWpR8oSFORdxA1KrcsWqSglmndsGPiH-fspDx-DCrn7bEstIeur3MKO4uAujlovfQ-QZtAClms3DNd_-FgbBZZCfw7ruFglmRLrTZ7I2lxYReyMsSqdSXFpXZuo5QyMvX2xbRCJuH8XaduCZ-bO9zlfL8I8_CPOWxW0i3Nly-Q45Jb54z89Xpxvz8grtQIeIDIwAquDDyVBg2-cra1f3-CbKt6dYz8Nn6-vn98ACVM4CVq0H_6ol3eLJ_rnX0",
+      "mobbin_url": "https://mobbin.com/screens/9cd7b6fe-489a-4839-ade7-7c05a4ab2299",
+      "app_name": "beehiiv",
+      "platform": "web"
+    },
+    {
+      "id": "b589aaae-b7e3-474d-93e7-16b44721dff9",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.MMa7VzKe_Ae_Rais.-bDEiLDwl0WaH7SMEn5BYSg3pBa7P7i2DcLtlFPMe8kBCTLSZg5H8VFc8560KYBIwW9GpaCBynn13o8XnZOOM4PePCVpAoP7FyrpmW54n0znZgiCw2WtdHxw2pVT5ge68yJ0zgkdc0Pf3b3tgNuW6f_qgbdq9_1Z3OHYgPgs1Izgo9d3kEmGQMxCiX68VkFwQNsKpLMEP3Nol1JRMC52idhef6jjRt1dSnh_1EMj_RfEzD8D_WOLE6d88fn0b2OMayGMQBwuW8zLVoTf7Ykllypf79VKhjSs1rAJzHfqLH-07W0y8th8Rcpjl5rxAyusgtjrIhCaY8X6IyfTa2sjpebXDrcu3vLFC3_Qs9n2qrK6EgjURNG1iwGWVsFZCCknwv2NNh102klTlHh5oZrMu0XZYx1PwCdIQx_cTH5SUjEWLIhdny4kVxY8JoLRwYM",
+      "mobbin_url": "https://mobbin.com/screens/b589aaae-b7e3-474d-93e7-16b44721dff9",
+      "app_name": "Substack",
+      "platform": "web"
+    },
+    {
+      "id": "f3c9e84e-18ce-4966-94fc-812cbce1db81",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.I73AbG0TmqzqFath.ctbTqzkfgrkh6RiI27e5YL7rMfXsH-MhtrlsD5FvPjwNwVlcuw0-CxnIrrgqEB1ATMEXcTR36LkmSV1NDukrYiohK1kgNMMgYFXLPR5yNsMyt1Ti_jaRM8gJL5bl5idta-DoatQVwzePnpy2KbN0UIp7ye1IuqnaA25gi4Pby0ocX-NZ5qJpS2nzL3dcNawTNBuHqEBgi5SPfEtr7B7iAE07KijcV0j9iiHlQohO2w66LrQYPGrzUVXWAkx8URksxM2VaH1yOX1_CnXp7u_g2lyOneIKkJL_aR8UgWsDBJRVZ3ct24giPp_UAVaMKKEzctvB_4azBQy6E-8haVVJRipEVuTIyVYxQVwmvE1A-z77m5qcDVvkviiWS5mR1ziCorxjUGdAnP_8J1WpCwsg0Qwhla1gAF05aHBxo4qz0azxFoBCy2T8s6qPV-UzmAs",
+      "mobbin_url": "https://mobbin.com/screens/f3c9e84e-18ce-4966-94fc-812cbce1db81",
+      "app_name": "Resend",
+      "platform": "web"
+    }
+  ]
+}

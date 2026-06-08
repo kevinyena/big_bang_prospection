@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuraInvoice — Générateur de factures freelance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><i class="fa-solid fa-feather-pointed"></i><span>Aura<b>Invoice</b></span></div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard"><i class="fa-solid fa-chart-pie"></i> Tableau de bord</button>
+      <button class="nav-item" data-view="create"><i class="fa-solid fa-file-invoice"></i> Nouvelle facture</button>
+      <button class="nav-item" data-view="invoices"><i class="fa-solid fa-folder-open"></i> Factures</button>
+      <button class="nav-item" data-view="clients"><i class="fa-solid fa-users"></i> Clients</button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="pro-card">
+        <i class="fa-solid fa-crown"></i>
+        <p>Plan Freelance Pro</p>
+        <small>Factures illimitées · Export PDF</small>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="viewTitle">Tableau de bord</h1>
+        <p id="viewSub">Vue d'ensemble de votre activité</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn ghost" id="quickClient"><i class="fa-solid fa-user-plus"></i> Client</button>
+        <button class="btn primary" id="quickInvoice"><i class="fa-solid fa-plus"></i> Facture</button>
+      </div>
+    </header>
+
+    <section class="view" id="view-dashboard">
+      <div class="stats">
+        <div class="stat-card"><div class="stat-ic teal"><i class="fa-solid fa-coins"></i></div><div><span id="stTotal">—</span><small>Chiffre d'affaires</small></div></div>
+        <div class="stat-card"><div class="stat-ic purple"><i class="fa-solid fa-file-invoice-dollar"></i></div><div><span id="stCount">—</span><small>Factures émises</small></div></div>
+        <div class="stat-card"><div class="stat-ic amber"><i class="fa-solid fa-clock"></i></div><div><span id="stPending">—</span><small>En attente</small></div></div>
+        <div class="stat-card"><div class="stat-ic green"><i class="fa-solid fa-users"></i></div><div><span id="stClients">—</span><small>Clients actifs</small></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Dernières factures</h3></div>
+        <div id="recentList" class="list"></div>
+      </div>
+    </section>
+
+    <section class="view hidden" id="view-create">
+      <div class="create-grid">
+        <div class="invoice-editor panel">
+          <div class="editor-row">
+            <div class="field"><label>Client</label>
+              <select id="selClient"></select>
+            </div>
+            <div class="field"><label>Date d'émission</label><input type="date" id="inDate"></div>
+            <div class="field"><label>N° Facture</label><input type="text" id="inNumber" readonly></div>
+          </div>
+          <div class="theme-row">
+            <label>Modèle de couleur</label>
+            <div class="swatches" id="swatches"></div>
+          </div>
+          <div class="items-head"><span>Description</span><span>Qté</span><span>Prix U.</span><span>Total</span><span></span></div>
+          <div id="itemRows"></div>
+          <button class="btn ghost add-row" id="addRow"><i class="fa-solid fa-plus"></i> Ajouter une ligne</button>
+          <div class="totals">
+            <div class="tax-input"><label>TVA (%)</label><input type="number" id="inTax" value="20" min="0" max="100"></div>
+            <div class="tot-rows">
+              <div><span>Sous-total</span><b id="tSub">0,00 €</b></div>
+              <div><span>TVA</span><b id="tTax">0,00 €</b></div>
+              <div class="grand"><span>Total TTC</span><b id="tGrand">0,00 €</b></div>
+            </div>
+          </div>
+          <div class="editor-actions">
+            <textarea id="inNotes" placeholder="Notes / conditions de paiement..."></textarea>
+            <button class="btn primary big" id="saveInvoice"><i class="fa-solid fa-check"></i> Enregistrer la facture</button>
+          </div>
+        </div>
+        <div class="preview-wrap">
+          <div class="preview-bar"><span>Aperçu en direct</span><button class="btn ghost" id="pdfBtn"><i class="fa-solid fa-file-pdf"></i> Export PDF</button></div>
+          <div id="invoicePreview" class="invoice-doc"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view hidden" id="view-invoices">
+      <div class="panel"><div class="panel-head"><h3>Toutes les factures</h3></div><div id="invList" class="list"></div></div>
+    </section>
+
+    <section class="view hidden" id="view-clients">
+      <div class="panel"><div class="panel-head"><h3>Carnet de clients</h3><button class="btn primary" id="newClientBtn"><i class="fa-solid fa-plus"></i> Nouveau</button></div><div id="clientGrid" class="client-grid"></div></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-back hidden" id="clientModal">
+  <div class="modal">
+    <h3>Nouveau client</h3>
+    <div class="field"><label>Nom / Société</label><input id="cName" type="text"></div>
+    <div class="field"><label>Email</label><input id="cEmail" type="email"></div>
+    <div class="field"><label>Adresse</label><input id="cAddress" type="text"></div>
+    <div class="modal-actions"><button class="btn ghost" id="cCancel">Annuler</button><button class="btn primary" id="cSave">Ajouter</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

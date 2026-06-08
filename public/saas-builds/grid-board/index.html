@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>grid-board — Le Tinder du Venture Capital</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Outfit:wght@300;400;500&family=Caveat:wght@500;700&family=Patrick+Hand&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#020215;color:#fff;font-family:'Outfit',sans-serif;overflow-x:hidden;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:28px 28px}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;text-transform:uppercase;letter-spacing:2px}
+.accent{font-family:'Caveat',cursive;color:#e278e7;text-transform:none;letter-spacing:0}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+.glow{box-shadow:0 0 60px rgba(3,3,171,.3)}
+/* nav */
+nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(2,2,21,.6);border-bottom:1px solid rgba(255,255,255,.08)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{font-family:'Space Grotesk';font-weight:700;letter-spacing:2px;font-size:1.2rem}
+.logo span{color:#e278e7}
+.nav-links{display:flex;gap:32px;font-size:.85rem}
+.nav-links a{opacity:.7;transition:.2s}.nav-links a:hover{opacity:1}
+.btn{font-family:'Space Grotesk';text-transform:uppercase;letter-spacing:2px;font-size:.75rem;padding:12px 24px;border-radius:30px;cursor:pointer;transition:.25s;border:none}
+.btn-primary{background:#0303ab;color:#fff;border:1px solid rgba(226,120,231,.5)}
+.btn-primary:hover{box-shadow:0 0 30px rgba(3,3,171,.7)}
+.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2)}
+.btn-ghost:hover{border-color:#e278e7}
+/* hero */
+.hero{text-align:center;padding:120px 0 90px}
+.hero .accent{font-size:2.4rem;display:inline-block;transform:rotate(-2deg);margin-bottom:6px}
+.hero h1{font-size:clamp(2.8rem,8vw,6rem);font-weight:700;line-height:1.02;font-weight:700}
+.hero h1 u{text-decoration:none;border-bottom:4px solid #e278e7}
+.hero p.sub{max-width:560px;margin:28px auto;color:rgba(255,255,255,.7);font-size:1.1rem;line-height:1.6}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.roles{display:flex;gap:14px;justify-content:center;margin-top:42px}
+.tag{font-family:'JetBrains Mono';font-size:.75rem;text-transform:uppercase;padding:9px 20px;border-radius:24px;border:1px solid rgba(226,120,231,.4);cursor:pointer;transition:.2s}
+.tag:hover,.tag.on{background:rgba(226,120,231,.12);border-color:#e278e7}
+/* quote */
+.quote{max-width:760px;margin:30px auto 90px;border-left:3px solid #e278e7;padding:8px 0 8px 28px}
+.quote p{font-family:'Caveat';font-size:1.9rem;color:#fff;line-height:1.3}
+/* sections */
+section h2{font-size:clamp(1.8rem,4vw,2.8rem);text-align:center}
+.sub-accent{text-align:center;font-family:'Caveat';color:#e278e7;font-size:1.6rem;margin-bottom:42px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+.card{background:#0a0a2a;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:32px;position:relative;overflow:hidden}
+.card .orn{position:absolute;top:16px;right:18px;color:#e278e7;opacity:.5;font-size:1.2rem}
+.card h3{font-size:1.1rem;margin:14px 0 10px}
+.card p{color:rgba(255,255,255,.7);font-size:.95rem;line-height:1.6}
+.card .ico{width:50px;height:50px;border-radius:14px;background:rgba(3,3,171,.4);display:flex;align-items:center;justify-content:center;color:#e278e7;font-size:1.3rem}
+.step{font-family:'Caveat';color:#e278e7;font-size:1.4rem}
+/* pricing */
+.pricing{padding:100px 0}
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px;max-width:760px;margin:0 auto}
+.plan{background:#0a0a2a;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:40px}
+.plan.pro{border-color:rgba(226,120,231,.5)}
+.plan .name{font-family:'JetBrains Mono';text-transform:uppercase;letter-spacing:2px;color:#e278e7;font-size:.85rem}
+.plan .amt{font-family:'Space Grotesk';font-size:3rem;font-weight:700;margin:12px 0}
+.plan ul{list-style:none;margin:20px 0;color:rgba(255,255,255,.7)}
+.plan li{padding:8px 0;font-size:.95rem}.plan li i{color:#e278e7;margin-right:10px}
+.plan .btn{width:100%;margin-top:14px}
+section{padding:70px 0}
+footer{border-top:1px solid rgba(255,255,255,.08);padding:40px 0;text-align:center;color:rgba(255,255,255,.5);font-size:.85rem}
+/* overlay deck */
+.overlay{position:fixed;inset:0;background:rgba(2,2,21,.92);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;flex-direction:column}
+.overlay.show{display:flex}
+.overlay .close{position:absolute;top:24px;right:30px;font-size:1.6rem;cursor:pointer;color:rgba(255,255,255,.6)}
+.deck{position:relative;width:340px;height:480px}
+.swipe-card{position:absolute;inset:0;background:#0a0a2a;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:30px;display:flex;flex-direction:column;transition:transform .4s,opacity .4s}
+.swipe-card .avatar{width:80px;height:80px;border-radius:18px;background:linear-gradient(135deg,#0303ab,#e278e7);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-size:1.8rem;font-weight:700}
+.swipe-card h3{font-size:1.4rem;margin:18px 0 4px}
+.swipe-card .stage{font-family:'JetBrains Mono';font-size:.72rem;border:1px solid rgba(226,120,231,.4);border-radius:20px;padding:5px 12px;display:inline-block;color:#e278e7;margin:4px 0}
+.swipe-card ul{list-style:none;margin-top:18px}
+.swipe-card li{padding:6px 0;color:rgba(255,255,255,.7);font-size:.9rem}.swipe-card li:before{content:"✦";color:#e278e7;margin-right:8px}
+.badge{position:absolute;top:30px;font-family:'Space Grotesk';font-weight:700;font-size:1.6rem;padding:6px 16px;border-radius:10px;opacity:0;transition:.2s}
+.badge.nice{left:24px;color:#e278e7;border:3px solid #e278e7;transform:rotate(-15deg)}
+.badge.nope{right:24px;color:#ff5577;border:3px solid #ff5577;transform:rotate(15deg)}
+.actions{display:flex;gap:28px;margin-top:36px}
+.act{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;transition:.2s;border:1px solid rgba(255,255,255,.15)}
+.act.pass{color:#ff5577;background:rgba(255,85,119,.1)}
+.act.like{color:#e278e7;background:rgba(226,120,231,.15)}
+.act:hover{transform:scale(1.12)}
+.counter{font-family:'JetBrains Mono';font-size:.8rem;color:rgba(255,255,255,.5);margin-top:22px}
+/* match */
+.match-screen{display:none;flex-direction:column;align-items:center;text-align:center}
+.match-screen.show{display:flex}
+.match-screen h2{font-size:3rem;color:#e278e7}
+.match-avs{display:flex;gap:-10px;margin:24px 0}
+.match-avs div{width:90px;height:90px;border-radius:24px;background:linear-gradient(135deg,#0303ab,#e278e7);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-size:2rem;font-weight:700;box-shadow:0 0 60px rgba(226,120,231,.5)}
+.match-avs div:nth-child(2){margin-left:-18px}
+.chat{width:360px;background:#0a0a2a;border:1px solid rgba(255,255,255,.1);border-radius:18px;margin-top:30px;overflow:hidden;text-align:left}
+.chat-msgs{padding:20px;height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.bubble{max-width:75%;padding:10px 14px;border-radius:14px;font-size:.9rem}
+.bubble.them{background:rgba(255,255,255,.08);align-self:flex-start}
+.bubble.me{background:#0303ab;align-self:flex-end}
+.chat-in{display:flex;border-top:1px solid rgba(255,255,255,.08)}
+.chat-in input{flex:1;background:transparent;border:none;color:#fff;padding:14px;font-family:'Outfit';outline:none}
+.chat-in button{background:#0303ab;border:none;color:#fff;padding:0 20px;cursor:pointer}
+@media(max-width:680px){.nav-links{display:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+<div class="logo">GRID<span>·</span>BOARD</div>
+<div class="nav-links"><a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="#" onclick="openDeck();return false">Deck</a></div>
+<button class="btn btn-primary" onclick="openDeck()">Start swiping</button>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+<div class="accent">le Tinder des deals</div>
+<h1>Swipe.<br>Match.<br><u>Raise.</u></h1>
+<p class="sub">grid-board connecte VCs et fondateurs early-stage par le swipe. Fini le cold email et le pitch non sollicité — le deal flow devient mutuellement consenti, rapide et fun.</p>
+<div class="hero-btns">
+<button class="btn btn-primary" onclick="openDeck()">Lancer le deck</button>
+<a href="#how" class="btn btn-ghost">Voir comment</a>
+</div>
+<div class="roles">
+<div class="tag on" onclick="role(this)">INVESTOR</div>
+<div class="tag" onclick="role(this)">FOUNDER</div>
+</div>
+</div></header>
+
+<div class="wrap">
+<blockquote class="quote"><p>« On a transformé le pitch deck en simple geste du pouce. Un deal qui matche, c'est deux parties déjà d'accord pour parler. »</p></blockquote>
+</div>
+
+<section id="how"><div class="wrap">
+<h2>How it works</h2>
+<div class="sub-accent">trois swipes pour lever</div>
+<div class="cards">
+<div class="card glow"><div class="orn">✦</div><div class="ico"><i class="fas fa-compass"></i></div><div class="step">01 — Découvre</div><h3>Profils ciblés</h3><p>VCs ou fondateurs filtrés par secteur, stage et ticket. Que des profils pertinents dans ton deck.</p></div>
+<div class="card glow"><div class="orn">◇</div><div class="ico"><i class="fas fa-hand-pointer"></i></div><div class="step">02 — Swipe</div><h3>Droite ou gauche</h3><p>Intérêt à droite, pass à gauche. Drag & drop fluide avec animations satisfaisantes.</p></div>
+<div class="card glow"><div class="orn">☆</div><div class="ico"><i class="fas fa-bolt"></i></div><div class="step">03 — Match</div><h3>It's a match ✦</h3><p>Quand les deux swipent à droite, un chat privé s'ouvre pour démarrer la conversation de financement.</p></div>
+</div>
+</div></section>
+
+<section id="pricing" class="pricing"><div class="wrap">
+<h2>Pricing</h2>
+<div class="sub-accent">freemium, comme il se doit</div>
+<div class="price-grid">
+<div class="plan"><div class="name">Free</div><div class="amt">0€</div><ul><li><i class="fas fa-check"></i>3 swipes par jour</li><li><i class="fas fa-check"></i>Matching mutuel</li><li><i class="fas fa-check"></i>Chat 1:1 post-match</li></ul><button class="btn btn-ghost" onclick="openDeck()">Commencer</button></div>
+<div class="plan pro glow"><div class="name">Pro ✦</div><div class="amt">29€<span style="font-size:1rem;color:rgba(255,255,255,.5)">/mo</span></div><ul><li><i class="fas fa-check"></i>Swipes illimités</li><li><i class="fas fa-check"></i>Boost de profil</li><li><i class="fas fa-check"></i>Filtres avancés (stage, ticket)</li><li><i class="fas fa-check"></i>Voir qui t'a liké</li></ul><button class="btn btn-primary" onclick="openDeck()">Passer Pro</button></div>
+</div>
+</div></section>
+
+<footer><div class="wrap">© 2024 grid-board — <span class="accent" style="font-size:1.2rem">swipe responsibly</span></div></footer>
+
+<!-- DECK OVERLAY -->
+<div class="overlay" id="overlay">
+<div class="close" onclick="closeDeck()"><i class="fas fa-times"></i></div>
+<div id="deckView">
+<div class="deck" id="deck"></div>
+<div class="actions">
+<div class="act pass" onclick="swipe(false)"><i class="fas fa-times"></i></div>
+<div class="act like" onclick="swipe(true)"><i class="fas fa-heart"></i></div>
+</div>
+<div class="counter" id="counter"></div>
+</div>
+<div class="match-screen" id="matchView">
+<div class="accent" style="font-size:2rem">it's a</div>
+<h2>MATCH ✦</h2>
+<div class="match-avs"><div>YOU</div><div id="matchAv">S</div></div>
+<div class="chat"><div class="chat-msgs" id="msgs"><div class="bubble them">Hello 👋 super contente de matcher !</div></div>
+<div class="chat-in"><input id="chatInput" placeholder="Écris un message..." onkeydown="if(event.key==='Enter')send()"><button onclick="send()"><i class="fas fa-paper-plane"></i></button></div></div>
+<button class="btn btn-ghost" style="margin-top:24px" onclick="backDeck()">← Retour au deck</button>
+</div>
+</div>
+
+<script>
+const profiles=[
+{n:'Sarah Capital',a:'S',s:'Fintech · SaaS',st:'Pre-seed → Seed',t:'250K–800K €',b:['Ex-operator devenue VC','Tickets early sur B2B','Décision en <2 semaines']},
+{n:'Atlas Ventures',a:'A',s:'Deeptech · AI',st:'Seed → Series A',t:'1M–3M €',b:['Lead sur tours techniques','Réseau US + EU','Conviction-driven']},
+{n:'Léo · Founder',a:'L',s:'Climate · Hardware',st:'Pre-seed',t:'Cherche 500K €',b:['MVP déployé, 3 pilotes','Équipe technique solide','12% MoM growth']},
+{n:'Nova Fund',a:'N',s:'Consumer · Mobile',st:'Seed',t:'400K–1.2M €',b:['Focus produits virals','Hands-on go-to-market','Cheque rapide']}
+];
+let idx=0,free=3;const deck=document.getElementById('deck'),overlay=document.getElementById('overlay');
+function render(){deck.innerHTML='';for(let i=Math.min(idx+2,profiles.length-1);i>=idx;i--){const p=profiles[i%profiles.length];const c=document.createElement('div');c.className='swipe-card';c.style.transform=`scale(${1-(i-idx)*.04}) translateY(${(i-idx)*-10}px)`;c.style.zIndex=10-(i-idx);c.innerHTML=`<span class="badge nice">NICE!</span><span class="badge nope">NOPE</span><div class="avatar">${p.a}</div><h3>${p.n}</h3><div class="stage">${p.st}</div><p style="color:rgba(255,255,255,.6);font-size:.85rem">${p.s} · ${p.t}</p><ul>${p.b.map(x=>'<li>'+x+'</li>').join('')}</ul>`;deck.appendChild(c);}document.getElementById('counter').textContent=`${free} swipes restants · plan Free`;}
+function swipe(like){if(free<=0){alert('Plus de swipes ! Passe Pro pour swiper sans limite.');return;}const top=deck.lastChild;if(!top)return;const b=top.querySelector(like?'.nice':'.nope');b.style.opacity=1;top.style.transform=`translateX(${like?600:-600}px) rotate(${like?25:-25}deg)`;top.style.opacity=0;free--;setTimeout(()=>{idx++;if(like&&Math.random()>.4){showMatch();}else if(idx<profiles.length+2){render();}else{deck.innerHTML='<div class="swipe-card" style="align-items:center;justify-content:center;text-align:center"><div class="accent" style="font-size:1.8rem">deck vide ✦</div><p style="color:rgba(255,255,255,.6)">Reviens demain pour de nouveaux profils</p></div>';}},400);}
+function showMatch(){document.getElementById('deckView').style.display='none';document.getElementById('matchView').classList.add('show');document.getElementById('matchAv').textContent=profiles[idx%profiles.length].a;}
+function backDeck(){document.getElementById('matchView').classList.remove('show');document.getElementById('deckView').style.display='block';if(idx<profiles.length+2)render();}
+function send(){const i=document.getElementById('chatInput');if(!i.value.trim())return;const m=document.getElementById('msgs');m.innerHTML+=`<div class="bubble me">${i.value}</div>`;i.value='';m.scrollTop=m.scrollHeight;setTimeout(()=>{m.innerHTML+='<div class="bubble them">Parfait, on cale un call cette semaine ? 🚀</div>';m.scrollTop=m.scrollHeight;},800);}
+function openDeck(){overlay.classList.add('show');backDeck();render();}
+function closeDeck(){overlay.classList.remove('show');}
+function role(el){document.querySelectorAll('.tag').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
+</script>
+</body>
+</html>

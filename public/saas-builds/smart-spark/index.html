@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SmartSpark — Where Founders meet Capital</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            charbon: { DEFAULT: '#0B0B12', 900: '#0B0B12', 800: '#121121', 700: '#1A1830' },
+            spark: {
+              violet: '#8B5CF6',
+              electric: '#A855F7',
+              magenta: '#EC4899',
+              orange: '#F97316',
+              like: '#22D3A5',
+              pass: '#FF5A6E',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            neon: '0 0 40px -8px rgba(168,85,247,0.6)',
+            'neon-pink': '0 0 40px -8px rgba(236,72,153,0.6)',
+          },
+          backgroundImage: {
+            'spark-gradient': 'linear-gradient(135deg,#8B5CF6 0%,#EC4899 55%,#F97316 100%)',
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="bg-charbon text-white font-sans antialiased overflow-x-hidden">
+  <div id="root"></div>
+  <!-- React 18.3.1 UMD (React 19 dropped UMD builds) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <!-- Babel Standalone -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.27.2/babel.min.js"></script>
+  <script type="text/babel" data-presets="react" src="app.tsx"></script>
+</body>
+</html>

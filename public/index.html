@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sideloot Admin — Prospection Multicanal</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-left">
+        <span class="brand-triangle">▶</span>
+        <span class="brand-title">SIDELOOT ADMIN</span>
+        <span class="brand-sep">/</span>
+        <span class="brand-domain">theadmins.sideloot.xyz</span>
+      </div>
+      <div class="header-right">
+        <span class="user-email">kevinyena9@gmail.com</span>
+        <button class="btn-signout" id="signOutBtn">Sign out</button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="admin-tabs">
+      <button class="tab-btn active" data-tab="metrics">
+        <span class="tab-icon">📊</span> Metrics
+      </button>
+      <button class="tab-btn" data-tab="email">
+        <span class="tab-icon">📧</span> Email
+      </button>
+      <button class="tab-btn" data-tab="x-dms">
+        <span class="tab-icon">𝕏</span> X DMs
+      </button>
+      <button class="tab-btn" data-tab="x-comments">
+        <span class="tab-icon">💬</span> X Comments
+      </button>
+      <button class="tab-btn" data-tab="reddit-posts">
+        <span class="tab-icon">📝</span> Reddit Posts
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      
+      <!-- ================= TABS: METRICS ================= -->
+      <section class="tab-panel" id="panel-metrics">
+        <!-- Date Filters -->
+        <div class="filters-bar">
+          <button class="filter-btn" data-days="0">Today</button>
+          <button class="filter-btn" data-days="3">Last 3d</button>
+          <button class="filter-btn" data-days="7">Last 7d</button>
+          <button class="filter-btn" data-days="14">Last 14d</button>
+          <button class="filter-btn active" data-days="30">Last 30d</button>
+          <button class="filter-btn" data-days="60">Last 60d</button>
+          <button class="filter-btn" data-days="90">Last 90d</button>
+          <button class="filter-btn" data-days="all">All time</button>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+          <!-- Website Visitors -->
+          <div class="kpi-card">
+            <span class="kpi-title">WEBSITE VISITORS</span>
+            <span class="kpi-value" id="kpi-val-visitors">—</span>
+            <span class="kpi-meta" id="kpi-meta-visitors">Last 30d</span>
+          </div>
+          <!-- Visitors to Sign Up -->
+          <div class="kpi-card">
+            <span class="kpi-title">VISITORS TO SIGN UP</span>
+            <span class="kpi-value" id="kpi-val-conversion">—</span>
+            <span class="kpi-meta" id="kpi-meta-conversion">Conversion rate</span>
+          </div>
+          <!-- Paying Subscribers -->
+          <div class="kpi-card">
+            <span class="kpi-title">PAYING SUBSCRIBERS</span>
+            <button class="kpi-show-btn" id="btn-show-subscribers">Show</button>
+            <span class="kpi-value" id="kpi-val-subscribers">—</span>
+            <span class="kpi-meta" id="kpi-meta-subscribers">Last 30d</span>
+          </div>
+          <!-- Revenue -->
+          <div class="kpi-card">
+            <span class="kpi-title">REVENUE</span>
+            <span class="kpi-value" id="kpi-val-revenue">—</span>
+            <span class="kpi-meta" id="kpi-meta-revenue">Last 30d · net USD</span>
+          </div>
+          <!-- Margin Estimation -->
+          <div class="kpi-card">
+            <span class="kpi-title">MARGIN ESTIMATION</span>
+            <span class="kpi-value" id="kpi-val-margin">—</span>
+            <span class="kpi-meta" id="kpi-meta-margin">50% of revenue</span>
+          </div>
+          <!-- Churn -->
+          <div class="kpi-card">
+            <span class="kpi-title">CHURN RATE</span>
+            <button class="kpi-show-btn" id="btn-show-churn">Show</button>
+            <span class="kpi-value" id="kpi-val-churn">—</span>
+            <span class="kpi-meta" id="kpi-meta-churn">Cancellations ratio</span>
+          </div>
+        </div>
+
+        <!-- Prospection KPIs -->
+        <div class="prospection-kpis-header">
+          <h3>PROSPECTION ACTIONS BY CHANNEL</h3>
+          <p class="muted">Live status from your Supabase multi-channel automation</p>
+        </div>
+        <div class="kpi-grid prospection-channels-grid">
+          <div class="kpi-card channel-card">
+            <span class="kpi-title">📧 EMAILS SENT</span>
+            <span class="kpi-value" id="kpi-val-emails-sent">0</span>
+            <span class="kpi-meta">Outbound outreach</span>
+          </div>
+          <div class="kpi-card channel-card">
+            <span class="kpi-title">📥 EMAILS RECEIVED</span>
+            <span class="kpi-value" id="kpi-val-emails-received">0</span>
+            <span class="kpi-meta">Inbound replies</span>
+          </div>
+          <div class="kpi-card channel-card">
+            <span class="kpi-title">𝕏 DMs SENT</span>
+            <span class="kpi-value" id="kpi-val-xdms-sent">0</span>
+            <span class="kpi-meta">Direct outreach on X</span>
+          </div>
+          <div class="kpi-card channel-card">
+            <span class="kpi-title">💬 X COMMENTS REPLIED</span>
+            <span class="kpi-value" id="kpi-val-xreplies-sent">0</span>
+            <span class="kpi-meta">AI replies to comments</span>
+          </div>
+          <div class="kpi-card channel-card">
+            <span class="kpi-title">📝 REDDIT POSTS</span>
+            <span class="kpi-value" id="kpi-val-reddit-posts">0</span>
+            <span class="kpi-meta">AI-generated promotions</span>
+          </div>
+        </div>
+
+        <!-- We close the Metrics section -->
+      </section>
+
+      <!-- ================= TABS: EMAIL ================= -->
+      <section class="tab-panel hidden" id="panel-email">
+        <div class="campaign-bar">
+          <div class="campaign-bar-left">
+            <span class="campaign-label">📧 Campagne :</span>
+            <select id="email-campaign-select" class="form-control campaign-select">
+              <option value="">Chargement...</option>
+            </select>
+            <button class="btn-delete-campaign" id="btn-delete-email-campaign" title="Supprimer la campagne">🗑️</button>
+            <button class="btn-reload-campaign" id="btn-reload-email-campaign" title="Rafraîchir les données">🔄</button>
+          </div>
+          <button class="btn-action-primary btn-new-campaign" id="btn-new-email-campaign">+ Lancer une campagne</button>
+        </div>
+        <div class="grid-split-equal">
+          <!-- Received Emails (Inbox) -->
+          <div class="panel-card">
+            <div class="panel-card-header">
+              <h4>📥 Inbox (Received)</h4>
+              <p class="muted">Incoming messages from prospective leads</p>
+            </div>
+            <div class="table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>From</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="email-inbound-table-body">
+                  <tr><td colspan="4" class="text-center">Chargement des e-mails...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Sent Emails (Outbox) -->
+          <div class="panel-card">
+            <div class="panel-card-header">
+              <h4>📤 Sent Outreach</h4>
+              <p class="muted">Outbound emails sent by Sideloot AI</p>
+            </div>
+            <div class="table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>To</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="email-outbound-table-body">
+                  <tr><td colspan="3" class="text-center">Chargement des e-mails...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TABS: X DMs ================= -->
+      <section class="tab-panel hidden" id="panel-x-dms">
+        <div class="campaign-bar">
+          <div class="campaign-bar-left">
+            <span class="campaign-label">𝕏 Campagne :</span>
+            <select id="x-dm-campaign-select" class="form-control campaign-select">
+              <option value="">Chargement...</option>
+            </select>
+            <button class="btn-delete-campaign" id="btn-delete-x-dm-campaign" title="Supprimer la campagne">🗑️</button>
+            <button class="btn-reload-campaign" id="btn-reload-x-dm-campaign" title="Rafraîchir les données">🔄</button>
+          </div>
+          <button class="btn-action-primary btn-new-campaign" id="btn-new-x-dm-campaign">+ Lancer une campagne</button>
+        </div>
+        <div class="grid-split-equal">
+          <!-- Received X DMs -->
+          <div class="panel-card">
+            <div class="panel-card-header">
+              <h4>📥 Received DMs</h4>
+              <p class="muted">Incoming direct messages from X prospects</p>
+            </div>
+            <div class="table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Sender</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="xdm-inbound-table-body">
+                  <tr><td colspan="3" class="text-center">Chargement des messages...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Sent X DMs -->
+          <div class="panel-card">
+            <div class="panel-card-header">
+              <h4>📤 Sent DMs</h4>
+              <p class="muted">Outbound DMs sent by Sideloot AI</p>
+            </div>
+            <div class="table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Recipient</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="xdm-outbound-table-body">
+                  <tr><td colspan="3" class="text-center">Chargement des messages...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TABS: X COMMENTS ================= -->
+      <section class="tab-panel hidden" id="panel-x-comments">
+        <div class="campaign-bar">
+          <div class="campaign-bar-left">
+            <span class="campaign-label">💬 Campagne :</span>
+            <select id="x-comment-campaign-select" class="form-control campaign-select">
+              <option value="">Chargement...</option>
+            </select>
+            <button class="btn-delete-campaign" id="btn-delete-x-comment-campaign" title="Supprimer la campagne">🗑️</button>
+            <button class="btn-reload-campaign" id="btn-reload-x-comment-campaign" title="Rafraîchir les données">🔄</button>
+          </div>
+          <button class="btn-action-primary btn-new-campaign" id="btn-new-x-comment-campaign">+ Lancer une campagne</button>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <h4>💬 X Comments Replied</h4>
+            <p class="muted">Comments that Sideloot AI added to posts in your X feed</p>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Post Author</th>
+                  <th>Comment Reply Content</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="xcomments-table-body">
+                <tr><td colspan="4" class="text-center">Chargement des commentaires...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TABS: REDDIT POSTS ================= -->
+      <section class="tab-panel hidden" id="panel-reddit-posts">
+        <div class="campaign-bar">
+          <div class="campaign-bar-left">
+            <span class="campaign-label">📝 Campagne :</span>
+            <select id="reddit-campaign-select" class="form-control campaign-select">
+              <option value="">Chargement...</option>
+            </select>
+            <button class="btn-delete-campaign" id="btn-delete-reddit-campaign" title="Supprimer la campagne">🗑️</button>
+            <button class="btn-reload-campaign" id="btn-reload-reddit-campaign" title="Rafraîchir les données">🔄</button>
+          </div>
+          <button class="btn-action-primary btn-new-campaign" id="btn-new-reddit-campaign">+ Lancer une campagne</button>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div>
+              <h4>📝 Reddit Posts</h4>
+              <p class="muted">Promotional experiences shared by Sideloot AI in subreddits</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-weight:600; font-family:var(--mono); font-size:12px;">Filter:</span>
+              <select id="reddit-subreddit-filter" class="form-control" style="width:160px; padding:4px 8px; border-radius:6px; border:1.5px solid var(--border); background-color:var(--bg); font-family:var(--mono); font-size:12px;">
+                <option value="all">All subreddits</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Subreddit</th>
+                  <th>Post Body</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="reddit-posts-table-body">
+                <tr><td colspan="4" class="text-center">Chargement des posts Reddit...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+  
+  <!-- Email Campaign Modal -->
+  <div id="modal-email-campaign" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📧 Lancer une Campagne Email</h3>
+        <button class="btn-close-modal" id="btn-close-email-modal">&times;</button>
+      </div>
+      <form id="form-email-campaign" class="modal-form">
+        <div class="form-group">
+          <label>Nom de la campagne</label>
+          <input type="text" name="name" class="form-control" placeholder="ex: Cabinet Dentaire IDF" required />
+        </div>
+        
+        <div class="form-group">
+          <label>Expéditeur (Mailgun)</label>
+          <input type="text" class="form-control" value="grace@sideloot.xyz" disabled style="background-color: var(--panel-2); font-weight: bold;" />
+        </div>
+
+        <div class="form-group">
+          <label>Type de prospection</label>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn active" id="btn-toggle-email-manual">Manuelle (Liste)</button>
+            <button type="button" class="toggle-btn" id="btn-toggle-email-automated">Automatisée (Apify Scraper)</button>
+            <input type="hidden" name="type" id="email-outreach-type" value="manual" />
+          </div>
+        </div>
+
+        <!-- Manual Section -->
+        <div id="email-manual-fields" class="form-section">
+          <div class="form-group">
+            <label>Liste d'emails (séparés par des virgules)</label>
+            <textarea name="emailsList" class="form-control" placeholder="ex: dr.smith@example.com, contact@dentist.fr" rows="3"></textarea>
+          </div>
+        </div>
+
+        <!-- Automated Section -->
+        <div id="email-automated-fields" class="form-section hidden">
+          <div class="form-group">
+            <label>Mots-clés de recherche LinkedIn (séparés par des virgules)</label>
+            <textarea name="linkedinKeywords" class="form-control" placeholder="ex: accounting firm owner, solo CPA" rows="2"></textarea>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-group">
+              <label>Localisation / Pays</label>
+              <input type="text" name="linkedinLocation" class="form-control" placeholder="ex: United States, France" />
+            </div>
+            <div class="form-group">
+              <label>Fonction / Postes</label>
+              <input type="text" name="linkedinFunction" class="form-control" placeholder="ex: Owner, CPA, Managing Partner" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Nombre total d'emails à aller chercher</label>
+            <input type="number" name="limit" class="form-control" placeholder="10" min="1" max="100" value="10" />
+          </div>
+          <div class="form-group" style="margin-top: 15px;">
+            <button type="button" class="btn-action-primary" id="btn-preview-leads" style="background-color: transparent; border: 1.5px solid var(--border); color: var(--text); padding: 8px 16px; font-weight: bold; width: 100%;">🔍 Prévisualiser 10 profils</button>
+            <div id="lead-preview-container" class="hidden" style="margin-top: 15px; max-height: 250px; overflow-y: auto; border: 1.5px solid var(--border); border-radius: 8px; padding: 12px; background-color: var(--panel-2);">
+              <!-- Render results here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Objet de l'email</label>
+          <input type="text" name="subject" class="form-control" placeholder="ex: Améliorez votre SEO en 2026" required />
+        </div>
+
+        <div class="form-group">
+          <label>Corps du message</label>
+          <textarea name="body" class="form-control" placeholder="Bonjour, ..." rows="6" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Fréquence d'envoi (minutes, min 1, max 30)</label>
+          <input type="number" name="send_interval_minutes" class="form-control" min="1" max="30" value="5" required />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-signout" id="btn-cancel-email-campaign">Annuler</button>
+          <button type="submit" class="btn-action-primary">Lancer la campagne</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- X DMs Campaign Modal -->
+  <div id="modal-x-dm-campaign" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>𝕏 Lancer une Campagne X DMs</h3>
+        <button class="btn-close-modal" id="btn-close-xdm-modal">&times;</button>
+      </div>
+      <form id="form-x-dm-campaign" class="modal-form">
+        <div class="form-group">
+          <label>Nom de la campagne</label>
+          <input type="text" name="name" class="form-control" placeholder="ex: Fondateurs Startup SaaS" required />
+        </div>
+
+        <div class="form-group">
+          <label>Liste des handles (séparés par des virgules)</label>
+          <textarea name="handlesList" class="form-control" placeholder="ex: @elonmusk, @paulg" rows="3" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Template du message (reçoit {handle})</label>
+          <textarea name="template" class="form-control" placeholder="Hey {handle}, j'adore ce que vous faites avec..." rows="5" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Fréquence d'envoi (minutes, min 1, max 30)</label>
+          <input type="number" name="send_interval_minutes" class="form-control" min="1" max="30" value="5" required />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-signout" id="btn-cancel-xdm-campaign">Annuler</button>
+          <button type="submit" class="btn-action-primary">Lancer la campagne</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- X Comments Campaign Modal -->
+  <div id="modal-x-comment-campaign" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>💬 Lancer une Campagne de Commentaires X</h3>
+        <button class="btn-close-modal" id="btn-close-xcomment-modal">&times;</button>
+      </div>
+      <form id="form-x-comment-campaign" class="modal-form">
+        <div class="form-group">
+          <label>Nom de la campagne</label>
+          <input type="text" name="name" class="form-control" placeholder="ex: Replies mot-clé IA" required />
+        </div>
+
+        <div class="form-group">
+          <label>Mot-clé à rechercher sur X</label>
+          <input type="text" name="keyword" class="form-control" placeholder="ex: side business automatisation" required />
+        </div>
+
+        <div class="form-group">
+          <label>Consignes / Instructions pour ChatGPT</label>
+          <textarea name="template" class="form-control" placeholder="Montre de l'intérêt pour le post et parle brièvement de Sideloot..." rows="5" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Fréquence d'envoi (minutes, min 1, max 30)</label>
+          <input type="number" name="send_interval_minutes" class="form-control" min="1" max="30" value="5" required />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-signout" id="btn-cancel-xcomment-campaign">Annuler</button>
+          <button type="submit" class="btn-action-primary">Lancer la campagne</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Reddit Campaign Modal -->
+  <div id="modal-reddit-campaign" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📝 Lancer une Campagne Reddit</h3>
+        <button class="btn-close-modal" id="btn-close-reddit-modal">&times;</button>
+      </div>
+      <form id="form-reddit-campaign" class="modal-form">
+        <div class="form-group">
+          <label>Nom de la campagne</label>
+          <input type="text" name="name" class="form-control" placeholder="ex: Post r/startup side-business" required />
+        </div>
+
+        <div class="form-group">
+          <label>Subreddits (séparés par des virgules)</label>
+          <input type="text" name="subreddits" class="form-control" placeholder="ex: startup, sidehustle, entrepreneur" required />
+        </div>
+
+        <div class="form-group">
+          <label>Sujet / Expérience à raconter (ChatGPT génère le post)</label>
+          <textarea name="template" class="form-control" placeholder="Raconte comment un utilisateur a lancé un business autonome..." rows="5" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Fréquence d'envoi (minutes, min 1, max 30)</label>
+          <input type="number" name="send_interval_minutes" class="form-control" min="1" max="30" value="5" required />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-signout" id="btn-cancel-reddit-campaign">Annuler</button>
+          <button type="submit" class="btn-action-primary">Lancer la campagne</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Paying Customers Modal -->
+  <div id="modal-paying-customers" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3>💳 Clients Actifs (Stripe)</h3>
+        <button class="btn-close-modal" id="btn-close-customers-modal">&times;</button>
+      </div>
+      <div style="padding: 20px; max-height: 400px; overflow-y: auto;">
+        <table class="admin-table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="text-align: left; padding: 10px; border-bottom: 1.5px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px;">Client</th>
+              <th style="text-align: left; padding: 10px; border-bottom: 1.5px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px;">Email</th>
+              <th style="text-align: left; padding: 10px; border-bottom: 1.5px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px;">Abonnement</th>
+              <th style="text-align: center; padding: 10px; border-bottom: 1.5px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px;">Statut</th>
+            </tr>
+          </thead>
+          <tbody id="paying-customers-table-body">
+            <tr>
+              <td colspan="4" class="text-center muted" style="padding: 20px;">Chargement des clients...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-signout" id="btn-close-customers-footer">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Churned Customers Modal -->
+  <div id="modal-churned-customers" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3>❌ Clients Churnés (Désabonnés)</h3>
+        <button class="btn-close-modal" id="btn-close-churn-modal">&times;</button>
+      </div>
+      <div style="padding: 20px; max-height: 400px; overflow-y: auto;">
+        <table class="admin-table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="text-align: left; padding: 10px; border-bottom: 1.5px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px;">Client</th>
+              <th style="text-align: left; padding: 10px; border-bottom: 1.5px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px;">Email</th>
+              <th style="text-align: left; padding: 10px; border-bottom: 1.5px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px;">Abonnement</th>
+              <th style="text-align: center; padding: 10px; border-bottom: 1.5px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px;">Date de Résiliation</th>
+            </tr>
+          </thead>
+          <tbody id="churned-customers-table-body">
+            <tr>
+              <td colspan="4" class="text-center muted" style="padding: 20px;">Chargement des clients désabonnés...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-signout" id="btn-close-churn-footer">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="errorBox" class="error-toast hidden"></div>
+
+  <!-- ================= MESSAGE DRAWER ================= -->
+  <div id="message-drawer-overlay" class="msg-drawer-overlay hidden" onclick="closeMessageDrawer(event)">
+    <aside id="message-drawer" class="msg-drawer" onclick="event.stopPropagation()">
+      <!-- Drawer Header -->
+      <div class="msg-drawer-header">
+        <div class="msg-drawer-header-info">
+          <span class="msg-drawer-avatar" id="drawer-avatar">?</span>
+          <div class="msg-drawer-titles">
+            <span class="msg-drawer-contact" id="drawer-contact">—</span>
+            <span class="msg-drawer-subject" id="drawer-subject">—</span>
+            <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+              <span class="muted small" style="font-size: 11px;">Statut :</span>
+              <select id="drawer-status-select" class="form-control-sm" style="padding: 2px 6px; border-radius: 4px; border: 1.5px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px; background-color: var(--panel-2); color: var(--text);">
+                <option value="new">NEW</option>
+                <option value="open">OPEN</option>
+                <option value="ok">OK</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button class="msg-drawer-close" id="btn-close-drawer" onclick="closeMessageDrawer()">&#x2715;</button>
+      </div>
+
+      <!-- Drawer Body: Chat Bubbles -->
+      <div class="msg-drawer-body" id="drawer-messages">
+        <div class="msg-drawer-loading" id="drawer-loading">
+          <span class="msg-spinner"></span>
+          <span>Chargement du fil...</span>
+        </div>
+      </div>
+
+      <!-- Drawer Footer: Reply Box -->
+      <div class="msg-drawer-footer">
+        <div class="msg-reply-box">
+          <div class="msg-reply-from">
+            <span class="msg-reply-from-label">De :</span>
+            <span class="msg-reply-from-addr">grace@sideloot.xyz</span>
+          </div>
+          <textarea
+            id="drawer-reply-input"
+            class="msg-reply-textarea"
+            placeholder="Ecrire une reponse..."
+            rows="3"
+          ></textarea>
+          <div class="msg-reply-actions">
+            <span class="msg-reply-hint">Shift+Entree pour nouvelle ligne</span>
+            <button id="btn-send-reply" class="btn-send-reply" onclick="sendDrawerReply()">
+              <span id="btn-send-reply-text">Envoyer &#x2191;</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="app.js?v=sideloot-v4"></script>
+</body>
+</html>

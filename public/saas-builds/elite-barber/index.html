@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elite Cut — Premium Barber Booking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800;900&family=Cormorant+Garamond:wght@500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header" id="header">
+  <div class="container header-inner">
+    <a href="#/" class="logo" data-link>
+      <i class="fa-solid fa-scissors"></i>
+      <span>Elite<em>Cut</em></span>
+    </a>
+    <nav class="nav" id="nav">
+      <a href="#/" data-link>Accueil</a>
+      <a href="#/services" data-link>Prestations</a>
+      <a href="#/barbers" data-link>L'Équipe</a>
+      <a href="#/contact" data-link>Contact</a>
+    </nav>
+    <div class="header-actions">
+      <a href="#/booking" class="btn btn-gold" data-link><i class="fa-solid fa-calendar-check"></i> Réserver</a>
+      <button class="burger" id="burger" aria-label="menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== APP ROOT ===== -->
+<main id="app"></main>
+
+<!-- ===== FLOATING CTA ===== -->
+<a href="#/booking" class="float-cta" data-link><i class="fa-solid fa-scissors"></i> Prendre RDV</a>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <a href="#/" class="logo" data-link><i class="fa-solid fa-scissors"></i><span>Elite<em>Cut</em></span></a>
+      <p>L'art du barbier réinventé. Une expérience premium au cœur de la ville.</p>
+      <div class="socials">
+        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+      </div>
+    </div>
+    <div>
+      <h4>Navigation</h4>
+      <a href="#/services" data-link>Prestations</a>
+      <a href="#/barbers" data-link>Notre équipe</a>
+      <a href="#/booking" data-link>Réservation</a>
+      <a href="#/contact" data-link>Contact</a>
+    </div>
+    <div>
+      <h4>Horaires</h4>
+      <p>Lun – Ven : 9h00 – 20h00</p>
+      <p>Samedi : 9h00 – 18h00</p>
+      <p>Dimanche : Fermé</p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p><i class="fa-solid fa-location-dot"></i> 12 Rue de l'Élégance, Paris</p>
+      <p><i class="fa-solid fa-phone"></i> 01 42 00 00 00</p>
+      <p><i class="fa-solid fa-envelope"></i> contact@elitecut.fr</p>
+    </div>
+  </div>
+  <div class="footer-bottom"><p>© 2024 Elite Cut. Tous droits réservés. Conçu avec passion.</p></div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

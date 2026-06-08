@@ -1,0 +1,61 @@
+{
+  "status": "completed",
+  "step": 5,
+  "totalSteps": 5,
+  "statusText": "Génération complétée avec succès !",
+  "files": [
+    "index.html",
+    "style.css",
+    "app.js",
+    "api.js"
+  ],
+  "mobbinQueries": [
+    "dark futuristic finance dashboard with neon charts and glassmorphism",
+    "personal budget tracker app with category donut chart dark mode",
+    "add transaction modal form fintech app dark UI"
+  ],
+  "mobbinScreens": [
+    {
+      "id": "1d40ccee-b335-4a85-b25a-007cbc2731db",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.9h-6M8_Eozr6K7Ys.fhlytr4fSWLYUhX1-wpgr7tWMnJdizNgpex4U8hkJ7PMjoEkI7LDctSxlq8JV1nv6KZUbc-EADXvK3LW0XiLFg045KazCiPD8IptUf8VV7wE3w8ovGlnr8DtQ5etFBWAZtWOuBPd9oUmpaAOzpbJJumgzPGFka_X5nKT9iBxpziMrEPzRl4upSOlzM1VeDg0eRTwcQM-QtrfO-_6jC1moD077RwWx6McbdALUnNyfljDf9NNqBGFCfjLj5kIBpSqo6Hcj_1hzQzgq7WD5q-0AtB5zaj2r7HmyPJKN8a5elR8Kl0ZuJtQmN3C19lMJjtQ5bKPcaRL6D95dD8MdBAQ8-tDy1yGm7Hh1OE4W4QumsEuqL5bdKpEmmJuFQ_bLYFFWBdAc4pSJBHaSQGoTz1iGzZe13lB246y5KqRl-KEHM2aoEW1zY1mTSJzs_O8NYE",
+      "mobbin_url": "https://mobbin.com/screens/1d40ccee-b335-4a85-b25a-007cbc2731db",
+      "app_name": "YNAB",
+      "platform": "web"
+    },
+    {
+      "id": "5f392dd5-f5b8-4a2e-875e-8dab0241a721",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.Zku08x0nyO0J0g0M._NrB-X6D1atdwwkC2S2UwsORCSxfYPt1WBar6WNwH5qAqE9JNWZzV22bZymksXu_9TDDzK9L2VJlRWbbN-3F593jHWlPN_h27vK2W4KUdvcSl-XgC-dT2p5ybVmWhvxwgZdv8FvS__w7txGmgV2DYIkNIdU6prcCTDpP5dJPPiBQXGtfXrRYJSKEt6jrpkLekedLCvsyC66EQ2iYMuMikk772kT4v-nkUB66p2rh7LdgJyPXZkUZgVZ-e4rvjlUe-R6cbxgDO_7NDpTpdVeAqo4ob7D5NnAq1WsrWQF26FJFzzVVY1snK8wvP_gCIhF6MjonP_xqEyoWalxPFumaQultqpKorcjM9OSeGB1YQ1a2tsFdFrkyiT_MV5hB0G9MdoZkCLAZtsjURc8LE4DYA349nFgkDBn1XQhQyhvmK6Wya_GT3gSu2afejQcTYO4",
+      "mobbin_url": "https://mobbin.com/screens/5f392dd5-f5b8-4a2e-875e-8dab0241a721",
+      "app_name": "Fey",
+      "platform": "web"
+    },
+    {
+      "id": "6a71467c-2d4d-4a06-ada2-559bec6d7b2d",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.IhUrSe0nNh-UY90H.3L_Fs1xuvXiFh8ix_3DtcjCR8PQkCaDJie9XUvOfPCYjJ7L__hFGaSw4_xKwowJoJdnWnk0oIYfb0MkT_Yi4IAudemZ1BYvk4QTx_3rKN2nDQr8D6AAUaY6E3BpT_xC6D9sEzg-D4jEj_70e-YdkPU_iQ6fNureuJvFwrbgYvwNvMv970In-ZY-scwUr9HcUaCuH_tpQzJgkZRwm7Lneu7eIJlT3pwwn98wBX8WK_z9IlYokwJkL6SttpK_lsV0H0a-RNlnjGohW20WyH9uFm843oiAI8o4Vb1IkS-FDKoHDHb4CRN4NZ7sA73Wo9CciXUywsfY8zAABXinOYWut7MTqlGtBJcel8EJUBWUnDI_3auis8m5N2lC_4oNmCB_mxTsZd1bfnTvr2fInT5xRg9EtUExBwPOedKBrZtVcujWEtnGcHnM8L1ixFqH5Zvo",
+      "mobbin_url": "https://mobbin.com/screens/6a71467c-2d4d-4a06-ada2-559bec6d7b2d",
+      "app_name": "YNAB",
+      "platform": "web"
+    },
+    {
+      "id": "2c672084-8391-462c-b8d1-44fe11646973",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.0_6rh48lbplV6sFZ.4ikoauItpdoqqFsImazPPEoLKdwCbfoDu7FMkg4r9W2cZ04gICHHa7DYAOBTmm-kz_mMzOB1sgSCLpTPpRqlwF8JIuYABCkQ5EvHEOXwYvKaEoUC_7LY8lojUDYV-eFXtMIpDifWmIT79OpgP7_5cCzYh_dVoKiF5Ds_pjtUV0wQ7KSDE1ZNrIvlIJOhQLR6TGpv3e3dFMNNmsEx27T2aL7AShhbL1vkLJk0crJj28JpxoCi5oofuQa20Y4ts5jn2bvbGtilNYd-2gSR7qbj_b-Mzl7xZ7B6F0iFD0g8p3sBgDS4M_xC4sJhdpEGIlMq9broQwZmjFPbAT4ahipLL17poRDRJ5tJitTg3EXV7qOp9stOFn-0EL2LEUofSXZzzk5X5vxRucCY24u7-PD4svoa_rdqcvMA0FUzcY6cTqMytVXFVw-2sLmqNWphk50",
+      "mobbin_url": "https://mobbin.com/screens/2c672084-8391-462c-b8d1-44fe11646973",
+      "app_name": "Rocket Money",
+      "platform": "web"
+    },
+    {
+      "id": "21b1f127-5718-415c-b4f7-62c783e78f76",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.tJrTHQlA4upHK5Pc.9A7Mb4ceBgyvhc1iRWGoNJxZJXTFm4q_nvycV-YD8ljFBvL3gsCfyGzQAsjJtX7zfsPiABEievl89EaQ0iK5SHcQ-WBgc2Qt4u2oT84Nj8S5gkj2hXqx2O4p90NArEcOkegZ9ITaXF0yqYOgwP0SNvbUk1sIbKrHvJwxOnO3o6qTQNF17rcAQBL3SQh43M18NkpxUBngGdyPXOPYFnAcK2XB-5P9ee_RZZZmu_na3ZCGvaWrQWEj0W7UFiYYj76a4_Bfo4PKrzxyMfBlNRHP45_ppRqAhH0TXfJfpgO6BaWgVsOV824EkD9CwWvsYaZDMIOLRisA9HRcKZmBRL4q48GlKLL3TH3gkHj9ov5S5BDcKEUISeh3X7kiTtcXVVbWulJcdbPTphq8wUL2Onm02l2qSB5oyRfGIhtDoUdiPm3IpD5NhkUDbf7-mNiEf1I",
+      "mobbin_url": "https://mobbin.com/screens/21b1f127-5718-415c-b4f7-62c783e78f76",
+      "app_name": "Quicken",
+      "platform": "web"
+    },
+    {
+      "id": "60c775a7-f201-490a-9186-c59a7c66e1ff",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.05jHBUjktYvF6DP3.1r_DOe6ZPEIjSz-8CIHYLqR3YpDvdzvZhntaAVsMmF1MddrP2MvC7m7KAuuLjEL55cfirjnjDOTaVm6SadHQ_-Eatp5aNqYjK97o25YSim-53IS_pFZg39IwkCEL-B3CBJRGWUZdD8s6whM7nj9l9-mgrXCm9PlVontRJyl3hMg4kwh27rG5d2_kopxdCXexiDg-wNemLrJOdE6vv5Ql8cztMqYs0QQ9mOT2zeJrqfqyEd9Zs0gcc07hwITGOhHgp-SQlIS4cMa-WRgsp-41VGmQykstC27xkZAkIUg7QsCLcRBtQE2sELBYzm03uJ7qG38kNPnOgHMc4NtwB6uuKHDiagYPfDLJpWATFf5EtNON819_ycteHJa8VY32uZ2pMcpgSCoJEBh7M2WvxDLF0xlZsdMBqOD5bkFEXz_XdJJXpwjU0VQtcJU-726BJ84",
+      "mobbin_url": "https://mobbin.com/screens/60c775a7-f201-490a-9186-c59a7c66e1ff",
+      "app_name": "Monarch",
+      "platform": "web"
+    }
+  ]
+}

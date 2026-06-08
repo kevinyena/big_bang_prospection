@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM Light — Transformez vos prospects en clients</title>
+<meta name="description" content="CRM minimaliste pour freelances. Suivez vos prospects, gérez votre pipeline et ne manquez plus aucune relance.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+<!-- ============ LANDING PAGE ============ -->
+<div id="landing" class="landing">
+  <header class="lp-nav">
+    <div class="container lp-nav-inner">
+      <a href="#" class="brand">
+        <span class="brand-logo"><i class="fa-solid fa-bolt"></i></span>
+        <span class="brand-name">CRM Light</span>
+      </a>
+      <nav class="lp-links">
+        <a href="#features">Fonctionnalités</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#pricing">Tarifs</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="lp-actions">
+        <button class="btn btn-ghost" data-action="open-app">Connexion</button>
+        <button class="btn btn-primary" data-action="open-app">Essai gratuit</button>
+      </div>
+      <button class="lp-burger" data-action="toggle-burger"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <span class="badge"><i class="fa-solid fa-star"></i> Conçu pour les freelances</span>
+        <h1>Transformez vos prospects en clients sans noyer votre journée dans un tableau Excel.</h1>
+        <p class="hero-sub">CRM Light est le CRM minimaliste qui vous donne une vue claire de votre pipeline commercial et vous rappelle chaque relance. Zéro complexité, 100% efficacité.</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary btn-lg" data-action="open-app"><i class="fa-solid fa-rocket"></i> Démarrer gratuitement</button>
+          <button class="btn btn-outline btn-lg" data-action="open-app"><i class="fa-regular fa-circle-play"></i> Voir la démo</button>
+        </div>
+        <div class="hero-trust">
+          <div class="avatars">
+            <img src="https://i.pravatar.cc/40?img=12" alt="">
+            <img src="https://i.pravatar.cc/40?img=32" alt="">
+            <img src="https://i.pravatar.cc/40?img=45" alt="">
+            <img src="https://i.pravatar.cc/40?img=5" alt="">
+          </div>
+          <div class="trust-text"><strong>+2 400 freelances</strong> suivent déjà leurs deals<div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="glass-card hero-board">
+          <div class="hb-head">
+            <div class="hb-dots"><span></span><span></span><span></span></div>
+            <span class="hb-title">Pipeline · Q1</span>
+          </div>
+          <div class="hb-cols">
+            <div class="hb-col">
+              <div class="hb-col-h">Nouveau <em>3</em></div>
+              <div class="mini-card"><span class="mc-dot indigo"></span>Studio Nova<small>4 500 €</small></div>
+              <div class="mini-card"><span class="mc-dot indigo"></span>Léa Martin<small>1 200 €</small></div>
+            </div>
+            <div class="hb-col">
+              <div class="hb-col-h">Proposition <em>2</em></div>
+              <div class="mini-card hot"><span class="mc-dot amber"></span>Acme Corp<small>9 800 €</small></div>
+            </div>
+            <div class="hb-col">
+              <div class="hb-col-h">Gagné <em>5</em></div>
+              <div class="mini-card win"><span class="mc-dot green"></span>Pixel Lab<small>6 300 €</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="float-stat fs-1"><i class="fa-solid fa-arrow-trend-up"></i><div><strong>+34%</strong><span>Conversion</span></div></div>
+        <div class="float-stat fs-2"><i class="fa-solid fa-bell"></i><div><strong>0</strong><span>Relance oubliée</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="logos">
+    <div class="container">
+      <p>Une alternative légère à</p>
+      <div class="logo-row">
+        <span><i class="fa-brands fa-salesforce"></i> Salesforce</span>
+        <span><i class="fa-solid fa-h"></i> HubSpot</span>
+        <span><i class="fa-solid fa-table-cells"></i> Excel</span>
+        <span><i class="fa-solid fa-diagram-project"></i> Pipedrive</span>
+        <span><i class="fa-solid fa-database"></i> Zoho</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="features">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Fonctionnalités</span>
+        <h2>Tout ce qu'il faut. Rien de superflu.</h2>
+        <p>Chaque fonctionnalité a été pensée pour vous faire gagner du temps, pas pour vous en faire perdre dans des menus.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <span class="fi indigo"><i class="fa-solid fa-chart-line"></i></span>
+          <h3>Dashboard clair</h3>
+          <p>Prospects actifs, taux de conversion, valeur du pipeline et relances en retard d'un seul coup d'œil.</p>
+        </article>
+        <article class="feature-card">
+          <span class="fi violet"><i class="fa-solid fa-table-columns"></i></span>
+          <h3>Pipeline Kanban</h3>
+          <p>Glissez-déposez vos prospects de « Nouveau » à « Gagné » avec la valeur du deal sur chaque carte.</p>
+        </article>
+        <article class="feature-card">
+          <span class="fi green"><i class="fa-solid fa-address-card"></i></span>
+          <h3>Fiches contacts</h3>
+          <p>Email, téléphone, source, tags et historique complet des interactions par prospect.</p>
+        </article>
+        <article class="feature-card">
+          <span class="fi amber"><i class="fa-solid fa-bell"></i></span>
+          <h3>Relances intelligentes</h3>
+          <p>Créez des tâches de relance avec échéance et recevez un rappel pour ne rien oublier.</p>
+        </article>
+        <article class="feature-card">
+          <span class="fi blue"><i class="fa-solid fa-clock-rotate-left"></i></span>
+          <h3>Journal d'activité</h3>
+          <p>Notes, appels et emails archivés chronologiquement pour reprendre une conversation instantanément.</p>
+        </article>
+        <article class="feature-card">
+          <span class="fi rose"><i class="fa-solid fa-sliders"></i></span>
+          <h3>100% personnalisable</h3>
+          <p>Adaptez les étapes de votre pipeline et votre profil à votre activité en quelques clics.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="pipeline" class="showcase">
+    <div class="container showcase-inner">
+      <div class="showcase-copy">
+        <span class="eyebrow">Pipeline visuel</span>
+        <h2>Votre flux commercial, enfin lisible.</h2>
+        <p>Visualisez où en est chaque opportunité. Déplacez vos cartes d'une étape à l'autre et concentrez-vous sur les deals qui comptent.</p>
+        <ul class="check-list">
+          <li><i class="fa-solid fa-circle-check"></i> Drag &amp; drop fluide entre les étapes</li>
+          <li><i class="fa-solid fa-circle-check"></i> Valeur estimée affichée en temps réel</li>
+          <li><i class="fa-solid fa-circle-check"></i> Étapes 100% configurables</li>
+        </ul>
+        <button class="btn btn-primary" data-action="open-app">Essayer le pipeline <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+      <div class="showcase-visual glass-card">
+        <div class="sv-board">
+          <div class="sv-col"><h4>Nouveau</h4><div class="sv-card"><strong>Studio Nova</strong><span>Refonte site</span><b>4 500 €</b></div><div class="sv-card"><strong>Léa Martin</strong><span>Coaching</span><b>1 200 €</b></div></div>
+          <div class="sv-col"><h4>Négociation</h4><div class="sv-card hot"><strong>Acme Corp</strong><span>App mobile</span><b>9 800 €</b></div></div>
+          <div class="sv-col"><h4>Gagné</h4><div class="sv-card win"><strong>Pixel Lab</strong><span>Branding</span><b>6 300 €</b></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="metrics">
+    <div class="container metrics-grid">
+      <div class="metric"><strong>2 400+</strong><span>Freelances actifs</span></div>
+      <div class="metric"><strong>180k€</strong><span>Pipeline suivi/mois</span></div>
+      <div class="metric"><strong>34%</strong><span>Conversion moyenne</span></div>
+      <div class="metric"><strong>4,9/5</strong><span>Note utilisateurs</span></div>
+    </div>
+  </section>
+
+  <section id="pricing" class="pricing">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Tarifs</span>
+        <h2>Simple et transparent</h2>
+        <p>Commencez gratuitement. Passez au plan supérieur quand votre activité décolle.</p>
+      </div>
+      <div class="price-grid">
+        <article class="price-card">
+          <h3>Free</h3>
+          <div class="price"><span>0€</span>/mois</div>
+          <p class="price-desc">Pour tester et démarrer.</p>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> Jusqu'à 15 prospects</li>
+            <li><i class="fa-solid fa-check"></i> Pipeline Kanban</li>
+            <li><i class="fa-solid fa-check"></i> Relances basiques</li>
+            <li class="off"><i class="fa-solid fa-xmark"></i> Statistiques avancées</li>
+          </ul>
+          <button class="btn btn-outline btn-block" data-action="open-app">Commencer</button>
+        </article>
+        <article class="price-card featured">
+          <span class="pop">Populaire</span>
+          <h3>Pro</h3>
+          <div class="price"><span>12€</span>/mois</div>
+          <p class="price-desc">Pour les freelances en croissance.</p>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> Prospects illimités</li>
+            <li><i class="fa-solid fa-check"></i> Dashboard &amp; analytics</li>
+            <li><i class="fa-solid fa-check"></i> Relances &amp; rappels</li>
+            <li><i class="fa-solid fa-check"></i> Tags &amp; filtres avancés</li>
+          </ul>
+          <button class="btn btn-primary btn-block" data-action="open-app">Essai 14 jours</button>
+        </article>
+        <article class="price-card">
+          <h3>Studio</h3>
+          <div class="price"><span>29€</span>/mois</div>
+          <p class="price-desc">Pour les petites équipes (1-3).</p>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> Tout le plan Pro</li>
+            <li><i class="fa-solid fa-check"></i> Jusqu'à 3 utilisateurs</li>
+            <li><i class="fa-solid fa-check"></i> Pipelines personnalisés</li>
+            <li><i class="fa-solid fa-check"></i> Support prioritaire</li>
+          </ul>
+          <button class="btn btn-outline btn-block" data-action="open-app">Choisir Studio</button>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="faq">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">FAQ</span>
+        <h2>Questions fréquentes</h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item" open><summary>Faut-il une carte bancaire pour l'essai ?<i class="fa-solid fa-chevron-down"></i></summary><p>Non. Vous démarrez gratuitement sans aucune carte bancaire et vous décidez plus tard.</p></details>
+        <details class="faq-item"><summary>Puis-je importer mes prospects depuis Excel ?<i class="fa-solid fa-chevron-down"></i></summary><p>Oui, importez votre fichier CSV/Excel en quelques secondes pour migrer toutes vos données.</p></details>
+        <details class="faq-item"><summary>Mes données sont-elles sécurisées ?<i class="fa-solid fa-chevron-down"></i></summary><p>Vos données sont chiffrées et stockées dans des bases PostgreSQL sécurisées. Vous restez propriétaire à 100%.</p></details>
+        <details class="faq-item"><summary>Puis-je annuler à tout moment ?<i class="fa-solid fa-chevron-down"></i></summary><p>Bien sûr. Aucun engagement : vous annulez en un clic depuis vos paramètres.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="container cta-inner glass-card">
+      <h2>Prêt à ne plus jamais perdre une opportunité ?</h2>
+      <p>Rejoignez les freelances qui transforment leurs prospects en clients chaque jour.</p>
+      <button class="btn btn-primary btn-lg" data-action="open-app"><i class="fa-solid fa-rocket"></i> Démarrer gratuitement</button>
+    </div>
+  </section>
+
+  <footer class="lp-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="brand"><span class="brand-logo"><i class="fa-solid fa-bolt"></i></span><span class="brand-name">CRM Light</span></a>
+        <p>Le CRM minimaliste pensé pour les freelances.</p>
+        <div class="socials"><a href="#"><i class="fa-brands fa-x-twitter"></i></a><a href="#"><i class="fa-brands fa-linkedin-in"></i></a><a href="#"><i class="fa-brands fa-github"></i></a></div>
+      </div>
+      <div class="footer-col"><h4>Produit</h4><a href="#features">Fonctionnalités</a><a href="#pipeline">Pipeline</a><a href="#pricing">Tarifs</a></div>
+      <div class="footer-col"><h4>Ressources</h4><a href="#">Blog</a><a href="#">Guides</a><a href="#faq">FAQ</a></div>
+      <div class="footer-col"><h4>Entreprise</h4><a href="#">À propos</a><a href="#">Contact</a><a href="#">Confidentialité</a></div>
+    </div>
+    <div class="container footer-bottom"><span>© 2024 CRM Light. Tous droits réservés.</span><span>Fait avec <i class="fa-solid fa-heart"></i> pour les indépendants.</span></div>
+  </footer>
+</div>
+
+<!-- ============ APPLICATION ============ -->
+<div id="dashboard" class="app hidden">
+  <aside class="sidebar">
+    <div class="sb-top">
+      <a href="#" class="brand sb-brand"><span class="brand-logo"><i class="fa-solid fa-bolt"></i></span><span class="brand-name">CRM Light</span></a>
+    </div>
+    <nav class="sb-nav">
+      <a class="sb-link active" data-view="view-dashboard"><i class="fa-solid fa-gauge-high"></i><span>Dashboard</span></a>
+      <a class="sb-link" data-view="view-pipeline"><i class="fa-solid fa-table-columns"></i><span>Pipeline</span></a>
+      <a class="sb-link" data-view="view-contacts"><i class="fa-solid fa-address-book"></i><span>Contacts</span></a>
+      <a class="sb-link" data-view="view-tasks"><i class="fa-solid fa-list-check"></i><span>Tâches</span><em class="sb-badge">3</em></a>
+      <a class="sb-link" data-view="view-settings"><i class="fa-solid fa-gear"></i><span>Paramètres</span></a>
+    </nav>
+    <div class="sb-upgrade">
+      <div class="upg-card">
+        <i class="fa-solid fa-crown"></i>
+        <strong>Passez en Pro</strong>
+        <p>Débloquez les prospects illimités.</p>
+        <button class="btn btn-light btn-sm btn-block">Mettre à niveau</button>
+      </div>
+    </div>
+    <div class="sb-user">
+      <img src="https://i.pravatar.cc/40?img=12" alt="">
+      <div><strong>Julie Renard</strong><span>Freelance UX</span></div>
+      <button class="icon-btn" data-action="logout" title="Déconnexion"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn sb-toggle" data-action="toggle-sidebar"><i class="fa-solid fa-bars"></i></button>
+      <div class="search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Rechercher un prospect, une entreprise…">
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" data-action="toggle-theme" title="Thème"><i class="fa-solid fa-moon"></i></button>
+        <button class="icon-btn notif" title="Notifications"><i class="fa-solid fa-bell"></i><span class="dot"></span></button>
+        <button class="btn btn-primary btn-sm" data-action="new-contact"><i class="fa-solid fa-plus"></i> Nouveau prospect</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="view active">
+        <div class="view-head">
+          <div><h1>Bonjour, Julie 👋</h1><p>Voici l'état de votre activité commerciale.</p></div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-top"><span class="kpi-ico indigo"><i class="fa-solid fa-user-group"></i></span><span class="kpi-trend up"><i class="fa-solid fa-arrow-up"></i> 12%</span></div>
+            <strong class="kpi-val">42</strong><span class="kpi-label">Prospects actifs</span>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-top"><span class="kpi-ico green"><i class="fa-solid fa-percent"></i></span><span class="kpi-trend up"><i class="fa-solid fa-arrow-up"></i> 5%</span></div>
+            <strong class="kpi-val">34%</strong><span class="kpi-label">Taux de conversion</span>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-top"><span class="kpi-ico violet"><i class="fa-solid fa-sack-dollar"></i></span><span class="kpi-trend up"><i class="fa-solid fa-arrow-up"></i> 18%</span></div>
+            <strong class="kpi-val">58 200 €</strong><span class="kpi-label">Valeur du pipeline</span>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-top"><span class="kpi-ico red"><i class="fa-solid fa-clock"></i></span><span class="kpi-trend down"><i class="fa-solid fa-arrow-down"></i> 2</span></div>
+            <strong class="kpi-val">3</strong><span class="kpi-label">Relances en retard</span>
+          </div>
+        </div>
+        <div class="dash-grid">
+          <div class="panel chart-panel">
+            <div class="panel-head"><h3>Évolution des prospects</h3><select class="mini-select"><option>6 derniers mois</option><option>12 derniers mois</option></select></div>
+            <div class="chart">
+              <div class="bars">
+                <div class="bar-col"><div class="bar" style="height:45%"></div><span>Août</span></div>
+                <div class="bar-col"><div class="bar" style="height:60%"></div><span>Sep</span></div>
+                <div class="bar-col"><div class="bar" style="height:38%"></div><span>Oct</span></div>
+                <div class="bar-col"><div class="bar" style="height:72%"></div><span>Nov</span></div>
+                <div class="bar-col"><div class="bar" style="height:85%"></div><span>Déc</span></div>
+                <div class="bar-col"><div class="bar active" style="height:100%"></div><span>Jan</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Relances à faire</h3><a class="link-sm" data-view="view-tasks">Voir tout</a></div>
+            <ul class="task-mini">
+              <li><span class="tm-check overdue"><i class="fa-solid fa-exclamation"></i></span><div><strong>Relancer Acme Corp</strong><span>En retard de 2 jours</span></div><b class="late">Retard</b></li>
+              <li><span class="tm-check"><i class="fa-regular fa-circle"></i></span><div><strong>Envoyer proposition à Studio Nova</strong><span>Aujourd'hui · 16h00</span></div></li>
+              <li><span class="tm-check"><i class="fa-regular fa-circle"></i></span><div><strong>Appel découverte Léa Martin</strong><span>Demain · 10h30</span></div></li>
+              <li><span class="tm-check"><i class="fa-regular fa-circle"></i></span><div><strong>Suivi devis Pixel Lab</strong><span>Vendredi</span></div></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- PIPELINE -->
+      <section id="view-pipeline" class="view">
+        <div class="view-head">
+          <div><h1>Pipeline</h1><p>Glissez vos prospects entre les étapes.</p></div>
+          <button class="btn btn-primary btn-sm" data-action="new-contact"><i class="fa-solid fa-plus"></i> Ajouter un deal</button>
+        </div>
+        <div class="kanban">
+          <div class="k-col" data-stage="Nouveau">
+            <div class="k-col-head"><span class="k-dot indigo"></span>Nouveau <em>2</em><b>5 700 €</b></div>
+            <div class="k-cards">
+              <div class="k-card" draggable="true"><div class="kc-top"><strong>Studio Nova</strong><span class="kc-tag">Site web</span></div><span class="kc-company">Studio Nova SARL</span><div class="kc-foot"><b>4 500 €</b><img src="https://i.pravatar.cc/24?img=12"></div></div>
+              <div class="k-card" draggable="true"><div class="kc-top"><strong>Léa Martin</strong><span class="kc-tag">Coaching</span></div><span class="kc-company">Indépendante</span><div class="kc-foot"><b>1 200 €</b><img src="https://i.pravatar.cc/24?img=12"></div></div>
+            </div>
+          </div>
+          <div class="k-col" data-stage="Contacté">
+            <div class="k-col-head"><span class="k-dot blue"></span>Contacté <em>1</em><b>3 400 €</b></div>
+            <div class="k-cards">
+              <div class="k-card" draggable="true"><div class="kc-top"><strong>Marc Dubois</strong><span class="kc-tag">Audit SEO</span></div><span class="kc-company">Dubois Conseil</span><div class="kc-foot"><b>3 400 €</b><img src="https://i.pravatar.cc/24?img=12"></div></div>
+            </div>
+          </div>
+          <div class="k-col" data-stage="Proposition">
+            <div class="k-col-head"><span class="k-dot amber"></span>Proposition <em>1</em><b>9 800 €</b></div>
+            <div class="k-cards">
+              <div class="k-card hot" draggable="true"><div class="kc-top"><strong>Acme Corp</strong><span class="kc-tag hot">Urgent</span></div><span class="kc-company">Acme Corporation</span><div class="kc-foot"><b>9 800 €</b><img src="https://i.pravatar.cc/24?img=12"></div></div>
+            </div>
+          </div>
+          <div class="k-col" data-stage="Négociation">
+            <div class="k-col-head"><span class="k-dot orange"></span>Négociation <em>1</em><b>7 200 €</b></div>
+            <div class="k-cards">
+              <div class="k-card" draggable="true"><div class="kc-top"><strong>Brando</strong><span class="kc-tag">Branding</span></div><span class="kc-company">Brando Agency</span><div class="kc-foot"><b>7 200 €</b><img src="https://i.pravatar.cc/24?img=12"></div></div>
+            </div>
+          </div>
+          <div class="k-col" data-stage="Gagné">
+            <div class="k-col-head"><span class="k-dot green"></span>Gagné <em>1</em><b>6 300 €</b></div>
+            <div class="k-cards">
+              <div class="k-card win" draggable="true"><div class="kc-top"><strong>Pixel Lab</strong><span class="kc-tag win">Gagné</span></div><span class="kc-company">Pixel Lab Studio</span><div class="kc-foot"><b>6 300 €</b><img src="https://i.pravatar.cc/24?img=12"></div></div>
+            </div>
+          </div>
+          <div class="k-col" data-stage="Perdu">
+            <div class="k-col-head"><span class="k-dot red"></span>Perdu <em>1</em><b>2 100 €</b></div>
+            <div class="k-cards">
+              <div class="k-card lost" draggable="true"><div class="kc-top"><strong>Cloud9</strong><span class="kc-tag lost">Perdu</span></div><span class="kc-company">Cloud9 Inc</span><div class="kc-foot"><b>2 100 €</b><img src="https://i.pravatar.cc/24?img=12"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACTS -->
+      <section id="view-contacts" class="view">
+        <div class="view-head">
+          <div><h1>Contacts</h1><p>42 prospects au total.</p></div>
+          <button class="btn btn-primary btn-sm" data-action="new-contact"><i class="fa-solid fa-plus"></i> Nouveau contact</button>
+        </div>
+        <div class="filters">
+          <button class="chip active">Tous</button>
+          <button class="chip">Nouveau</button>
+          <button class="chip">En cours</button>
+          <button class="chip">Gagné</button>
+          <button class="chip">Perdu</button>
+        </div>
+        <div class="panel table-panel">
+          <table class="table">
+            <thead><tr><th>Contact</th><th>Entreprise</th><th>Source</th><th>Valeur</th><th>Statut</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="c-name"><span class="avatar i">SN</span><div><strong>Studio Nova</strong><span>contact@studionova.fr</span></div></td>
+                <td>Studio Nova SARL</td><td><span class="src"><i class="fa-solid fa-globe"></i> Site web</span></td><td><b>4 500 €</b></td>
+                <td><span class="status new">Nouveau</span></td><td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+              </tr>
+              <tr>
+                <td class="c-name"><span class="avatar v">AC</span><div><strong>Acme Corp</strong><span>hello@acme.com</span></div></td>
+                <td>Acme Corporation</td><td><span class="src"><i class="fa-brands fa-linkedin"></i> LinkedIn</span></td><td><b>9 800 €</b></td>
+                <td><span class="status prop">Proposition</span></td><td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+              </tr>
+              <tr>
+                <td class="c-name"><span class="avatar g">PL</span><div><strong>Pixel Lab</strong><span>team@pixellab.io</span></div></td>
+                <td>Pixel Lab Studio</td><td><span class="src"><i class="fa-solid fa-user-group"></i> Recommandation</span></td><td><b>6 300 €</b></td>
+                <td><span class="status won">Gagné</span></td><td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+              </tr>
+              <tr>
+                <td class="c-name"><span class="avatar b">MD</span><div><strong>Marc Dubois</strong><span>marc@dubois-conseil.fr</span></div></td>
+                <td>Dubois Conseil</td><td><span class="src"><i class="fa-solid fa-envelope"></i> Email</span></td><td><b>3 400 €</b></td>
+                <td><span class="status contact">Contacté</span></td><td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+              </tr>
+              <tr>
+                <td class="c-name"><span class="avatar a">LM</span><div><strong>Léa Martin</strong><span>lea.martin@gmail.com</span></div></td>
+                <td>Indépendante</td><td><span class="src"><i class="fa-solid fa-globe"></i> Site web</span></td><td><b>1 200 €</b></td>
+                <td><span class="status new">Nouveau</span></td><td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+              </tr>
+              <tr>
+                <td class="c-name"><span class="avatar r">C9</span><div><strong>Cloud9</strong><span>info@cloud9.com</span></div></td>
+                <td>Cloud9 Inc</td><td><span class="src"><i class="fa-brands fa-linkedin"></i> LinkedIn</span></td><td><b>2 100 €</b></td>
+                <td><span class="status lost">Perdu</span></td><td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TASKS -->
+      <section id="view-tasks" class="view">
+        <div class="view-head">
+          <div><h1>Tâches &amp; Relances</h1><p>Ne manquez plus aucune opportunité.</p></div>
+          <button class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Nouvelle relance</button>
+        </div>
+        <div class="tasks-cols">
+          <div class="panel">
+            <div class="panel-head"><h3><i class="fa-solid fa-triangle-exclamation late-ic"></i> En retard</h3><span class="count-pill late">3</span></div>
+            <ul class="task-list">
+              <li class="task overdue"><input type="checkbox"><div class="task-body"><strong>Relancer Acme Corp sur la proposition</strong><span><i class="fa-regular fa-calendar"></i> Échéance dépassée · 2 jours</span></div><span class="task-pers">Acme Corp</span></li>
+              <li class="task overdue"><input type="checkbox"><div class="task-body"><strong>Confirmer RDV Cloud9</strong><span><i class="fa-regular fa-calendar"></i> Échéance dépassée · 5 jours</span></div><span class="task-pers">Cloud9</span></li>
+              <li class="task overdue"><input type="checkbox"><div class="task-body"><strong>Envoyer facture Pixel Lab</strong><span><i class="fa-regular fa-calendar"></i> Échéance dépassée · 1 jour</span></div><span class="task-pers">Pixel Lab</span></li>
+            </ul>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3><i class="fa-solid fa-calendar-day today-ic"></i> Aujourd'hui &amp; à venir</h3><span class="count-pill">5</span></div>
+            <ul class="task-list">
+              <li class="task"><input type="checkbox"><div class="task-body"><strong>Envoyer proposition à Studio Nova</strong><span><i class="fa-regular fa-clock"></i> Aujourd'hui · 16h00</span></div><span class="task-pers">Studio Nova</span></li>
+              <li class="task"><input type="checkbox"><div class="task-body"><strong>Appel découverte Léa Martin</strong><span><i class="fa-regular fa-clock"></i> Demain · 10h30</span></div><span class="task-pers">Léa Martin</span></li>
+              <li class="task"><input type="checkbox"><div class="task-body"><strong>Suivi devis Marc Dubois</strong><span><i class="fa-regular fa-clock"></i> Jeudi</span></div><span class="task-pers">M. Dubois</span></li>
+              <li class="task"><input type="checkbox"><div class="task-body"><strong>Relance Brando négociation</strong><span><i class="fa-regular fa-clock"></i> Vendredi</span></div><span class="task-pers">Brando</span></li>
+              <li class="task done"><input type="checkbox" checked><div class="task-body"><strong>Email de remerciement Pixel Lab</strong><span><i class="fa-solid fa-check"></i> Terminé</span></div><span class="task-pers">Pixel Lab</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="view-settings" class="view">
+        <div class="view-head"><div><h1>Paramètres</h1><p>Gérez votre profil et vos préférences.</p></div></div>
+        <div class="settings-grid">
+          <div class="panel">
+            <div class="panel-head"><h3>Profil</h3></div>
+            <div class="profile-row">
+              <img src="https://i.pravatar.cc/72?img=12" class="profile-av" alt="">
+              <div><strong>Julie Renard</strong><span>julie.renard@gmail.com</span><button class="btn btn-outline btn-sm">Changer la photo</button></div>
+            </div>
+            <div class="form-grid">
+              <label class="field"><span>Nom complet</span><input type="text" value="Julie Renard"></label>
+              <label class="field"><span>Email</span><input type="email" value="julie.renard@gmail.com"></label>
+              <label class="field"><span>Activité</span><input type="text" value="Freelance UX/UI Designer"></label>
+              <label class="field"><span>Téléphone</span><input type="tel" value="+33 6 12 34 56 78"></label>
+            </div>
+            <button class="btn btn-primary btn-sm">Enregistrer</button>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Étapes du pipeline</h3></div>
+            <ul class="stage-edit">
+              <li><span class="k-dot indigo"></span>Nouveau<button class="icon-btn"><i class="fa-solid fa-grip-vertical"></i></button></li>
+              <li><span class="k-dot blue"></span>Contacté<button class="icon-btn"><i class="fa-solid fa-grip-vertical"></i></button></li>
+              <li><span class="k-dot amber"></span>Proposition envoyée<button class="icon-btn"><i class="fa-solid fa-grip-vertical"></i></button></li>
+              <li><span class="k-dot orange"></span>Négociation<button class="icon-btn"><i class="fa-solid fa-grip-vertical"></i></button></li>
+              <li><span class="k-dot green"></span>Gagné<button class="icon-btn"><i class="fa-solid fa-grip-vertical"></i></button></li>
+            </ul>
+            <button class="btn btn-outline btn-sm btn-block"><i class="fa-solid fa-plus"></i> Ajouter une étape</button>
+          </div>
+          <div class="panel sub-panel">
+            <div class="panel-head"><h3>Abonnement</h3></div>
+            <div class="sub-current"><div><span class="plan-badge">Plan Pro</span><strong>12€ / mois</strong><span class="sub-renew">Renouvellement le 12 février 2024</span></div><button class="btn btn-outline btn-sm">Gérer l'abonnement</button></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL NOUVEAU PROSPECT ============ -->
+<div id="modal" class="modal hidden">
+  <div class="modal-overlay" data-action="close-modal"></div>
+  <div class="modal-card">
+    <div class="modal-head"><h3>Nouveau prospect</h3><button class="icon-btn" data-action="close-modal"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field"><span>Nom</span><input type="text" placeholder="Ex : Jean Dupont"></label>
+        <label class="field"><span>Entreprise</span><input type="text" placeholder="Ex : Dupont SARL"></label>
+        <label class="field"><span>Email</span><input type="email" placeholder="jean@exemple.com"></label>
+        <label class="field"><span>Téléphone</span><input type="tel" placeholder="+33 6 …"></label>
+        <label class="field"><span>Source</span><select><option>Site web</option><option>LinkedIn</option><option>Recommandation</option><option>Email</option></select></label>
+        <label class="field"><span>Valeur estimée (€)</span><input type="number" placeholder="5000"></label>
+        <label class="field full"><span>Étape</span><select><option>Nouveau</option><option>Contacté</option><option>Proposition envoyée</option><option>Négociation</option></select></label>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" data-action="close-modal">Annuler</button><button class="btn btn-primary" data-action="close-modal"><i class="fa-solid fa-check"></i> Créer le prospect</button></div>
+  </div>
+</div>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

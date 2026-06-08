@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GridSpark — Dashboard de Budget Personnel</title>
+<meta name="description" content="GridSpark, dashboard futuriste de gestion de budget personnel, 100% local et privé.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="grid-bg" aria-hidden="true"></div>
+
+<div class="app-shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-logo"><i class="fa-solid fa-bolt"></i></span>
+      <span class="brand-name">Grid<span class="accent">Spark</span></span>
+    </div>
+    <nav class="sidebar-nav" aria-label="Navigation principale">
+      <a href="#dashboard" class="nav-item active" data-view="dashboard">
+        <i class="fa-solid fa-gauge-high"></i><span>Dashboard</span>
+      </a>
+      <a href="#transactions" class="nav-item" data-view="transactions">
+        <i class="fa-solid fa-arrow-right-arrow-left"></i><span>Transactions</span>
+      </a>
+      <a href="#categories" class="nav-item" data-view="categories">
+        <i class="fa-solid fa-tags"></i><span>Catégories</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="privacy-badge">
+        <i class="fa-solid fa-lock"></i>
+        <div>
+          <strong>100% Local</strong>
+          <span>Données stockées dans votre navigateur</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- HEADER -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Ouvrir le menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="month-selector" role="group" aria-label="Sélecteur de mois">
+          <button class="icon-btn" id="prevMonth" aria-label="Mois précédent"><i class="fa-solid fa-chevron-left"></i></button>
+          <span class="month-label" id="monthLabel">Mois Année</span>
+          <button class="icon-btn" id="nextMonth" aria-label="Mois suivant"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="cta-btn" id="addTransactionBtn">
+          <i class="fa-solid fa-plus"></i><span>Nouvelle transaction</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- VIEW: DASHBOARD -->
+      <section class="view active" id="view-dashboard">
+        <h1 class="view-title">Dashboard</h1>
+
+        <!-- KPI ROW -->
+        <div class="kpi-grid">
+          <article class="kpi-card glass" data-accent="balance">
+            <div class="kpi-icon"><i class="fa-solid fa-wallet"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Solde du mois</span>
+              <span class="kpi-value mono" id="kpiBalance">0 €</span>
+            </div>
+          </article>
+          <article class="kpi-card glass" data-accent="income">
+            <div class="kpi-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Revenus</span>
+              <span class="kpi-value mono" id="kpiIncome">0 €</span>
+            </div>
+          </article>
+          <article class="kpi-card glass" data-accent="expense">
+            <div class="kpi-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Dépenses</span>
+              <span class="kpi-value mono" id="kpiExpense">0 €</span>
+            </div>
+          </article>
+          <article class="kpi-card glass" data-accent="savings">
+            <div class="kpi-icon"><i class="fa-solid fa-piggy-bank"></i></div>
+            <div class="kpi-body">
+              <span class="kpi-label">Taux d'épargne</span>
+              <span class="kpi-value mono" id="kpiSavings">0 %</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- CHARTS ROW 1 -->
+        <div class="chart-grid">
+          <article class="panel glass span-5">
+            <header class="panel-head">
+              <h2><i class="fa-solid fa-chart-pie"></i> Dépenses par catégorie</h2>
+            </header>
+            <div class="chart-wrap">
+              <canvas id="categoryDoughnut"></canvas>
+              <p class="empty-chart" id="doughnutEmpty" hidden>Aucune dépense ce mois-ci</p>
+            </div>
+          </article>
+          <article class="panel glass span-7">
+            <header class="panel-head">
+              <h2><i class="fa-solid fa-chart-line"></i> Solde cumulé</h2>
+            </header>
+            <div class="chart-wrap">
+              <canvas id="balanceLine"></canvas>
+              <p class="empty-chart" id="lineEmpty" hidden>Aucune donnée ce mois-ci</p>
+            </div>
+          </article>
+        </div>
+
+        <!-- CHARTS ROW 2 -->
+        <div class="chart-grid">
+          <article class="panel glass span-7">
+            <header class="panel-head">
+              <h2><i class="fa-solid fa-chart-column"></i> Revenus vs Dépenses — 6 mois</h2>
+            </header>
+            <div class="chart-wrap">
+              <canvas id="incomeExpenseBar"></canvas>
+            </div>
+          </article>
+          <article class="panel glass span-5">
+            <header class="panel-head">
+              <h2><i class="fa-solid fa-clock-rotate-left"></i> Dernières transactions</h2>
+            </header>
+            <ul class="recent-list" id="recentList"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- VIEW: TRANSACTIONS -->
+      <section class="view" id="view-transactions">
+        <div class="view-head">
+          <h1 class="view-title">Transactions</h1>
+          <div class="filter-bar">
+            <div class="search-field">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="searchInput" placeholder="Rechercher…">
+            </div>
+            <select id="typeFilter" class="select-field" aria-label="Filtrer par type">
+              <option value="all">Tous les types</option>
+              <option value="income">Revenus</option>
+              <option value="expense">Dépenses</option>
+            </select>
+          </div>
+        </div>
+        <div class="panel glass table-panel">
+          <div class="tx-table-wrap">
+            <table class="tx-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Catégorie</th>
+                  <th>Description</th>
+                  <th class="ta-right">Montant</th>
+                  <th class="ta-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="txTableBody"></tbody>
+            </table>
+            <p class="empty-chart" id="txEmpty" hidden>Aucune transaction pour ce mois</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: CATEGORIES -->
+      <section class="view" id="view-categories">
+        <h1 class="view-title">Catégories</h1>
+        <div class="category-grid" id="categoryGrid"></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- MODAL: TRANSACTION FORM -->
+<div class="modal-overlay" id="modalOverlay" aria-hidden="true">
+  <div class="modal glass" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <header class="modal-head">
+      <h2 id="modalTitle">Nouvelle transaction</h2>
+      <button class="icon-btn" id="closeModal" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+    </header>
+    <form id="transactionForm" class="modal-form" novalidate>
+      <input type="hidden" id="txId">
+      <div class="type-toggle">
+        <label class="type-option">
+          <input type="radio" name="type" value="expense" checked>
+          <span><i class="fa-solid fa-arrow-down"></i> Dépense</span>
+        </label>
+        <label class="type-option">
+          <input type="radio" name="type" value="income">
+          <span><i class="fa-solid fa-arrow-up"></i> Revenu</span>
+        </label>
+      </div>
+      <div class="field">
+        <label for="txAmount">Montant</label>
+        <div class="input-money">
+          <input type="number" id="txAmount" step="0.01" min="0" placeholder="0.00" required>
+          <span class="currency">€</span>
+        </div>
+        <small class="error-msg" id="errAmount"></small>
+      </div>
+      <div class="field">
+        <label for="txCategory">Catégorie</label>
+        <select id="txCategory" required></select>
+        <small class="error-msg" id="errCategory"></small>
+      </div>
+      <div class="field">
+        <label for="txDescription">Description</label>
+        <input type="text" id="txDescription" placeholder="Ex : Courses du samedi">
+      </div>
+      <div class="field">
+        <label for="txDate">Date</label>
+        <input type="date" id="txDate" required>
+        <small class="error-msg" id="errDate"></small>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="ghost-btn" id="cancelModal">Annuler</button>
+        <button type="submit" class="cta-btn"><i class="fa-solid fa-check"></i> Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

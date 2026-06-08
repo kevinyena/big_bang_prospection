@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AuraBoard — Where Bold Founders Meet Visionary Capital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<!-- NAV -->
+<header class="nav">
+  <a href="#" class="logo"><span class="orb"></span>Aura<b>Board</b></a>
+  <nav class="nav-links">
+    <a href="#how">How it works</a><a href="#proof">Investors</a><a href="#deck">Demo</a>
+  </nav>
+  <div class="nav-cta">
+    <div class="role-toggle" id="roleToggle">
+      <button class="active" data-role="founder">I'm a Founder</button>
+      <button data-role="investor">I'm an Investor</button>
+    </div>
+    <button class="btn-primary" onclick="openApp()">Start Swiping</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-copy">
+    <span class="pill"><i class="fa-solid fa-bolt"></i> The Tinder of Venture Capital</span>
+    <h1>Where Bold Founders<br/>Meet <em>Visionary Capital</em></h1>
+    <p>Swipe to match with the investors who actually get your vision. Mutual likes unlock a private deal room — no cold emails, no gatekeepers.</p>
+    <div class="hero-actions">
+      <button class="btn-primary lg" onclick="openApp()"><i class="fa-solid fa-fire"></i> Start Swiping</button>
+      <button class="btn-ghost lg" onclick="openApp()">Watch the deck →</button>
+    </div>
+    <div class="hero-stats"><div><b>$2.4B</b><span>Deployed</span></div><div><b>11k+</b><span>Matches</span></div></div>
+  </div>
+  <div class="hero-deck" id="heroDeck">
+    <div class="h-card c1"><img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&q=80" alt=""/><div class="h-meta"><h4>NovaFlow AI</h4><span>Seed · $1.5M · SaaS</span></div></div>
+    <div class="h-card c2"><img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&q=80" alt=""/><div class="h-meta"><h4>Sequoia Edge</h4><span>VC · $250k–2M tickets</span></div></div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="how" id="how">
+  <h2>Three swipes from your next round</h2>
+  <div class="steps">
+    <div class="step"><span class="num">01</span><i class="fa-solid fa-id-card"></i><h3>Create your profile</h3><p>Founders pitch traction & ask. Investors set thesis & ticket size.</p></div>
+    <div class="step"><span class="num">02</span><i class="fa-solid fa-hand-pointer"></i><h3>Swipe the deck</h3><p>Right to like, left to pass. Our AI surfaces the most aligned matches.</p></div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="proof" id="proof">
+  <p class="proof-label">Trusted by capital from</p>
+  <div class="logos"><span>Lightspeed</span><span>Accel</span><span>a16z</span><span>Index</span></div>
+  <div class="quote"><i class="fa-solid fa-quote-left"></i><p>"We closed our pre-seed in 9 days. AuraBoard put us in front of three funds that perfectly fit our thesis."</p><div class="who"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80" alt=""/><span><b>Lena Cruz</b> · Founder, NovaFlow</span></div></div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="deck">
+  <div class="cta-box"><h2>Ready to find your match?</h2><p>Join thousands of founders and investors making warm intros feel effortless.</p><button class="btn-primary lg" onclick="openApp()"><i class="fa-solid fa-fire"></i> Start Swiping Free</button></div>
+</section>
+
+<footer class="footer"><span class="logo"><span class="orb"></span>AuraBoard</span><p>© 2024 AuraBoard. Capital meets conviction.</p></footer>
+
+<!-- APP MODAL: SWIPE DECK -->
+<div class="overlay" id="appOverlay">
+  <div class="app">
+    <div class="app-head"><span class="logo sm"><span class="orb"></span>AuraBoard</span><div class="app-tabs"><button class="active" id="tabDeck" onclick="showDeck()"><i class="fa-solid fa-layer-group"></i> Discover</button><button id="tabChat" onclick="showChat()"><i class="fa-solid fa-comment-dots"></i> Matches <em id="matchBadge">0</em></button></div><button class="close" onclick="closeApp()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="deck-wrap" id="deckWrap"><div class="deck" id="deck"></div>
+      <div class="deck-actions"><button class="act pass" onclick="btnSwipe('left')"><i class="fa-solid fa-xmark"></i></button><button class="act sup" onclick="btnSwipe('up')"><i class="fa-solid fa-star"></i></button><button class="act like" onclick="btnSwipe('right')"><i class="fa-solid fa-heart"></i></button></div>
+    </div>
+    <div class="chat-wrap" id="chatWrap" style="display:none">
+      <aside class="chat-list" id="chatList"></aside>
+      <main class="chat-main" id="chatMain"><div class="chat-empty"><i class="fa-solid fa-comments"></i><p>Select a match to start the conversation</p></div></main>
+    </div>
+  </div>
+</div>
+
+<!-- MATCH MODAL -->
+<div class="match-modal" id="matchModal"><div class="confetti" id="confetti"></div><div class="match-card"><h2>It's a Match!</h2><div class="match-avatars"><img id="meImg" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&q=80" alt=""/><span class="heart"><i class="fa-solid fa-heart"></i></span><img id="themImg" alt=""/></div><p id="matchText"></p><button class="btn-primary lg" onclick="goToChat()"><i class="fa-solid fa-paper-plane"></i> Send a message</button><button class="btn-ghost" onclick="closeMatch()">Keep swiping</button></div></div>
+
+<script src="app.js"></script>
+</body>
+</html>

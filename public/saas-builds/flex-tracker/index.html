@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSG Insider — La Newsletter Premium des Supporters Parisiens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- NAV -->
+<header class="nav">
+<div class="logo"><span class="dot blue"></span><span class="dot red"></span> PSG<strong>Insider</strong></div>
+<nav><a href="#features">Le mag</a><a href="#pricing">Abonnements</a><a href="#" class="btn-ghost" onclick="openCheckout('supporter');return false">S'abonner</a></nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+<div class="hero-bg"></div>
+<div class="hero-inner">
+<span class="kicker"><i class="fas fa-bolt"></i> Newsletter #1 des fans parisiens</span>
+<h1>L'ICI ET MAINTENANT<br><span class="grad">DU PARIS SAINT-GERMAIN</span></h1>
+<p>Chaque semaine : analyses tactiques pointues, infos mercato exclusives et les coulisses du vestiaire. Directement dans votre boîte mail.</p>
+<div class="hero-cta">
+<button class="btn-primary" onclick="openCheckout('supporter')">S'abonner maintenant <i class="fas fa-arrow-right"></i></button>
+<button class="btn-ghost" onclick="document.getElementById('issue').scrollIntoView({behavior:'smooth'})"><i class="fas fa-book-open"></i> Lire un extrait</button>
+</div>
+<div class="social-proof">Rejoignez <strong id="counter">0</strong> abonnés passionnés <i class="fas fa-fire" style="color:var(--gold)"></i></div>
+</div>
+</section>
+
+<!-- DERNIER NUMÉRO -->
+<section id="issue" class="section">
+<h2 class="sec-title">Le dernier numéro</h2>
+<article class="issue-card" id="latestIssue">
+<div class="issue-img"></div>
+<div class="issue-body">
+<span class="tag">Analyse · Édition #142</span>
+<h3 id="issueTitle">Le pressing parisien : la mécanique d'Enrique décortiquée</h3>
+<p id="issueExcerpt">Comment le PSG a transformé sa récupération haute en arme létale. Données, heatmaps et témoignages exclusifs.</p>
+<div class="issue-meta"><span><i class="far fa-calendar"></i> <span id="issueDate">12 juin</span></span><span><i class="far fa-clock"></i> 8 min</span></div>
+</div>
+</article>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="section">
+<h2 class="sec-title">Ce que vous recevez</h2>
+<div class="grid-3">
+<div class="feat"><i class="fas fa-chess-knight"></i><h4>Analyses tactiques</h4><p>Schémas, animations de jeu et lecture experte de chaque match.</p></div>
+<div class="feat"><i class="fas fa-right-left"></i><h4>Mercato & exclusivités</h4><p>Les vraies infos transferts et les coulisses du vestiaire.</p></div>
+</div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="section">
+<h2 class="sec-title">Choisissez votre formule</h2>
+<div class="toggle"><span id="lblM" class="active">Mensuel</span><label class="switch"><input type="checkbox" id="billToggle" onchange="toggleBilling()"><span class="slider"></span></label><span id="lblA">Annuel <em class="save">-20%</em></span></div>
+<div class="grid-3 plans" id="plans"></div>
+</section>
+
+<footer class="footer">
+<div class="logo"><span class="dot blue"></span><span class="dot red"></span> PSG<strong>Insider</strong></div>
+<div class="socials"><a href="#"><i class="fab fa-x-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-youtube"></i></a></div>
+<p>© 2024 PSG Insider. Média indépendant non affilié au club. · <a href="#" onclick="openAdmin();return false" class="adminlink">Espace Founder</a></p>
+</footer>
+
+<!-- MODALE CHECKOUT -->
+<div class="modal-overlay" id="checkoutModal">
+<div class="modal">
+<button class="close" onclick="closeModal('checkoutModal')"><i class="fas fa-times"></i></button>
+<div id="checkoutForm">
+<h3>Activez votre abonnement</h3>
+<label>Email</label><input type="email" id="ckEmail" placeholder="vous@email.com">
+<label>Formule</label>
+<div class="recap"><span id="ckPlan">Supporter</span><strong id="ckPrice">7,99 €</strong></div>
+<div class="card-ui"><i class="fab fa-cc-stripe"></i><input placeholder="4242 4242 4242 4242" maxlength="19" id="ckCard"><div class="row"><input placeholder="MM/AA" maxlength="5"><input placeholder="CVC" maxlength="3"></div></div>
+<div class="totals"><span>TVA (20%)</span><span id="ckTva">1,60 €</span></div>
+<div class="totals tot"><span>Total</span><span id="ckTotal">9,59 €</span></div>
+<button class="btn-primary full" onclick="processPayment()"><i class="fas fa-lock"></i> Payer & activer</button>
+</div>
+<div id="checkoutSuccess" class="success hide"><div class="check"><i class="fas fa-check"></i></div><h3>Abonnement actif !</h3><p>Bienvenue dans la tribune premium. Le prochain numéro arrive bientôt.</p><button class="btn-ghost" onclick="closeModal('checkoutModal')">Fermer</button></div>
+</div>
+</div>
+
+<!-- MODALE ADMIN -->
+<div class="modal-overlay" id="adminModal">
+<div class="modal admin">
+<button class="close" onclick="closeModal('adminModal')"><i class="fas fa-times"></i></button>
+<div id="adminLogin">
+<h3><i class="fas fa-shield-halved"></i> Espace Founder</h3>
+<label>Mot de passe</label><input type="password" id="adminPass" placeholder="••••••••">
+<button class="btn-primary full" onclick="adminAuth()">Se connecter</button>
+<small class="hint">démo : <code>icicestparis</code></small>
+</div>
+<div id="adminPanel" class="hide">
+<h3>Tableau de bord</h3>
+<div class="kpis">
+<div class="kpi"><span id="kSub">0</span><label>Abonnés</label></div>
+<div class="kpi"><span id="kMrr">0 €</span><label>MRR</label></div>
+<div class="kpi"><span id="kConv">0%</span><label>Conversion</label></div>
+</div>
+<h4>Composer le prochain numéro</h4>
+<input id="nlTitle" placeholder="Titre du numéro">
+<textarea id="nlBody" placeholder="Contenu de la newsletter..."></textarea>
+<button class="btn-primary full" onclick="sendNewsletter()"><i class="fas fa-paper-plane"></i> Envoyer la newsletter</button>
+<h4>Derniers abonnés</h4>
+<ul class="sub-list" id="subList"></ul>
+</div>
+</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

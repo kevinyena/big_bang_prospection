@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Tracker — Where Capital Meets Conviction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Outfit:wght@300;400;500&family=Caveat:wght@500;700&family=Patrick+Hand&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#020215;color:#fff;font-family:'Outfit',sans-serif;overflow-x:hidden;line-height:1.6;
+background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:32px 32px}
+h1,h2,h3,.heading{font-family:'Space Grotesk',sans-serif;text-transform:uppercase;letter-spacing:3px;font-weight:700}
+a{text-decoration:none;color:inherit}
+.accent{font-family:'Caveat',cursive;color:#e278e7;text-transform:none;letter-spacing:0;display:inline-block}
+.mono{font-family:'JetBrains Mono',monospace}
+.container{max-width:1180px;margin:0 auto;padding:0 24px}
+/* NAVBAR */
+nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(14px);background:rgba(2,2,21,0.6);border-bottom:1px solid rgba(255,255,255,0.06)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;max-width:1180px;margin:0 auto}
+.logo{font-family:'Space Grotesk';font-weight:700;letter-spacing:2px;font-size:20px}
+.logo span{color:#e278e7}
+.nav-links{display:flex;gap:32px;font-size:14px;text-transform:uppercase;letter-spacing:1px}
+.nav-links a{opacity:.7;transition:.2s}.nav-links a:hover{opacity:1;color:#e278e7}
+.btn{padding:12px 26px;border-radius:24px;font-family:'Space Grotesk';text-transform:uppercase;letter-spacing:2px;font-size:13px;cursor:pointer;transition:.25s;display:inline-block}
+.btn-primary{background:#0303ab;border:1px solid rgba(226,120,231,0.5);color:#fff;box-shadow:0 0 40px rgba(3,3,171,0.4)}
+.btn-primary:hover{box-shadow:0 0 60px rgba(3,3,171,0.6);transform:translateY(-2px)}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff}
+.btn-outline:hover{border-color:#e278e7}
+/* HERO */
+.hero{text-align:center;padding:120px 24px 90px}
+.hero .accent{font-size:30px;transform:rotate(-3deg);margin-bottom:14px}
+.hero h1{font-size:clamp(42px,8vw,86px);line-height:1.05;letter-spacing:4px}
+.hero h1 em{font-style:normal;color:#e278e7;position:relative}
+.hero h1 em:after{content:"";position:absolute;left:0;bottom:-6px;width:100%;height:4px;background:#e278e7;border-radius:2px}
+.hero p{max-width:580px;margin:28px auto 38px;font-size:18px;opacity:.7;font-weight:300}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+/* QUOTE */
+.quote{max-width:760px;margin:40px auto;padding:30px 0 30px 30px;border-left:3px solid #e278e7}
+.quote p{font-family:'Caveat';font-size:28px;color:rgba(255,255,255,0.9)}
+/* SECTIONS */
+section{padding:80px 0}
+.sec-head{text-align:center;margin-bottom:54px}
+.sec-head .accent{font-size:24px;transform:rotate(-2deg)}
+.sec-head h2{font-size:clamp(28px,5vw,44px);margin-top:6px}
+/* CARDS */
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.card{background:#0a0a2a;border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:34px;transition:.3s}
+.card:hover{border-color:rgba(226,120,231,0.4);transform:translateY(-6px)}
+.card .orn{font-size:26px;color:#e278e7;margin-bottom:14px;display:block}
+.card h3{font-size:18px;letter-spacing:2px;margin-bottom:8px}
+.card .accent{font-size:20px}
+.card p{opacity:.65;font-size:15px;font-weight:300;margin-top:8px}
+/* DUAL */
+.dual{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.dual .card h3{font-size:22px;margin-bottom:18px}
+.tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.tag{border:1px solid rgba(226,120,231,0.4);border-radius:20px;padding:6px 14px;font-family:'JetBrains Mono';font-size:12px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.85)}
+/* TESTIMONIALS */
+.tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+.tcard{background:#0a0a2a;border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:28px;border-left:3px solid #e278e7}
+.tcard p{font-family:'Caveat';font-size:22px;font-style:italic;color:rgba(255,255,255,0.9)}
+.tcard span{display:block;margin-top:14px;font-family:'JetBrains Mono';font-size:12px;opacity:.6;text-transform:uppercase}
+/* PRICING */
+.pg{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.price{background:#0a0a2a;border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:38px;text-align:center}
+.price.feat{border-color:rgba(226,120,231,0.5);box-shadow:0 0 60px rgba(3,3,171,0.3)}
+.price h3{font-size:20px;margin-bottom:10px}
+.price .amt{font-family:'Space Grotesk';font-size:48px;font-weight:700;color:#e278e7;margin:10px 0}
+.price ul{list-style:none;margin:22px 0;font-weight:300;opacity:.8}
+.price li{padding:7px 0;font-size:15px}
+.price li i{color:#e278e7;margin-right:8px}
+/* CTA */
+.cta{text-align:center}
+.cta h2{font-size:clamp(30px,5vw,52px)}
+.cta .accent{font-size:30px;transform:rotate(-2deg)}
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,0.06);padding:40px 24px;text-align:center;opacity:.6;font-size:14px}
+@media(max-width:680px){.nav-links{display:none}.dual{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+<div class="nav-in">
+<div class="logo">NOVA<span>TRACKER</span></div>
+<div class="nav-links">
+<a href="#how">How it works</a>
+<a href="#audience">Founders & VCs</a>
+<a href="#pricing">Pricing</a>
+</div>
+<a class="btn btn-primary" href="#">Start Swiping</a>
+</div>
+</nav>
+
+<header class="hero">
+<div class="container">
+<span class="accent">like tinder, but for term sheets ✦</span>
+<h1>Swipe. Match.<br><em>Raise.</em></h1>
+<p>The double opt-in marketplace where VCs and early-stage founders match by mutual intent — then a private deal chat opens instantly.</p>
+<div class="hero-btns">
+<a class="btn btn-primary" href="#">Open the Deck</a>
+<a class="btn btn-outline" href="#how">See how it works</a>
+</div>
+</div>
+</header>
+
+<div class="container">
+<blockquote class="quote">
+<p>"Fini les cold emails ignorés et les decks perdus dans une inbox. Le match est mutuel, donc l'intention l'est aussi."</p>
+</blockquote>
+</div>
+
+<section id="how">
+<div class="container">
+<div class="sec-head">
+<span class="accent">three swipes to a deal ◇</span>
+<h2>How it works</h2>
+</div>
+<div class="grid3">
+<div class="card"><span class="orn">✦</span><h3>Build your card</h3><span class="accent">founder or fund</span><p>Set your stage, sector, ticket size and traction. One clean card, no fluff.</p></div>
+<div class="card"><span class="orn">◇</span><h3>Swipe deals</h3><span class="accent">left to pass, right to like</span><p>A qualified, scored deck of profiles. Drag or tap — your call, your speed.</p></div>
+<div class="card"><span class="orn">☆</span><h3>Match & chat</h3><span class="accent">mutual = magic</span><p>When both swipe right, a private real-time channel opens. Talk deal, instantly.</p></div>
+</div>
+</div>
+</section>
+
+<section id="audience">
+<div class="container">
+<div class="sec-head">
+<span class="accent">built for both sides ✦</span>
+<h2>Capital meets conviction</h2>
+</div>
+<div class="dual">
+<div class="card">
+<h3>For Founders</h3>
+<p>Targeted exposure to investors that actually match your stage, sector and ticket. No more shouting into a void.</p>
+<div class="tags"><span class="tag">PRE-SEED</span><span class="tag">SEED</span><span class="tag">SERIES A</span><span class="tag">B2B SAAS</span><span class="tag">FINTECH</span></div>
+</div>
+<div class="card">
+<h3>For Investors</h3>
+<p>A qualified, pre-sorted deal flow with only founders genuinely interested in your thesis. Zero spam, 100% intent.</p>
+<div class="tags"><span class="tag">DEAL FLOW</span><span class="tag">SUPER-LIKE</span><span class="tag">BOOST</span><span class="tag">MULTI-SEAT</span><span class="tag">ANALYTICS</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container">
+<div class="sec-head"><span class="accent">people are matching ◇</span><h2>Loved by both sides</h2></div>
+<div class="tg">
+<div class="tcard"><p>"Matched with a SaaS-focused angel on a Tuesday, term sheet by Friday. Wild."</p><span>— Founder, Pre-Seed</span></div>
+<div class="tcard"><p>"My inbox finally makes sense. Every match is a founder who actually wants to talk."</p><span>— Partner, Seed Fund</span></div>
+<div class="tcard"><p>"It feels like cheating. Mutual intent changes everything."</p><span>— Solo GP</span></div>
+</div>
+</div>
+</section>
+
+<section id="pricing">
+<div class="container">
+<div class="sec-head"><span class="accent">pick your lane ✦</span><h2>Pricing</h2></div>
+<div class="pg">
+<div class="price"><h3>Free</h3><div class="amt">$0</div><span class="accent">get a feel for it</span><ul><li><i class="fas fa-check"></i>Limited swipes / day</li><li><i class="fas fa-check"></i>Basic profile card</li><li><i class="fas fa-check"></i>Match chat</li></ul><a class="btn btn-outline" href="#">Start free</a></div>
+<div class="price feat"><h3>Pro</h3><div class="amt">$39</div><span class="accent">most popular</span><ul><li><i class="fas fa-check"></i>Unlimited swipes</li><li><i class="fas fa-check"></i>Super-like & boost</li><li><i class="fas fa-check"></i>See who liked you</li></ul><a class="btn btn-primary" href="#">Go Pro</a></div>
+<div class="price"><h3>Fund</h3><div class="amt">$199</div><span class="accent">for the whole team</span><ul><li><i class="fas fa-check"></i>Multiple seats</li><li><i class="fas fa-check"></i>Deal flow analytics</li><li><i class="fas fa-check"></i>Priority visibility</li></ul><a class="btn btn-outline" href="#">Contact us</a></div>
+</div>
+</div>
+</section>
+
+<section class="cta">
+<div class="container">
+<span class="accent">your next deal is one swipe away ✦</span>
+<h2>Start matching today</h2>
+<p style="opacity:.7;margin:18px 0 30px;font-weight:300">Join the founders and funds turning conviction into capital.</p>
+<a class="btn btn-primary" href="#">Open the Deck</a>
+</div>
+</section>
+
+<footer>
+<div class="logo" style="margin-bottom:10px">NOVA<span>TRACKER</span></div>
+Where capital meets conviction. © 2024 Nova Tracker.
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

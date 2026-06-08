@@ -1,0 +1,95 @@
+{
+  "status": "completed",
+  "step": 5,
+  "totalSteps": 5,
+  "statusText": "Génération complétée avec succès !",
+  "files": [
+    "index.html",
+    "style.css",
+    "app.js",
+    "api.js"
+  ],
+  "mobbinLandingQueries": [
+    "luxury barbershop booking landing page dark elegant serif typography",
+    "premium salon spa home page with hero image and service showcase"
+  ],
+  "mobbinLandingScreens": [
+    {
+      "id": "a82ab4b2-9573-414b-96da-16963482982e",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.XtrNq6DZB8gPNzJr.R_CpiBWgQvj_S6pSTlDHysT0HghQKqKB9jn0Ws-kOZHMUQM-mx96q0Pz-rDEY2g49bditXU9utPyrOCC-x7aSQKDalslFp3F3m3HOAIT4VYInnYoMOJY1AmMAD8ErPQhoK07DsDpWL_Ij6ZZPFfcLeYzkKatyBDQGCwXC3xln2zOlHjeMu6VCsiYk-FwbKA9AqjeR_I7Uz51Xc9Y4PZvI8KSx362y5WpVcZ69gWOPz5MMsv0cK-1QYcjDTPe_BquO5_e9J47OSR4SHUYLIskymCKVSl8WL_p2ACFw_Ww8d1Ijs6c5rX-wx3VRyceLVKYtXa2aEXun8tncDb8d35VEAHSfJYfWrfI3Mpb8MT_P-SJfqTZcvmYs6-pz1H4ppqij0yo64FSRhkykBEQBu3h2-BPRESR1kxPl6Rjtx4yDR2J_-4MqNYAEmZs618OXB4",
+      "mobbin_url": "https://mobbin.com/screens/a82ab4b2-9573-414b-96da-16963482982e",
+      "app_name": "Selfridges",
+      "platform": "web"
+    },
+    {
+      "id": "c2eb25bc-ab66-411b-9be1-08956507b0b6",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.D4UKqg5jftBXMSue.U7dtUny9IXQlaeLUq3lhETkaZTQqonZrVTX7DjtdTOUi8bQC1pFu_h-ouybtQQEChykcnGM99bJ9UAHaq-nYRqMB3-DHScE1tftVtGglS6nXntz82buEDs0I_ep05U4qEIVA4_J_ABOMV63UJ5-KlattcWH2YKJJiK3ItVkqnVjjKrfuqGiYnadgegw8LcrVCEu5MeR0McfyRdV1k3czp92SyWAM--jZJWGkKk5lGMO1E3luoRxr_Tnrx-oSNFrpueMynNsiYlsiJpRAOpSMwREnShbNXHJbPSaVhfhp5ZLkvzvebSLYzklCVTGZ3OfqcMbDSn7gDGbluOCggefC2jbSfGE6Ujq7YI800lGvMPvovL3Vckk9Is0qhRLm90RcS-SFZu-xiGXVQnGxxpRl6JuqlqI1UISps_JDlZdQWwAdBEc47LzoC5aSJHHM8DQ",
+      "mobbin_url": "https://mobbin.com/screens/c2eb25bc-ab66-411b-9be1-08956507b0b6",
+      "app_name": "Cal.com",
+      "platform": "web"
+    },
+    {
+      "id": "b14f3f5b-2785-4fbb-a487-266b2bef1d08",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.p-YGYYTkupCkpvvN.kUpYhg0IKlhO3aerBZQ8DNysIVSG8DkeOUYpbwn1MtVQLyhJSjwbh_zEJoCmY1ANZeOcr-JQL_AomhYBCgnQz661uJZ4nGRTRV6mza8gIjQtIpLI-BalVW6FHP7Rlh_03p8KKrtnnkwEQcG5a0vSXEFiKAcPmieJ-yZLM6mvuEvILt5S2V6gnQfMpPEHSpcXX0KdEFGXkTbVE68ZeQjHnqmqCK4DFiR12cNehh0Y-vrkw6Xhj4tYlHNtuO5VXxmwjtBUTAkov-wNmaiVuo0BPaI-HPzAOjg_Mf7_UpziFjEHb3_BkrJr1CnUPcj_1Omw2zduzk6Z6YX9uHFTVpFK6m_G0rd4BBltiiXz9TSLMuIGOCFxs-Vdya78x-nkbENZGufj4EEh0QxBlbMM64tjj6xpPBt2AXypSnW2ZRpyXoGg0OGNQmBiK-_RK9l9eZU",
+      "mobbin_url": "https://mobbin.com/screens/b14f3f5b-2785-4fbb-a487-266b2bef1d08",
+      "app_name": "Fresha",
+      "platform": "web"
+    },
+    {
+      "id": "9d94f2b9-0a41-494a-b60e-9620bf0e8f68",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.nkUdrQCHkBfvZrEJ.vH1BmIeO7K1y8o9NyZ1VyDq91BXcc_ko-CYo_H9lj9L5KKH0VsoAemlJPamjod_X8RUWqbd3SDs-uCvt2w6FtTZusbrT1zxrZOrMcV_IYzAG_JMHkwTPhLxoKjaiB6Pp4vTN26nTUZ7LGWeZ2NkGlmESMY4OdVyaJKqDII1NCO6yt0o5b69WftAolmblVIxKKpAn82-woCdkt4W-WB1Bv4oVqmz8glhuyNaOUH2xmmvyKjfhcN4rTTXPTW3RuLlQ0_6sE0R0PwW-bJ3NRL8hE0vy3CKJBLkN0iFkIzJhkDvIAG-5QEjVhXD2F_opH_DAl1MQzt7xu1LhYJCTa5tX7pO9KTiPPmA-Uq-vQF5ScIqO4ovNqicEPFK0hkndYARqrhM99KaAnn0e9cikfqF45mdGpcJkqc3hfGybwmBaYqC4ZTe7sAT8Nd71nAb8I-Y",
+      "mobbin_url": "https://mobbin.com/screens/9d94f2b9-0a41-494a-b60e-9620bf0e8f68",
+      "app_name": "Squarespace",
+      "platform": "web"
+    }
+  ],
+  "mobbinAppQueries": [
+    "appointment booking flow stepper select staff and service",
+    "interactive calendar time slot picker booking interface",
+    "checkout payment summary screen with order recap minimal"
+  ],
+  "mobbinAppScreens": [
+    {
+      "id": "c46a06cd-0d45-450b-9909-a37b5d18ad58",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.JLVklUCk1QYNka_F.lsy2dTi456-U4s6N4jEpwLzTmLQVnIkQwiebdR7bijckJ2bplkuNRGTcigYW8qyR5l_S3Y-zHrusWbcmvGtx8-6xY53Vo-6BnXTW9b-ccM7DIczKxZ7BsPC4yJwPBS_eJqJkSre_MbiY67980-hboA1paIWwFj384qofFZRReREeMOd4c7tz1OLklOZWE_3VuBjyHXVc3A9Bzaez8dYZGfOzFy0RcXje6DZHwefoyVMUzH-8fQluP3NtMy557orOYh0iknhO8a4Nb1CH6sABdMIRy59HbKPdJO0cgSxZFhSVJV2Fbc-MD6y3tvYNYJr-DQx2VUPWOUtrAI896KxOQaukXQM9Bti5GGb31_6XNoWgP-O0RHHji7P8gwhqYtrdmwk_-1mWSZvIX_du492urXFuds7z9MORAfhWj0bYWGJ45v3ObOiVbUErISN0Y6k",
+      "mobbin_url": "https://mobbin.com/screens/c46a06cd-0d45-450b-9909-a37b5d18ad58",
+      "app_name": "Selfridges",
+      "platform": "web"
+    },
+    {
+      "id": "9b43fe75-dae4-4265-88f0-11d5203e3d14",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.DVh6rKNRFmg6qwiw.40Q1k1lp9edM65tlbuZubKNO0kOFeXGlU_M1g51shE-vUDE1I7TCfeRPLUaePL9KKmS6Dr8JWZluttMTIkC4U7VG1m6Va_YQ3uJQQlTL6JCVLEmg25yo249PZorevyFAk7wU717gNe_lhFpD7d7j7Zi9PO7x5sL1fwWqq-a5_f9ZbVqLz23yPxNCSVg_mVb-QTWb6ljpGpBUeCaLymh3c_Qwc8but4X4eR2WustJYxXg3ehtToRT7qFbx08s7DMcy2IXpcG15LY1BaT6Lev7tA_DlMAJRGq98kf9W0_AJDWeSpa5RACfbHiF29RMB8N9EYLlXX-SVGaypHLopkjwP2NDWZkpOlWOnW8CnXqBiqwAvPcdLvuZfGLoJHmyQjmhOGVBrofFPtHgWLyxNEN_5CuSc9nSRVo_2y1GS453i4WChui2mc-ALiexfeXgPTA",
+      "mobbin_url": "https://mobbin.com/screens/9b43fe75-dae4-4265-88f0-11d5203e3d14",
+      "app_name": "Fresha",
+      "platform": "web"
+    },
+    {
+      "id": "294d7e2a-9c2c-49ad-91a0-9064387546c0",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.ZeBnQ62Bk5adaU4h.kStHyFt3eA4Q9lZywODpTOUJfunQI_zyh5NH5-rqT6ugXQm8ekhiVWiexRzaTbQwl30RxRGsRqBinFD6yoUOjJdaTXrYK5pGkSstKeVPwaVEP_6AdEBJBDX46I55Pf7Umb9X3ijThmCOy3wRX9qArulPS_O4oAn2W_K77d5KCmZIrdPsIe9AQWKTzU--sgcixv7VJIFx2jhyhf4VgOUv6VFW0J6OyuMgMOf7y9NDD4Sx-2CnW0zj4kBIgLfnb_Ln2NZJ1MGE_imFuoA2CTCfg3UojnjxMiGaY5YInf32U7VVJ6kfiLKhFsgMfDtxS7AC_M-PfJeS2C0rZIQyyfeo82tpSbeS40bVrsCWFmKKbXfiHX3MvrSqHH9gdwfjMEqLRMeaXUW1geh-Z2xDRUbYyThQYqSalyxNs6JMsQIsyU4QD_GM0Ql-1v8VqD0BYV8",
+      "mobbin_url": "https://mobbin.com/screens/294d7e2a-9c2c-49ad-91a0-9064387546c0",
+      "app_name": "Selfridges",
+      "platform": "web"
+    },
+    {
+      "id": "d136df71-7cb1-4db2-a95f-b6d6eed1d00e",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.vDIBJ3ClkZCx1T9U.I0cT8RDmWc7Qz3k3_t_fQNqbFwbMV_CdCwMniYefoJB_0S4ImULku69DaA1Uo1lUh7-TAc9-6VGU9NUh0-aMZEmAq4REloKpniyOmY8GmjUDzShzyOP7mA3Fk_1mpzYROe-O-ceUtevG555jHPIxr1X1BfiPA-leJreJ0h9DR1Wo50KRKdq0r-hz2C2TvQkePrFzDQsiRMfU7VMTXNuwP21tgpNJlbhzHOxrvI-g6bGCL6kDlyQROOLRof6ihIEidETVJzSFI7bjMlxEUsoRjwvAyltbB3J_w7onoWzOVI_n4eQojMjt3m3xd_xaHjP9G4OYUMmrYXkZujAYMYfAmNwAcm1feXOoDBKs7zLXDzSVV-vqozw7YYqx4AWbdGxOrjTo3HzpoKOKmdF6lZC6K9LBkLNklZaICM_6GtzTSw8lOQmscse8yXJIppTiPG0",
+      "mobbin_url": "https://mobbin.com/screens/d136df71-7cb1-4db2-a95f-b6d6eed1d00e",
+      "app_name": "Klook",
+      "platform": "web"
+    },
+    {
+      "id": "77a40b3f-99f1-4aa7-9a53-cdcd8b8fa4f5",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.9OBgQtJ5Y-dsOYBZ.DYqC2oRU_hmAouhVsre0xWqABhGcupMR5shFssgeVFbxHcaR-110LImC2fhGFoIDKgtDg_Lb1E_cijws2S2iXIRFm2NZW0KUvmsziFT9fCMtPAAemo-TsFYMeJ4ehzUYC9d1_1zNb-qoTf6isOJY8AgKS2Vi9Kq5woAh4j3Ix2mw6IF-k0E7UNn-CBsa_GBwadPPV1SbC9ooG6wF8O8DEH5VUoKDcFz2HKERX5AP4f8WLuOWrW5Ze1HrBpybqnM05FOkBygqNomtwuSpWHtfC4blzDXa5kEraJ_lxPEghazs1ZNHckzOlLxUy2HIS8XdO_MLt57Wlj5QWxV2F9TPu6ekeDaLSCRHlGRnF8ayOwPhdkO9tcJ8hNoaThRViiH8IsooOS8dmoIjD0CawvAkOwspdGcBiEARSRToyR_jEtr7lFAKj28-3CYNkCzod3s",
+      "mobbin_url": "https://mobbin.com/screens/77a40b3f-99f1-4aa7-9a53-cdcd8b8fa4f5",
+      "app_name": "Dollar Shave Club",
+      "platform": "web"
+    },
+    {
+      "id": "16fe5abc-f648-4249-bf77-37c74aff8062",
+      "image_url": "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod/file.webp?enc=1.Pjvjficq.BTiBLxt01etevWd-.966clW3GcerIoQotcn38x4eN5Hh0Kwk0LKtdO8L7t90HsRAQlnn7TnbpOreNg-F8WoSSShscxsr23K_J3iY0FS4RS92VbLNtxgIR6RdoUQ9fqed3dqhSzwWuDFu5QN-9JhOAaszZj3OI1_xSuit65o5ufyzEp6N8q7yhYZaBrEWmZW2pSLzM9l6abPgQ5U7PSyIb6mlmPKoT7dk3k5ZlDb32199eigJ8jewswiAL0L1fjpibCbiZd_yIN8ZiMtiDSTm2Wr89NgTOn7R5nsSyJuo6dlJfdbt4BcjOwoRnkO251jzPk8Aa1W7YApL_hxQginKXrB8mqN2ZD_5lX3moIi52txA71WJY6zv4WyG5en2BZ3kdOkMpvSGjZHR_36ypE3y3jdG63M_y9kSHWqIr1xrwV_yOmPml8fUTR3IJNTIzqz99hLMH0kwDxlzhMA4",
+      "mobbin_url": "https://mobbin.com/screens/16fe5abc-f648-4249-bf77-37c74aff8062",
+      "app_name": "FARFETCH",
+      "platform": "web"
+    }
+  ]
+}
