@@ -11,8 +11,7 @@ export function buildAuthorizeUrl(host: string, state: string, codeVerifier: str
   }
 
   // Determine redirect URI
-  const protocol = host.includes('localhost') ? 'http' : 'https';
-  const redirectUri = `${protocol}://${host}/api/auth/x/callback`;
+  const redirectUri = process.env.X_OAUTH_REDIRECT_URI || `${host.includes('localhost') ? 'http' : 'https'}://${host}/api/auth/x/callback`;
 
   // Compute S256 code challenge
   const codeChallenge = crypto
@@ -45,8 +44,7 @@ export async function exchangeCodeForTokens(
     throw new Error('X_CLIENT_ID or X_CLIENT_SECRET missing in .env');
   }
 
-  const protocol = host.includes('localhost') ? 'http' : 'https';
-  const redirectUri = `${protocol}://${host}/api/auth/x/callback`;
+  const redirectUri = process.env.X_OAUTH_REDIRECT_URI || `${host.includes('localhost') ? 'http' : 'https'}://${host}/api/auth/x/callback`;
 
   const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
