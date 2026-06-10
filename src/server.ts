@@ -15,12 +15,12 @@ import { ALL_SKILLS, buildSections, findSkill } from './skills/index.js';
 import { startGeneration, pollStatus, proxyDownload, type AspectRatio } from './skills/runtime/veo.js';
 import {
   buildAuthorizeUrl,
-  handleCallback,
-  getStatus as getXStatus,
   unlink as xUnlink,
+  exchangeCodeForTokens,
+  fetchUserProfile,
+  refreshAccessToken,
+  postTweet
 } from './skills/runtime/x-api.js';
-import { runSendDMs, SendXDMsInputSchema } from './skills/x_dm/SendXDMsSkill.js';
-import { loadQuota as loadXDmQuota, resetQuota as resetXDmQuota } from './skills/runtime/x-dm-quota.js';
 
 import {
   buildAuthorizeUrl as buildInstaAuthUrl,
@@ -213,9 +213,18 @@ app.get('/api/veo/proxy', async (req: Request, res: Response) => {
 });
 
 // ---------- X (Twitter) OAuth ----------
-app.get('/api/auth/x/login', (_req: Request, res: Response) => {
+const pkceCache = new Map<string, string>();
+
+app.get('/api/auth/x/login', async (req: Request, res: Response) => {
   try {
-    const { url } = buildAuthorizeUrl();
+    const state = crypto.randomBytes(16).toString('hex');
+    const codeVerifier = crypto.randomBytes(32).toString('hex');
+    pkceCache.set(state, codeVerifier);
+
+    // Expire state after 15 minutes
+    setTimeout(() => pkceCache.delete(state), 15 * 60 * 1000);
+
+    const url = buildAuthorizeUrl(req.headers.host || 'localhost:3000', state, codeVerifier);
     res.redirect(url);
   } catch (e) {
     res.status(500).send(`X OAuth login failed: ${(e as Error).message}`);
@@ -226,24 +235,87 @@ app.get('/api/auth/x/callback', async (req: Request, res: Response) => {
   const code = req.query.code as string | undefined;
   const state = req.query.state as string | undefined;
   const error = req.query.error as string | undefined;
+  const errorDescription = req.query.error_description as string | undefined;
+
   if (error) {
-    return res.status(400).send(`<h1>X OAuth refusé</h1><p>${error}</p><a href="/">Retour</a>`);
+    return res.status(400).send(`
+      <!doctype html><meta charset="utf-8">
+      <title>Erreur de connexion</title>
+      <style>body{font-family:system-ui;background:#0b0d12;color:#e7eaf0;padding:40px;max-width:520px;margin:auto}
+        a{color:#7c5cff}.err{color:#ff5050}</style>
+      <h1 class="err">✗ Échec de la connexion X (Twitter)</h1>
+      <p><strong>Détails :</strong> ${escapeHtml(errorDescription ?? error)}</p>
+      <p>Essaie de fermer cet onglet et de recliquer sur le bouton de connexion.</p>
+      <a href="/">Retour</a>
+    `);
   }
+
   if (!code || !state) {
-    return res.status(400).send('<h1>OAuth callback invalide</h1><a href="/">Retour</a>');
+    return res.status(400).send(`
+      <!doctype html><meta charset="utf-8">
+      <title>Erreur de connexion</title>
+      <style>body{font-family:system-ui;background:#0b0d12;color:#e7eaf0;padding:40px;max-width:520px;margin:auto}
+        a{color:#7c5cff}</style>
+      <h1>Callback X invalide</h1>
+      <p>Les paramètres requis (code/state) sont absents.</p>
+      <a href="/">Retour</a>
+    `);
   }
+
+  const codeVerifier = pkceCache.get(state);
+  if (!codeVerifier) {
+    return res.status(400).send(`
+      <!doctype html><meta charset="utf-8">
+      <title>Erreur de connexion</title>
+      <style>body{font-family:system-ui;background:#0b0d12;color:#e7eaf0;padding:40px;max-width:520px;margin:auto}
+        a{color:#7c5cff}</style>
+      <h1>Session expirée</h1>
+      <p>La session d'authentification a expiré (15 min max) ou a été modifiée.</p>
+      <a href="/">Retour</a>
+    `);
+  }
+  pkceCache.delete(state);
+
   try {
-    const stored = await handleCallback({ code, state });
+    const tokenData = await exchangeCodeForTokens(code, codeVerifier, req.headers.host || 'localhost:3000');
+    const profile = await fetchUserProfile(tokenData.access_token);
+
+    const accountId = profile.id;
+    const username = profile.username;
+    const displayName = profile.name;
+    const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000);
+
+    const existing = await pool.query(
+      'SELECT id FROM public.x_accounts WHERE business_id = $1 AND x_user_id = $2 LIMIT 1',
+      [BUSINESS_ID, accountId]
+    );
+
+    if (existing.rows.length > 0) {
+      await pool.query(
+        `UPDATE public.x_accounts 
+         SET handle = $1, display_name = $2, status = 'connected', 
+             x_access_token = $3, x_refresh_token = $4, x_token_expires_at = $5,
+             updated_at = NOW()
+         WHERE business_id = $6 AND x_user_id = $7`,
+        [username, displayName, tokenData.access_token, tokenData.refresh_token, expiresAt, BUSINESS_ID, accountId]
+      );
+    } else {
+      await pool.query(
+        `INSERT INTO public.x_accounts (id, business_id, owner_position_id, x_user_id, handle, display_name, status, x_access_token, x_refresh_token, x_token_expires_at, created_at, updated_at)
+         VALUES ($1, $2, 'sales_rep', $3, $4, $5, 'connected', $6, $7, $8, NOW(), NOW())`,
+        [crypto.randomUUID(), BUSINESS_ID, accountId, username, displayName, tokenData.access_token, tokenData.refresh_token, expiresAt]
+      );
+    }
+
     res.send(`
       <!doctype html><meta charset="utf-8">
-      <title>X linked</title>
+      <title>X (Twitter) linked</title>
       <style>body{font-family:system-ui;background:#0b0d12;color:#e7eaf0;padding:40px;max-width:520px;margin:auto}
         a{color:#7c5cff}.ok{color:#2bd4a0}</style>
-      <h1>✓ Compte X linké</h1>
-      <p>Connecté en tant que <strong>@${stored.username}</strong></p>
-      <p class="ok">Scopes: ${stored.scopes.join(', ')}</p>
+      <h1>✓ Compte X lié directement</h1>
+      <p>Connecté en tant que <strong>@${username}</strong></p>
       <p>Tu peux fermer cet onglet et retourner sur <a href="/">l'app</a>.</p>
-      <script>window.opener && window.opener.postMessage({type:'x_linked', username: '${stored.username}'}, '*'); setTimeout(()=>window.close(), 1500);</script>
+      <script>window.opener && window.opener.postMessage({type:'x_linked', username: '${username}'}, '*'); setTimeout(()=>window.close(), 1500);</script>
     `);
   } catch (e) {
     res.status(500).send(`<h1>X OAuth failed</h1><pre>${(e as Error).message}</pre><a href="/">Retour</a>`);
@@ -252,7 +324,11 @@ app.get('/api/auth/x/callback', async (req: Request, res: Response) => {
 
 app.get('/api/auth/x/status', async (_req: Request, res: Response) => {
   try {
-    res.json(await getXStatus());
+    const result = await pool.query(
+      'SELECT id, x_user_id as "accountId", handle, display_name as "displayName", status, metadata FROM public.x_accounts WHERE business_id = $1 ORDER BY created_at DESC',
+      [BUSINESS_ID]
+    );
+    res.json(result.rows);
   } catch (e) {
     res.status(500).json({ error: (e as Error).message });
   }
@@ -267,126 +343,27 @@ app.get('/api/auth/aws/status', (_req: Request, res: Response) => {
   });
 });
 
-app.post('/api/auth/x/logout', async (_req: Request, res: Response) => {
+app.post('/api/auth/x/logout', async (req: Request, res: Response) => {
+  const { id } = req.body as { id?: string };
+  if (!id) {
+    return res.status(400).json({ error: 'id de compte manquant' });
+  }
   try {
-    await xUnlink();
+    const accRes = await pool.query(
+      'SELECT x_user_id FROM public.x_accounts WHERE business_id = $1 AND id = $2 LIMIT 1',
+      [BUSINESS_ID, id]
+    );
+    if (accRes.rows.length > 0) {
+      const zernioAccountId = accRes.rows[0].x_user_id;
+      await xUnlink(zernioAccountId);
+    }
+    await pool.query(
+      'DELETE FROM public.x_accounts WHERE business_id = $1 AND id = $2',
+      [BUSINESS_ID, id]
+    );
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: (e as Error).message });
-  }
-});
-
-// ---------- X DM persistent quota (UTC-day counter + stop-loss) ----------
-app.get('/api/x-dm/quota', async (_req: Request, res: Response) => {
-  try {
-    res.json(await loadXDmQuota());
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-app.post('/api/x-dm/quota/reset', async (_req: Request, res: Response) => {
-  try {
-    res.json(await resetXDmQuota());
-  } catch (e) {
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
-// ---------- X DM: live progress stream (SSE) ----------
-// Mirrors the `send_x_dms` skill but emits per-handle events so the UI can
-// show "@foo… sending → ✓ sent" live instead of waiting ~90s for the batch.
-// The skill itself (run via /api/skills/send_x_dms/run) still works for agents.
-app.post('/api/x-dm/send-stream', async (req: Request, res: Response) => {
-  const parsed = SendXDMsInputSchema.safeParse(req.body ?? {});
-  if (!parsed.success) {
-    return res.status(400).json({ error: 'inputs invalides', issues: parsed.error.issues });
-  }
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache, no-transform');
-  res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no');
-  res.flushHeaders?.();
-  res.socket?.setNoDelay(true);
-  res.socket?.setKeepAlive(true);
-  // Disable ANY socket timeout — with 3-6 min delays between DMs, a full run
-  // can easily span 20-30 minutes. Default Node/Express timeouts would kill
-  // the stream mid-way and the browser would see ERR_INCOMPLETE_CHUNKED_ENCODING.
-  res.socket?.setTimeout(0);
-  // Also disable the request-level timeout (Express sets 2 min by default
-  // in some setups, even though Node default is 0).
-  req.setTimeout(0);
-  res.setTimeout?.(0);
-
-  // ──────────────────────────────────────────────────────────────
-  // SSE flushing — true real-time delivery
-  //
-  // Node's `res.write(chunk)` returns immediately and queues the chunk in
-  // the outgoing buffer. It doesn't guarantee the chunk has been pushed to
-  // the kernel socket. The CALLBACK form `res.write(chunk, cb)` invokes cb
-  // ONCE THE WRITE IS FLUSHED. We promisify that, then `await` it before
-  // returning from our send helper. Combined with `setNoDelay`, each event
-  // hits the wire before we proceed.
-  //
-  // Previous attempts (padding to 4KB, heartbeat) didn't reliably push
-  // because they relied on internal heuristics. This approach explicitly
-  // gates progression on flush completion — bulletproof.
-  // ──────────────────────────────────────────────────────────────
-  const writeAndFlush = (chunk: string): Promise<void> =>
-    new Promise((resolve, reject) => {
-      res.write(chunk, (err) => (err ? reject(err) : resolve()));
-    });
-
-  // Preamble: 2KB padding primes any receive-side buffering.
-  await writeAndFlush(`: stream open ${' '.repeat(2048)}\n\n`);
-
-  const send = async (event: string, data: unknown): Promise<void> => {
-    const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-    await writeAndFlush(payload);
-    // eslint-disable-next-line no-console
-    console.log(`[SSE] flushed event=${event} (${payload.length}B)`);
-  };
-
-  let closed = false;
-  req.on('close', () => {
-    // eslint-disable-next-line no-console
-    console.log(`[SSE] req closed — was it expected? sent=${closed ? 'completed' : 'mid-stream'}`);
-    closed = true;
-  });
-  // Also listen on the socket itself: if it dies (kernel TCP timeout, ngrok
-  // reconnect, etc.) we want to know BEFORE the next write fails silently.
-  res.socket?.on('close', () => {
-    if (!closed) {
-      // eslint-disable-next-line no-console
-      console.log('[SSE] socket closed unexpectedly — flagging stream as dead');
-      closed = true;
-    }
-  });
-
-  // Heartbeat every 5s keeps the connection visible to any intermediate
-  // proxy/timeout. If a heartbeat WRITE fails, that's our smoke-test that
-  // the socket is dead — we set `closed=true` so runSendDMs stops emitting.
-  const heartbeat = setInterval(() => {
-    if (closed) return;
-    writeAndFlush(`: ping ${Date.now()}\n\n`).catch(() => {
-      // eslint-disable-next-line no-console
-      console.warn('[SSE] heartbeat write failed — marking stream closed');
-      closed = true;
-    });
-  }, 5000);
-
-  try {
-    await runSendDMs(parsed.data, async (event) => {
-      if (closed) return;
-      await send(event.kind, event);
-    });
-  } catch (e) {
-    if (!closed) {
-      try { await send('error', { error: (e as Error).message }); } catch { /* ignore */ }
-    }
-  } finally {
-    clearInterval(heartbeat);
-    closed = true;
-    res.end();
   }
 });
 
@@ -870,6 +847,97 @@ const openai = new OpenAI({
 
 const BUSINESS_ID = '8490ff47-45cf-4b96-b149-aa1961280032';
 
+
+
+async function fetchTweetsByKeyword(keyword: string, minLikes: number): Promise<any[]> {
+  const apifyToken = process.env.APIFY_TOKEN;
+  if (!apifyToken) {
+    console.error("[Apify] APIFY_TOKEN is missing in the environment");
+    return [];
+  }
+
+  const actorId = 'apidojo~tweet-scraper';
+  const query = `${keyword} lang:en min_faves:${minLikes}`;
+  console.log(`[Apify] Starting search with query: "${query}"`);
+  
+  const input = {
+    searchTerms: [query],
+    maxItems: 5,
+    onlyImage: false,
+    onlyVideo: false,
+    onlyTwitterBlue: false,
+    onlyVerifiedUsers: false
+  };
+
+  const startUrl = `https://api.apify.com/v2/acts/${actorId}/runs?token=${encodeURIComponent(apifyToken)}`;
+  
+  try {
+    const startRes = await fetch(startUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    });
+
+    if (!startRes.ok) {
+      const errText = await startRes.text();
+      console.error(`[Apify] Failed to start Apify run: HTTP ${startRes.status} - ${errText}`);
+      return [];
+    }
+
+    const startBody = await startRes.json() as any;
+    const runId = startBody.data.id;
+    const datasetId = startBody.data.defaultDatasetId;
+    console.log(`[Apify] Actor started! Run ID: ${runId}, Dataset ID: ${datasetId}`);
+
+    const pollUrl = `https://api.apify.com/v2/actor-runs/${runId}?token=${encodeURIComponent(apifyToken)}`;
+    const deadline = Date.now() + 3 * 60 * 1000;
+    let success = false;
+
+    while (Date.now() < deadline) {
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      const pollRes = await fetch(pollUrl);
+      if (!pollRes.ok) {
+        console.warn(`[Apify] Poll run status failed (HTTP ${pollRes.status}), retrying...`);
+        continue;
+      }
+      const pollBody = await pollRes.json() as any;
+      const status = pollBody.data.status;
+      console.log(`[Apify] Current run status: ${status}`);
+
+      if (status === 'SUCCEEDED') {
+        success = true;
+        break;
+      }
+      if (status === 'FAILED' || status === 'ABORTED' || status === 'TIMED-OUT') {
+        console.error(`[Apify] Actor run failed with status: ${status}. Message: ${pollBody.data.statusMessage}`);
+        break;
+      }
+    }
+
+    if (!success) {
+      console.error("[Apify] Actor run did not succeed or timed out.");
+      return [];
+    }
+
+    const itemsUrl = `https://api.apify.com/v2/datasets/${datasetId}/items?token=${encodeURIComponent(apifyToken)}&clean=true&format=json`;
+    console.log("[Apify] Fetching dataset items...");
+    const itemsRes = await fetch(itemsUrl);
+    if (!itemsRes.ok) {
+      const errText = await itemsRes.text();
+      console.error(`[Apify] Failed to fetch dataset items: HTTP ${itemsRes.status} - ${errText}`);
+      return [];
+    }
+
+    const items = await itemsRes.json() as any[];
+    console.log(`[Apify] Successfully retrieved ${items.length} tweets.`);
+    return items;
+  } catch (e) {
+    console.error("[Apify] Error during fetching tweets:", e);
+    return [];
+  }
+}
+
+
 // Initialize Auth DB Tables & Seed admin user
 async function initAuthDatabase() {
   try {
@@ -889,6 +957,29 @@ async function initAuthDatabase() {
         expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS public.x_scanned_posts (
+        id VARCHAR(255) PRIMARY KEY,
+        campaign_id UUID NOT NULL REFERENCES public.prospection_campaigns(id) ON DELETE CASCADE,
+        url VARCHAR(1024) NOT NULL,
+        text TEXT NOT NULL,
+        author_username VARCHAR(255) NOT NULL,
+        author_name VARCHAR(255),
+        author_profile_picture VARCHAR(1024),
+        like_count INT DEFAULT 0,
+        reply_count INT DEFAULT 0,
+        retweet_count INT DEFAULT 0,
+        status VARCHAR(50) DEFAULT 'scanned',
+        reply_tweet_url VARCHAR(1024),
+        scanned_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        commented_at TIMESTAMP WITH TIME ZONE
+      );
+    `);
+
+    await pool.query(`
+      ALTER TABLE public.prospection_sends ADD COLUMN IF NOT EXISTS tweet_url TEXT;
     `);
 
     const checkUser = await pool.query("SELECT id FROM public.dashboard_users WHERE email = $1 LIMIT 1", ['toedembo@gmail.com']);
@@ -1173,13 +1264,7 @@ app.get('/api/prospection/metrics', async (req: Request, res: Response) => {
       WHERE business_id = $1 ${dateFilter}
     `, params);
 
-    // X DMs Counts
-    const xRes = await pool.query(`
-      SELECT 
-        COUNT(*) FILTER (WHERE direction = 'out') as sent
-      FROM public.x_messages 
-      WHERE business_id = $1 ${dateFilter}
-    `, params);
+
 
     // X Comments & Reddit Counts
     const sendsDateFilter = dateFilter.replace('sent_at', 's.sent_at');
@@ -1329,9 +1414,6 @@ app.get('/api/prospection/metrics', async (req: Request, res: Response) => {
         SELECT 'email' as type, direction, to_address as recipient, subject as title, body_text as body, sent_at
         FROM public.email_messages WHERE business_id = $1
       ) UNION ALL (
-        SELECT 'x_dm' as type, direction, recipient_handle as recipient, null as title, body, sent_at
-        FROM public.x_messages WHERE business_id = $1
-      ) UNION ALL (
         SELECT campaign_kind as type, 'out' as direction, recipient, null as title, body, s.sent_at
         FROM public.prospection_sends s
         JOIN public.prospection_campaigns c ON s.campaign_id = c.id
@@ -1353,7 +1435,7 @@ app.get('/api/prospection/metrics', async (req: Request, res: Response) => {
       churned_list: churnedList,
       emails_sent: Number(emailRes.rows[0]?.sent || 0),
       emails_received: Number(emailRes.rows[0]?.received || 0),
-      x_dms_sent: Number(xRes.rows[0]?.sent || 0),
+      x_dms_sent: 0,
       x_comments_replied: kindsCount.x_reply || 0,
       reddit_posts: kindsCount.reddit || 0,
       recent_activity: recentRes.rows
@@ -1488,10 +1570,17 @@ app.get('/api/prospection/campaigns', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'kind requis' });
     }
     const result = await pool.query(`
-      SELECT id, name, description, active, created_at
-      FROM public.prospection_campaigns
-      WHERE business_id = $1 AND kind = $2
-      ORDER BY created_at DESC
+      SELECT c.id, c.name, c.description, c.active, c.created_at, c.target_filters,
+             CASE 
+               WHEN c.kind = 'email' THEN 
+                 (SELECT COUNT(*)::int FROM public.email_messages m WHERE m.campaign_id = c.id AND m.direction = 'out')
+               WHEN c.kind = 'x_reply' THEN
+                 (SELECT COUNT(*)::int FROM public.prospection_sends s WHERE s.campaign_id = c.id AND s.sent_at >= CURRENT_DATE)
+               ELSE 0
+             END as sent_count
+      FROM public.prospection_campaigns c
+      WHERE c.business_id = $1 AND c.kind = $2
+      ORDER BY c.created_at DESC
     `, [BUSINESS_ID, kind]);
     res.json(result.rows);
   } catch (e) {
@@ -1502,10 +1591,9 @@ app.get('/api/prospection/campaigns', async (req: Request, res: Response) => {
 app.delete('/api/prospection/campaigns/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    // Delete associated elements from database
     await pool.query("DELETE FROM public.email_messages WHERE business_id = $1 AND campaign_id = $2", [BUSINESS_ID, id]);
-    await pool.query("DELETE FROM public.x_messages WHERE business_id = $1 AND campaign_id = $2", [BUSINESS_ID, id]);
     await pool.query("DELETE FROM public.prospection_sends WHERE campaign_id = $1", [id]);
+    await pool.query("DELETE FROM public.x_scanned_posts WHERE campaign_id = $1", [id]);
     
     // Delete the campaign itself
     const delRes = await pool.query(`
@@ -1686,68 +1774,12 @@ async function runCampaignOutreach(campaignId: string, kind: string, payload: an
         }
       })();
     }
-  } else if (kind === 'x_dm') {
-    const handles = (handlesList || '').split(',').map((h: string) => h.trim()).filter(Boolean);
-    
-    const xAccRes = await pool.query('SELECT id FROM public.x_accounts WHERE business_id = $1 LIMIT 1', [BUSINESS_ID]);
-    let xAccountId = xAccRes.rows[0]?.id;
-    if (!xAccountId) {
-      xAccountId = crypto.randomUUID();
-      await pool.query(`
-        INSERT INTO public.x_accounts (id, business_id, owner_position_id, x_user_id, handle, display_name, status)
-        VALUES ($1, $2, 'sales_rep', '123456', 'sideloot_outreach', 'Sideloot Outreach', 'connected')
-      `, [xAccountId, BUSINESS_ID]);
-    }
-
-    (async () => {
-      for (let i = 0; i < handles.length; i++) {
-        if (i > 0) {
-          await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
-        }
-        const handle = handles[i];
-        const messageText = template.replace('{handle}', handle);
-        await pool.query(`
-          INSERT INTO public.x_messages (
-            id, x_account_id, business_id, direction, recipient_handle, body, status, sent_at, campaign_id
-          ) VALUES (
-            gen_random_uuid(), $1, $2, 'out', $3, $4, 'sent', NOW(), $5
-          )
-        `, [xAccountId, BUSINESS_ID, handle, messageText, campaignId]);
-      }
-    })();
   } else if (kind === 'x_reply') {
-    (async () => {
-      for (let i = 0; i < 5; i++) {
-        if (i > 0) {
-          await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
-        }
-        try {
-          const prompt = `Rédige une réponse courte à un commentaire Twitter/X.
-Sujet de recherche de feed : ${keyword}
-Consignes : ${template}
-Fais une réponse concise, percutante, naturelle (moins de 250 caractères). Pas de hashtags.`;
+    console.log(`[Campaign Outreach] X Comment campaign ${campaignId} started. Triggering background worker runCommentsAutoReply immediately...`);
+    runCommentsAutoReply().catch(err => {
+      console.error('[Campaign Outreach] Failed to run comments auto-reply immediately:', err);
+    });
 
-          const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: prompt }],
-            max_tokens: 200
-          });
-
-          const aiResponse = completion.choices[0]?.message?.content || '';
-          const mockUser = `@user_${Math.floor(Math.random() * 900) + 100}`;
-          
-          await pool.query(`
-            INSERT INTO public.prospection_sends (
-              id, campaign_id, campaign_kind, recipient, body, status, sent_at, created_at
-            ) VALUES (
-              gen_random_uuid(), $1, 'x_reply', $2, $3, 'sent', NOW(), NOW()
-            )
-          `, [campaignId, mockUser, aiResponse]);
-        } catch (err) {
-          console.error('[X Reply Campaign Error]:', err);
-        }
-      }
-    })();
   } else if (kind === 'reddit') {
     const subList = (subreddits || '').split(',').map((s: string) => s.trim()).filter(Boolean);
 
@@ -2123,7 +2155,7 @@ app.get('/api/prospection/xcomments', async (req: Request, res: Response) => {
       return res.json([]);
     }
     const result = await pool.query(`
-      SELECT s.id, s.recipient, s.body, s.status, s.sent_at
+      SELECT s.id, s.recipient, s.body, s.status, s.sent_at, s.in_reply_to_tweet_id, s.tweet_url
       FROM public.prospection_sends s
       WHERE s.campaign_id = $1 AND s.campaign_kind = 'x_reply'
       ORDER BY s.sent_at DESC
@@ -2133,6 +2165,66 @@ app.get('/api/prospection/xcomments', async (req: Request, res: Response) => {
     res.status(500).json({ error: (e as Error).message });
   }
 });
+
+app.get('/api/prospection/x-scanned-posts', async (req: Request, res: Response) => {
+  try {
+    const campaignId = req.query.campaignId as string | undefined;
+    const page = parseInt(req.query.page as string || '1', 10);
+    const limit = 20;
+    const offset = (page - 1) * limit;
+
+    let postsQuery = '';
+    let countQuery = '';
+
+    if (campaignId) {
+      postsQuery = `
+        SELECT id, campaign_id as "campaignId", url as permalink, text as content, 
+               author_username as "accountUsername", author_name as "accountName", 
+               author_profile_picture as "accountProfilePicture", like_count as "likeCount", 
+               reply_count as "commentCount", retweet_count as "retweetCount", 
+               status, reply_tweet_url as "replyTweetUrl", scanned_at as "createdTime"
+        FROM public.x_scanned_posts
+        WHERE campaign_id = $1
+        ORDER BY scanned_at DESC
+        LIMIT $2 OFFSET $3
+      `;
+      countQuery = `SELECT COUNT(*) FROM public.x_scanned_posts WHERE campaign_id = $1`;
+    } else {
+      postsQuery = `
+        SELECT id, campaign_id as "campaignId", url as permalink, text as content, 
+               author_username as "accountUsername", author_name as "accountName", 
+               author_profile_picture as "accountProfilePicture", like_count as "likeCount", 
+               reply_count as "commentCount", retweet_count as "retweetCount", 
+               status, reply_tweet_url as "replyTweetUrl", scanned_at as "createdTime"
+        FROM public.x_scanned_posts
+        ORDER BY scanned_at DESC
+        LIMIT $1 OFFSET $2
+      `;
+      countQuery = `SELECT COUNT(*) FROM public.x_scanned_posts`;
+    }
+
+    const postsRes = await pool.query(postsQuery, campaignId ? [campaignId, limit, offset] : [limit, offset]);
+    const countRes = await pool.query(countQuery, campaignId ? [campaignId] : []);
+    const total = parseInt(countRes.rows[0].count, 10);
+
+    const posts = postsRes.rows.map(row => ({
+      id: row.id,
+      campaignId: row.campaignId,
+      accountUsername: row.accountUsername,
+      content: row.content,
+      commentCount: row.commentCount,
+      permalink: row.permalink,
+      status: row.status,
+      replyTweetUrl: row.replyTweetUrl,
+      createdTime: row.createdTime
+    }));
+
+    res.json({ success: true, posts, total, page, limit });
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
 
 app.get('/api/prospection/reddit', async (req: Request, res: Response) => {
   try {
@@ -2180,29 +2272,24 @@ app.post('/api/prospection/run', async (req: Request, res: Response) => {
 Prospect: ${lead.full_name}
 Entreprise: ${lead.company_name || 'Cabinet médical'}
 Secteur: ${lead.industry || 'Santé / Dentaire'}
-L'expéditeur est 'Sideloot' (une IA qui lance et fait tourner des side business autonomes). 
-L'email doit proposer notre solution automatisée. Ne mets pas de placeholders (ex: [Votre Nom]), signe 'L'équipe Sideloot'.`;
+L'expéditeur est 'Big Bang Loot' (une IA qui lance et fait tourner des side business autonomes). 
+L'email doit proposer notre solution automatisée. Ne mets pas de placeholders (ex: [Votre Nom]), signe 'L'équipe Big Bang Loot'.`;
         break;
       case 'email_reply':
-        prompt = `Rédige une réponse d'assistance ou de suivi par email pour le prospect ${lead.full_name} qui s'intéresse à Sideloot.
+        prompt = `Rédige une réponse d'assistance ou de suivi par email pour le prospect ${lead.full_name} qui s'intéresse à Big Bang Loot.
 Entreprise: ${lead.company_name || 'Cabinet médical'}
-Fais une réponse concise, polie et directe, en l'invitant à réserver un appel de démo. Signe 'L'équipe Sideloot'.`;
+Fais une réponse concise, polie et directe, en l'invitant à réserver un appel de démo. Signe 'L'équipe Big Bang Loot'.`;
         break;
-      case 'x_dm':
-        prompt = `Rédige un message privé (DM) Twitter/X informel et sympa pour le compte ${lead.x_handle || '@prospect'}.
-Prospect: ${lead.full_name}
-Secteur: ${lead.industry || 'Freelance'}
-Le message doit faire moins de 250 caractères, susciter la curiosité sur le fait de lancer un business autonome avec Sideloot. Pas de hashtags.`;
-        break;
+
       case 'x_reply':
         prompt = `Rédige une réponse courte à un commentaire de ${lead.x_handle || '@prospect'} sur Twitter/X.
 Prospect: ${lead.full_name}
 Sujet: L'automatisation par IA des tâches chronophages.
-La réponse doit faire moins de 150 caractères, être punchy, naturelle, et mentionner discrètement que Sideloot s'occupe de tout. Pas de hashtags.`;
+La réponse doit faire moins de 150 caractères, être punchy, naturelle, et mentionner discrètement que Big Bang Loot s'occupe de tout. Pas de hashtags.`;
         break;
       case 'reddit':
         prompt = `Rédige un post Reddit de partage d'expérience pour la communauté r/startup ou r/sidehustle.
-Le post explique comment Sideloot a aidé un business dans le secteur '${lead.industry || 'Services'}' à s'automatiser à 100%.
+Le post explique comment Big Bang Loot a aidé un business dans le secteur '${lead.industry || 'Services'}' à s'automatiser à 100%.
 Donne un titre accrocheur et un court texte récapitulatif.`;
         break;
       default:
@@ -2238,17 +2325,7 @@ Donne un titre accrocheur et un court texte récapitulatif.`;
         )
       `, [threadId, BUSINESS_ID, mailboxId, actionType === 'email_outreach' ? 'out' : 'in', lead.email || 'dentist@sideloot.xyz', actionType === 'email_outreach' ? 'Prise de contact Sideloot' : 'Re: Votre projet Sideloot', aiResponse]);
 
-    } else if (actionType === 'x_dm') {
-      const xAccRes = await pool.query('SELECT id FROM public.x_accounts WHERE business_id = $1 LIMIT 1', [BUSINESS_ID]);
-      const xAccountId = xAccRes.rows[0]?.id;
 
-      await pool.query(`
-        INSERT INTO public.x_messages (
-          id, x_account_id, business_id, direction, recipient_handle, body, status, sent_at
-        ) VALUES (
-          gen_random_uuid(), $1, $2, 'out', $3, $4, 'sent', NOW()
-        )
-      `, [xAccountId, BUSINESS_ID, lead.x_handle || '@prospect', aiResponse]);
 
     } else if (actionType === 'x_reply' || actionType === 'reddit') {
       // Find campaign id
@@ -2276,10 +2353,320 @@ Donne un titre accrocheur et un court texte récapitulatif.`;
   }
 });
 
-app.listen(PORT, () => {
-  console.log(
-    `AI Skills Hub on http://localhost:${PORT} — ${ALL_SKILLS.length} skills registered`,
-  );
-});
+export async function runCommentsAutoReply() {
+
+  try {
+    console.log('[comments-worker] Starting active X reply prospection worker...');
+
+    // 1. Get all active x_reply campaigns
+    const campaignsRes = await pool.query(
+      "SELECT id, email_body as template, target_filters FROM public.prospection_campaigns WHERE business_id = $1 AND kind = 'x_reply' AND active = true",
+      [BUSINESS_ID]
+    );
+
+    if (campaignsRes.rows.length === 0) {
+      console.log('[comments-worker] No active X reply campaigns found.');
+      return;
+    }
+
+    // Keep track of tweet IDs replied to in the DB
+    const repliedRes = await pool.query(
+      "SELECT in_reply_to_tweet_id FROM public.prospection_sends WHERE campaign_kind = 'x_reply' AND in_reply_to_tweet_id IS NOT NULL"
+    );
+    const repliedInDb = new Set<string>(repliedRes.rows.map(r => r.in_reply_to_tweet_id));
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    // Loop through each active campaign
+    for (const campaign of campaignsRes.rows) {
+      const campaignId = campaign.id;
+      const campaignTemplate = campaign.template;
+      const targetFilters = campaign.target_filters || {};
+      const xAccountId = targetFilters.x_account_id;
+      const keyword = targetFilters.keyword || '';
+
+      const minLikesVal = targetFilters.min_likes;
+      let minLikes = 10;
+      if (minLikesVal !== undefined && minLikesVal !== null) {
+        const parsed = parseInt(String(minLikesVal), 10);
+        if (!isNaN(parsed)) {
+          minLikes = parsed;
+        }
+      }
+
+      const maxPostsPerDayVal = targetFilters.max_posts_per_day;
+      let maxPostsPerDay = 10;
+      if (maxPostsPerDayVal !== undefined && maxPostsPerDayVal !== null) {
+        const parsed = parseInt(String(maxPostsPerDayVal), 10);
+        if (!isNaN(parsed) && parsed > 0) {
+          maxPostsPerDay = parsed;
+        }
+      }
+
+      // Check daily limit of posts sent today
+      const sendsCountRes = await pool.query(
+        "SELECT COUNT(*) FROM public.prospection_sends WHERE campaign_id = $1 AND sent_at >= CURRENT_DATE",
+        [campaignId]
+      );
+      const postsSentToday = parseInt(sendsCountRes.rows[0].count, 10);
+
+      if (postsSentToday >= maxPostsPerDay) {
+        console.log(`[comments-worker] Campaign ${campaignId} reached its daily limit of ${maxPostsPerDay} posts (${postsSentToday} sent today). Skipping.`);
+        continue;
+      }
+
+      if (!xAccountId || !uuidRegex.test(xAccountId)) {
+        console.warn(`[comments-worker] Campaign ${campaignId} has no valid X account ID. Skipping.`);
+        continue;
+      }
+
+      if (!keyword || !keyword.trim()) {
+        console.warn(`[comments-worker] Campaign ${campaignId} has no keyword configured. Skipping.`);
+        continue;
+      }
+
+      // Fetch the specific connected X account matching the campaign target
+      const xAccRes = await pool.query(
+        'SELECT x_user_id as "accountId", handle, x_access_token, x_refresh_token, x_token_expires_at FROM public.x_accounts WHERE id = $1 AND business_id = $2 AND status = \'connected\'',
+        [xAccountId, BUSINESS_ID]
+      );
+
+      if (xAccRes.rows.length === 0) {
+        console.warn(`[comments-worker] X Account ${xAccountId} for campaign ${campaignId} is not connected or doesn't exist.`);
+        continue;
+      }
+
+      const account = xAccRes.rows[0];
+      const accountId = account.accountId;
+      const handle = account.handle;
+      let accessToken = account.x_access_token;
+      let refreshToken = account.x_refresh_token;
+      const expiresAt = account.x_token_expires_at ? new Date(account.x_token_expires_at) : null;
+
+      if (!accessToken) {
+        console.warn(`[comments-worker] X Account ${xAccountId} has no access token. Skipping campaign.`);
+        continue;
+      }
+
+      // Refresh token if expired or about to expire in 5 minutes
+      const now = new Date();
+      const needsRefresh = !expiresAt || (expiresAt.getTime() - now.getTime() < 5 * 60 * 1000);
+
+      if (needsRefresh) {
+        if (!refreshToken) {
+          console.warn(`[comments-worker] X Account ${xAccountId} requires token refresh but has no refresh token. Skipping campaign.`);
+          continue;
+        }
+        console.log(`[comments-worker] X access token for @${handle} is expired or expiring soon. Refreshing...`);
+        try {
+          const tokenData = await refreshAccessToken(refreshToken);
+          accessToken = tokenData.access_token;
+          refreshToken = tokenData.refresh_token;
+          const newExpiresAt = new Date(Date.now() + tokenData.expires_in * 1000);
+
+          await pool.query(
+            `UPDATE public.x_accounts
+             SET x_access_token = $1, x_refresh_token = $2, x_token_expires_at = $3, updated_at = NOW()
+             WHERE id = $4`,
+            [accessToken, refreshToken, newExpiresAt, xAccountId]
+          );
+          console.log(`[comments-worker] X access token refreshed successfully for @${handle}.`);
+        } catch (refreshErr) {
+          console.error(`[comments-worker] Failed to refresh X token for @${handle}:`, refreshErr);
+          continue;
+        }
+      }
+
+      console.log(`[comments-worker] Scraping tweets for campaign ${campaignId} (Keyword: "${keyword}", Min Likes: ${minLikes}) using account @${handle}...`);
+
+      const scrapedTweets = await fetchTweetsByKeyword(keyword, minLikes);
+
+      if (scrapedTweets.length === 0) {
+        console.log(`[comments-worker] No tweets found for keyword "${keyword}" with >= ${minLikes} likes.`);
+        continue;
+      }
+
+      // Add to scanned posts database table
+      for (const tweet of scrapedTweets) {
+        const tweetUrl = tweet.url || `https://x.com/${tweet.author?.userName || 'user'}/status/${tweet.id}`;
+        const tweetText = tweet.fullText || tweet.text || '';
+        const authorUsername = tweet.author?.userName || 'user';
+        const authorName = tweet.author?.name || '';
+        const authorProfilePicture = tweet.author?.profilePicture || '';
+        const likeCount = tweet.likeCount || 0;
+        const replyCount = tweet.replyCount || 0;
+        const retweetCount = tweet.retweetCount || 0;
+
+        await pool.query(
+          `INSERT INTO public.x_scanned_posts (
+            id, campaign_id, url, text, author_username, author_name, author_profile_picture, like_count, reply_count, retweet_count, status, scanned_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'scanned', NOW())
+           ON CONFLICT (id) DO UPDATE SET
+             like_count = EXCLUDED.like_count,
+             reply_count = EXCLUDED.reply_count,
+             retweet_count = EXCLUDED.retweet_count`,
+          [
+            tweet.id,
+            campaignId,
+            tweetUrl,
+            tweetText,
+            authorUsername,
+            authorName,
+            authorProfilePicture,
+            likeCount,
+            replyCount,
+            retweetCount
+          ]
+        );
+      }
+
+      // Trim to keep max 1000 scanned posts per campaign
+      await pool.query(
+        `DELETE FROM public.x_scanned_posts
+         WHERE campaign_id = $1 AND id NOT IN (
+           SELECT id FROM public.x_scanned_posts
+           WHERE campaign_id = $1
+           ORDER BY scanned_at DESC
+           LIMIT 1000
+         )`,
+        [campaignId]
+      );
+
+      // Filter tweets that have already been replied to, or are our own
+      const tweetsToReply = scrapedTweets.filter(tweet => {
+        if (repliedInDb.has(tweet.id)) {
+          return false;
+        }
+        const authorHandle = tweet.author?.userName || 'user';
+        if (authorHandle.toLowerCase() === handle.toLowerCase() && process.env.NODE_ENV !== 'test') {
+          return false;
+        }
+        return true;
+      });
+
+      console.log(`[comments-worker] Found ${tweetsToReply.length} new tweets to reply to out of ${scrapedTweets.length} scraped.`);
+
+      let currentSentCount = postsSentToday;
+      for (const tweet of tweetsToReply) {
+        if (currentSentCount >= maxPostsPerDay) {
+          console.log(`[comments-worker] Campaign ${campaignId} reached its daily limit of ${maxPostsPerDay} posts during processing. Stopping.`);
+          break;
+        }
+        const authorHandle = tweet.author?.userName || 'user';
+        const tweetText = tweet.fullText || tweet.text || '';
+        console.log(`[comments-worker] Generating reply to tweet ${tweet.id} from @${authorHandle}: "${tweetText.substring(0, 80)}..."`);
+
+        const systemPrompt = `You are a human replying naturally, intelligently, and concisely to a comment/tweet on Twitter/X.
+The tweet to reply to: "${tweetText}"
+
+CRITICAL INSTRUCTIONS:
+1. You MUST write your reply in English (Speak only English).
+2. Keep it short and smart, max 3 sentences.
+3. Write in an extremely human, casual tone, as if typing quickly on a phone (no corporate speak, no pompous intros or conclusions).
+4. NEVER use hashtags (#).
+5. NEVER use asterisks (* or **).
+6. NEVER use list dashes (- or —) or bullet points.
+7. Be natural and engaging.
+8. If you mention the platform, tool, or website, you MUST write "sideloot.co" (with the ".co" extension) and never just "Sideloot" or "sideloot".
+${campaignTemplate ? `Custom instructions to follow: ${campaignTemplate}` : ''}`;
+
+        let aiResponse = '';
+        try {
+          const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: systemPrompt }],
+            max_tokens: 150,
+            temperature: 0.8
+          });
+          aiResponse = completion.choices[0]?.message?.content || '';
+          aiResponse = aiResponse.replace(/[#*`\-–—]/g, '').replace(/\s+/g, ' ').trim();
+          // Ensure sideloot.co link format
+          aiResponse = aiResponse.replace(/\b(sideloot|sideload|sidelot)(?:\.[a-z]+)?\b/gi, 'sideloot.co');
+        } catch (e) {
+          console.error('[comments-worker] OpenAI generation failed:', e);
+          continue;
+        }
+
+        if (!aiResponse) {
+          console.warn('[comments-worker] Generated empty AI response. Skipping.');
+          continue;
+        }
+
+        console.log(`[comments-worker] Replying to tweet ${tweet.id} with: "${aiResponse}"`);
+
+        let replyTweetId = '';
+        let replyTweetUrl = '';
+        let isRestricted = false;
+
+        // Try to post as a reply first using native X API v2
+        try {
+          const replyText = `@${authorHandle} ${aiResponse}`;
+          const tweetResponse = await postTweet(accessToken, replyText, tweet.id);
+          replyTweetId = tweetResponse.id;
+          replyTweetUrl = `https://x.com/${handle}/status/${replyTweetId}`;
+        } catch (postErr: any) {
+          const errMessage = String(postErr.message || postErr);
+          console.error(`[comments-worker] Direct X API reply failed for tweet ${tweet.id}:`, errMessage);
+          isRestricted = true;
+        }
+
+        // If reply failed, retry as a standalone mention tweet
+        if (isRestricted && !replyTweetId) {
+          console.log(`[comments-worker] Retrying as a standalone mention tweet for tweet ${tweet.id}...`);
+          try {
+            const fallbackText = `@${authorHandle} ${aiResponse}`;
+            const tweetResponse = await postTweet(accessToken, fallbackText);
+            replyTweetId = tweetResponse.id;
+            replyTweetUrl = `https://x.com/${handle}/status/${replyTweetId}`;
+          } catch (fallbackErr: any) {
+            console.error(`[comments-worker] Fallback standalone post failed for tweet ${tweet.id}:`, fallbackErr.message || fallbackErr);
+          }
+        }
+
+        if (!replyTweetId) {
+          console.error(`[comments-worker] Both reply and fallback failed or timed out for tweet ${tweet.id}`);
+          await pool.query(
+            "UPDATE public.x_scanned_posts SET status = 'failed' WHERE id = $1",
+            [tweet.id]
+          );
+          continue;
+        }
+
+        // Save to DB
+        const sendId = crypto.randomUUID();
+        await pool.query(
+          `INSERT INTO public.prospection_sends (
+             id, campaign_id, campaign_kind, recipient, body, status, sent_at, created_at, in_reply_to_tweet_id, tweet_url
+           ) VALUES ($1, $2, 'x_reply', $3, $4, 'sent', NOW(), NOW(), $5, $6)`,
+          [sendId, campaignId, `@${authorHandle}`, aiResponse, tweet.id, replyTweetUrl]
+        );
+        repliedInDb.add(tweet.id);
+        currentSentCount++;
+        
+        await pool.query(
+          `UPDATE public.x_scanned_posts 
+           SET status = 'commented', reply_tweet_url = $1, commented_at = NOW() 
+           WHERE id = $2`,
+          [replyTweetUrl, tweet.id]
+        );
+        console.log(`[comments-worker] Replied successfully and logged to DB: id=${sendId}`);
+      }
+    }
+  } catch (err) {
+    console.error('[comments-worker] Background loop error:', err);
+  }
+}
+
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(
+      `AI Skills Hub on http://localhost:${PORT} — ${ALL_SKILLS.length} skills registered`,
+    );
+    
+    // Launch comments auto-reply background worker
+    setTimeout(runCommentsAutoReply, 5000);
+    setInterval(runCommentsAutoReply, 3 * 60 * 1000);
+  });
+}
 
 export default app;

@@ -352,6 +352,14 @@ body {
   color: #FFFFFF;
 }
 
+.btn-action-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--panel-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-muted) !important;
+}
+
 /* Simulator Terminal Logger */
 .simulator-terminal {
   border: 1.5px solid var(--border);
@@ -1584,7 +1592,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg);
+  background-color: #FFFFFF;
   z-index: 10000;
   padding: 20px;
   transition: opacity 0.3s ease, visibility 0.3s ease;

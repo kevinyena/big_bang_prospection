@@ -13,7 +13,7 @@
   <div id="login-overlay" class="login-overlay">
     <div class="login-card">
       <div class="login-header">
-        <img src="4.png" class="brand-logo login-logo" alt="Sideloot Logo" />
+        <img src="4.png" class="brand-logo login-logo" alt="Big Bang Loot Logo" />
         <span class="brand-title">BIG BANG LOOT</span>
         <span class="brand-sep">/</span>
         <span class="brand-domain">LOGIN</span>
@@ -43,10 +43,10 @@
     <!-- Header -->
     <header class="admin-header">
       <div class="header-left">
-        <img src="4.png" class="brand-logo header-logo" alt="Sideloot Logo" />
+        <img src="4.png" class="brand-logo header-logo" alt="Big Bang Loot Logo" />
         <span class="brand-title">BIG BANG LOOT</span>
         <span class="brand-sep">/</span>
-        <span class="brand-domain">theadmins.sideloot.xyz</span>
+        <span class="brand-domain">theadmins.bigbangloot.xyz</span>
       </div>
       <div class="header-right">
         <span class="user-email" id="header-user-email">kevinyena9@gmail.com</span>
@@ -62,11 +62,8 @@
       <button class="tab-btn" data-tab="email">
         <span class="tab-icon">📧</span> Email
       </button>
-      <button class="tab-btn" data-tab="x-dms">
-        <span class="tab-icon">𝕏</span> X DMs
-      </button>
       <button class="tab-btn" data-tab="x-comments">
-        <span class="tab-icon">💬</span> X Comments
+        <span class="tab-icon">💬</span> X post reply
       </button>
       <button class="tab-btn" data-tab="reddit-posts">
         <span class="tab-icon">📝</span> Reddit Posts
@@ -148,15 +145,11 @@
             <span class="kpi-value" id="kpi-val-emails-received">0</span>
             <span class="kpi-meta">Inbound replies</span>
           </div>
+
           <div class="kpi-card channel-card">
-            <span class="kpi-title">𝕏 DMs SENT</span>
-            <span class="kpi-value" id="kpi-val-xdms-sent">0</span>
-            <span class="kpi-meta">Direct outreach on X</span>
-          </div>
-          <div class="kpi-card channel-card">
-            <span class="kpi-title">💬 X COMMENTS REPLIED</span>
+            <span class="kpi-title">💬 X POST REPLIES</span>
             <span class="kpi-value" id="kpi-val-xreplies-sent">0</span>
-            <span class="kpi-meta">AI replies to comments</span>
+            <span class="kpi-meta">AI replies to posts</span>
           </div>
           <div class="kpi-card channel-card">
             <span class="kpi-title">📝 REDDIT POSTS</span>
@@ -230,69 +223,34 @@
         </div>
       </section>
 
-      <!-- ================= TABS: X DMs ================= -->
-      <section class="tab-panel hidden" id="panel-x-dms">
-        <div class="campaign-bar">
-          <div class="campaign-bar-left">
-            <span class="campaign-label">𝕏 Campagne :</span>
-            <select id="x-dm-campaign-select" class="form-control campaign-select">
-              <option value="">Chargement...</option>
-            </select>
-            <button class="btn-edit-campaign" id="btn-edit-x-dm-campaign" title="Modifier la campagne">✏️</button>
-            <button class="btn-relaunch-campaign" id="btn-relaunch-x-dm-campaign" title="Relancer la campagne">🚀</button>
-            <button class="btn-delete-campaign" id="btn-delete-x-dm-campaign" title="Supprimer la campagne">🗑️</button>
-            <button class="btn-reload-campaign" id="btn-reload-x-dm-campaign" title="Rafraîchir les données">🔄</button>
-          </div>
-          <button class="btn-action-primary btn-new-campaign" id="btn-new-x-dm-campaign">+ Lancer une campagne</button>
-        </div>
-        <div class="grid-split-equal">
-          <!-- Received X DMs -->
-          <div class="panel-card">
-            <div class="panel-card-header">
-              <h4>📥 Received DMs</h4>
-              <p class="muted">Incoming direct messages from X prospects</p>
-            </div>
-            <div class="table-wrapper">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>Sender</th>
-                    <th>Message</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody id="xdm-inbound-table-body">
-                  <tr><td colspan="3" class="text-center">Chargement des messages...</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <!-- Sent X DMs -->
-          <div class="panel-card">
-            <div class="panel-card-header">
-              <h4>📤 Sent DMs</h4>
-              <p class="muted">Outbound DMs sent by Sideloot AI</p>
-            </div>
-            <div class="table-wrapper">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>Recipient</th>
-                    <th>Message</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody id="xdm-outbound-table-body">
-                  <tr><td colspan="3" class="text-center">Chargement des messages...</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- ================= TABS: X COMMENTS ================= -->
       <section class="tab-panel hidden" id="panel-x-comments">
+        
+        <div class="panel-card" style="margin-bottom: 24px;">
+          <div class="panel-card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div>
+              <h4>𝕏 Comptes connectés</h4>
+              <p class="muted">Comptes X liés utilisés par le worker de réponse automatique aux commentaires</p>
+            </div>
+            <button class="btn-action-primary" id="btn-connect-x-account" style="font-size: 13px; padding: 10px 16px;">+ Lier un compte X via Zernio</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Nom d'affichage</th>
+                  <th>Nom d'utilisateur</th>
+                  <th>ID Compte Zernio</th>
+                  <th>Statut</th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="x-accounts-table-body">
+                <tr><td colspan="5" class="text-center muted">Aucun compte lié.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
         <div class="campaign-bar">
           <div class="campaign-bar-left">
             <span class="campaign-label">💬 Campagne :</span>
@@ -308,8 +266,8 @@
         </div>
         <div class="panel-card">
           <div class="panel-card-header">
-            <h4>💬 X Comments Replied</h4>
-            <p class="muted">Comments that Sideloot AI added to posts in your X feed</p>
+            <h4>💬 X post reply</h4>
+            <p class="muted">Replies that Sideloot AI added to posts in your X feed</p>
           </div>
           <div class="table-wrapper">
             <table class="admin-table">
@@ -319,14 +277,55 @@
                   <th>Comment Reply Content</th>
                   <th>Status</th>
                   <th>Date</th>
+                  <th>Lien 𝕏</th>
                 </tr>
               </thead>
               <tbody id="xcomments-table-body">
-                <tr><td colspan="4" class="text-center">Chargement des commentaires...</td></tr>
+                <tr><td colspan="5" class="text-center">Chargement des commentaires...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
+        
+        <div class="panel-card" style="margin-top: 20px;">
+          <div class="panel-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h4>📡 𝕏 Posts scannés (Inbox Zernio)</h4>
+              <p class="muted">Posts de vos comptes 𝕏 connectés que l'IA surveille pour répondre aux commentaires.</p>
+            </div>
+            <div id="x-posts-loader" class="loader-spinner hidden" style="border: 2px solid #f3f3f3; border-top: 2px solid #7c5cff; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite;"></div>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Compte 𝕏</th>
+                  <th>Contenu du Post / Tweet</th>
+                  <th>Statut</th>
+                  <th>Lien 𝕏</th>
+                </tr>
+              </thead>
+              <tbody id="xposts-table-body">
+                <tr><td colspan="4" class="text-center">Chargement des posts...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-top: 1px solid var(--border);">
+            <div class="pagination-info muted" id="xposts-pagination-info" style="font-size: 13px;">
+              Affichage des posts 0 - 0 sur 0
+            </div>
+            <div class="pagination-buttons" style="display: flex; gap: 8px;">
+              <button class="btn-action-primary" id="btn-xposts-prev" style="padding: 6px 12px; font-size: 13px;" disabled>Précédent</button>
+              <button class="btn-action-primary" id="btn-xposts-next" style="padding: 6px 12px; font-size: 13px;" disabled>Suivant</button>
+            </div>
+          </div>
+        </div>
+        <style>
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
       </section>
 
       <!-- ================= TABS: REDDIT POSTS ================= -->
@@ -394,8 +393,8 @@
         </div>
         
         <div class="form-group">
-          <label>Expéditeur (Mailgun)</label>
-          <input type="text" class="form-control" value="grace@sideloot.xyz" disabled style="background-color: var(--panel-2); font-weight: bold;" />
+          <label>Adresse d'Envoi (Mailbox)</label>
+          <input type="text" class="form-control" value="grace@bigbangloot.xyz" disabled style="background-color: var(--panel-2); font-weight: bold;" />
         </div>
 
         <div class="form-group">
@@ -466,41 +465,7 @@
     </div>
   </div>
 
-  <!-- X DMs Campaign Modal -->
-  <div id="modal-x-dm-campaign" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>𝕏 Lancer une Campagne X DMs</h3>
-        <button class="btn-close-modal" id="btn-close-xdm-modal">&times;</button>
-      </div>
-      <form id="form-x-dm-campaign" class="modal-form">
-        <div class="form-group">
-          <label>Nom de la campagne</label>
-          <input type="text" name="name" class="form-control" placeholder="ex: Fondateurs Startup SaaS" required />
-        </div>
 
-        <div class="form-group">
-          <label>Liste des handles (séparés par des virgules)</label>
-          <textarea name="handlesList" class="form-control" placeholder="ex: @elonmusk, @paulg" rows="3" required></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Template du message (reçoit {handle})</label>
-          <textarea name="template" class="form-control" placeholder="Hey {handle}, j'adore ce que vous faites avec..." rows="5" required></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Fréquence d'envoi (minutes, min 1, max 30)</label>
-          <input type="number" name="send_interval_minutes" class="form-control" min="1" max="30" value="5" required />
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn-signout" id="btn-cancel-xdm-campaign">Annuler</button>
-          <button type="submit" class="btn-action-primary">Lancer la campagne</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <!-- X Comments Campaign Modal -->
   <div id="modal-x-comment-campaign" class="modal-overlay hidden">
@@ -516,13 +481,32 @@
         </div>
 
         <div class="form-group">
+          <label>Compte X à utiliser</label>
+          <select name="x_account_id" id="campaign-x-account-select" class="form-control" required>
+            <option value="">Sélectionner un compte X...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label>Mot-clé à rechercher sur X</label>
           <input type="text" name="keyword" class="form-control" placeholder="ex: side business automatisation" required />
         </div>
 
         <div class="form-group">
-          <label>Consignes / Instructions pour ChatGPT</label>
-          <textarea name="template" class="form-control" placeholder="Montre de l'intérêt pour le post et parle brièvement de Sideloot..." rows="5" required></textarea>
+          <label>Likes minimum (pour cibler les posts populaires)</label>
+          <input type="number" name="min_likes" class="form-control" min="0" value="10" required />
+        </div>
+
+        <div class="form-group">
+          <label>Limite maximum de posts par jour</label>
+          <input type="number" name="max_posts_per_day" class="form-control" min="1" max="100" value="10" required />
+          <p class="form-help">Limite conseillée : 10 à 20 posts par jour pour éviter les restrictions de X.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Template de Commentaire / Instructions IA</label>
+          <textarea name="template" class="form-control" rows="5" required>Show interest in the post, offer a helpful or witty comment, and briefly mention Sideloot (an AI that build, launch, scale, and run an entire business for you, 100% autonomously. You just cash out). In function of the post write something like, "it looks like you know a lot about AI, have you try sideloot.co/ the AI that bla bla would like to have opinion". Speak in English.</textarea>
+          <p class="form-help">L'IA personnalisera et rédigera la réponse en anglais en suivant ces consignes.</p>
         </div>
 
         <div class="form-group">
@@ -636,27 +620,32 @@
           </div>
         </div>
 
-        <!-- Section: X DMs -->
-        <div id="edit-section-x-dm" class="form-section hidden">
-          <div class="form-group">
-            <label>Liste des handles (séparés par des virgules)</label>
-            <textarea name="handlesList" id="edit-xdm-handles" class="form-control" placeholder="ex: @elonmusk, @paulg" rows="3"></textarea>
-          </div>
-          <div class="form-group">
-            <label>Template du message (reçoit {handle})</label>
-            <textarea name="template" id="edit-xdm-template" class="form-control" placeholder="Hey {handle}, j'adore ce que vous faites..." rows="5"></textarea>
-          </div>
-        </div>
+
 
         <!-- Section: X Comments -->
         <div id="edit-section-x-reply" class="form-section hidden">
+          <div class="form-group">
+            <label>Compte X à utiliser</label>
+            <select name="x_account_id" id="edit-xreply-x-account-select" class="form-control">
+              <option value="">Sélectionner un compte X...</option>
+            </select>
+          </div>
           <div class="form-group">
             <label>Mot-clé à rechercher sur X</label>
             <input type="text" name="keyword" id="edit-xreply-keyword" class="form-control" placeholder="ex: side business automatisation" />
           </div>
           <div class="form-group">
-            <label>Consignes / Instructions pour ChatGPT</label>
-            <textarea name="template" id="edit-xreply-template" class="form-control" placeholder="Montre de l'intérêt pour le post..." rows="5"></textarea>
+            <label>Likes minimum</label>
+            <input type="number" name="min_likes" id="edit-xreply-min-likes" class="form-control" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Limite maximum de posts par jour</label>
+            <input type="number" name="max_posts_per_day" id="edit-xreply-max-posts-per-day" class="form-control" min="1" max="100" />
+            <p class="form-help">Limite conseillée : 10 à 20 posts par jour pour éviter les restrictions de X.</p>
+          </div>
+          <div class="form-group">
+            <label>Template de Commentaire / Instructions IA</label>
+            <textarea name="template" id="edit-xreply-template" class="form-control" placeholder='Show interest in the post, offer a helpful or witty comment, and briefly mention Sideloot (an AI that build, launch, scale, and run an entire business for you, 100% autonomously. You just cash out). In function of the post write something like, "it looks like you know a lot about AI, have you try sideloot.co/ the AI that bla bla would like to have opinion". Speak in English.' rows="5"></textarea>
           </div>
         </div>
 
@@ -781,9 +770,9 @@
       <!-- Drawer Footer: Reply Box -->
       <div class="msg-drawer-footer">
         <div class="msg-reply-box">
-          <div class="msg-reply-from">
-            <span class="msg-reply-from-label">De :</span>
-            <span class="msg-reply-from-addr">grace@sideloot.xyz</span>
+          <div class="msg-meta-row">
+            <span class="msg-meta-label">De :</span>
+            <span class="msg-reply-from-addr">grace@bigbangloot.xyz</span>
           </div>
           <textarea
             id="drawer-reply-input"

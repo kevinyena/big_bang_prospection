@@ -20,11 +20,6 @@ import { CreateProspectableBusinessSkill } from './prospection/CreateProspectabl
 import { ChooseProspectionSkill } from './prospection/ChooseProspectionSkill.js';
 import { CreateLocalBusinessSkill } from './maps_grounding/CreateLocalBusinessSkill.js';
 import { FetchMapsProspectsSkill } from './maps_grounding/FetchMapsProspectsSkill.js';
-import { CreateXOutreachBusinessSkill } from './x_dm/CreateXOutreachBusinessSkill.js';
-import { FindXProspectsSkill } from './x_dm/FindXProspectsSkill.js';
-import { ExpandXKeywordsSkill } from './x_dm/ExpandXKeywordsSkill.js';
-import { GenerateXDMSkill } from './x_dm/GenerateXDMSkill.js';
-import { SendXDMsSkill } from './x_dm/SendXDMsSkill.js';
 import { PostInstagramVideoSkill } from './insta/PostInstagramVideoSkill.js';
 import { GenerateInstagramCaptionSkill } from './insta/GenerateInstagramCaptionSkill.js';
 import { WhatsAppExchangeSkill } from './whatsapp/WhatsAppExchangeSkill.js';
@@ -42,11 +37,6 @@ export {
   ChooseProspectionSkill,
   CreateLocalBusinessSkill,
   FetchMapsProspectsSkill,
-  CreateXOutreachBusinessSkill,
-  FindXProspectsSkill,
-  ExpandXKeywordsSkill,
-  GenerateXDMSkill,
-  SendXDMsSkill,
   PostInstagramVideoSkill,
   GenerateInstagramCaptionSkill,
   WhatsAppExchangeSkill,
@@ -62,11 +52,6 @@ export const ALL_SKILLS: ReadonlyArray<BaseSkill> = [
   new ChooseProspectionSkill(),
   new CreateLocalBusinessSkill(),
   new FetchMapsProspectsSkill(),
-  new CreateXOutreachBusinessSkill(),
-  new FindXProspectsSkill(),
-  new ExpandXKeywordsSkill(),
-  new GenerateXDMSkill(),
-  new SendXDMsSkill(),
   new PostInstagramVideoSkill(),
   new GenerateInstagramCaptionSkill(),
   new WhatsAppExchangeSkill(),
@@ -135,7 +120,6 @@ const CATEGORY_DISPLAY: Record<string, { name: string; icon: string; order: numb
   video_ugc: { name: 'Video UGC', icon: '🎬', order: 1 },
   prospection: { name: 'Choose Prospection', icon: '🎯', order: 3 },
   maps_grounding: { name: 'Maps Grounding', icon: '🗺️', order: 4 },
-  x_dm: { name: 'X DM', icon: '𝕏', order: 6 },
   insta: { name: 'Instagram', icon: '📸', order: 7 },
   whatsapp_ceo: { name: 'WhatsApp CEO', icon: '💬', order: 8 },
 };

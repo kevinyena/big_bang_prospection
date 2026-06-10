@@ -12,6 +12,7 @@ let activeTab = 'metrics';
 let activeDays = '30';
 let currentPayingCustomers: any[] = [];
 let currentChurnedCustomers: any[] = [];
+let currentXPostsPage = 1;
 
 // Initialize
 window.addEventListener('DOMContentLoaded', async () => {
@@ -66,6 +67,7 @@ function initDashboard() {
   initEditForm();
   initDrawerKeyboard();
   initDrawerStatusListener();
+  initXAccountsConnector();
 
   // Setup Sign out button click
   const signOutBtn = $('signOutBtn');
@@ -172,8 +174,10 @@ function triggerTabLoad(tabId: string) {
   switch (tabId) {
     case 'metrics':      loadMetrics(); break;
     case 'email':        loadTabCampaigns('email',   'email-campaign-select',   loadEmails); break;
-    case 'x-dms':       loadTabCampaigns('x_dm',    'x-dm-campaign-select',    loadXDMs); break;
-    case 'x-comments':  loadTabCampaigns('x_reply', 'x-comment-campaign-select', loadXComments); break;
+    case 'x-comments':
+      loadXAccounts();
+      loadTabCampaigns('x_reply', 'x-comment-campaign-select', loadXComments);
+      break;
     case 'reddit-posts': loadTabCampaigns('reddit',  'reddit-campaign-select',  loadRedditPosts); break;
   }
 }
@@ -197,7 +201,6 @@ async function loadMetrics() {
 
     $('kpi-val-emails-sent').textContent    = String(data.emails_sent);
     $('kpi-val-emails-received').textContent = String(data.emails_received);
-    $('kpi-val-xdms-sent').textContent      = String(data.x_dms_sent);
     $('kpi-val-xreplies-sent').textContent  = String(data.x_comments_replied);
     $('kpi-val-reddit-posts').textContent   = String(data.reddit_posts);
 
@@ -290,71 +293,102 @@ async function loadEmails(campaignId: string) {
   }
 }
 
-// 3. X DMs
-async function loadXDMs(campaignId: string) {
-  const inboundBody  = $('xdm-inbound-table-body');
-  const outboundBody = $('xdm-outbound-table-body');
-  inboundBody.innerHTML  = '';
-  outboundBody.innerHTML = '';
-
-  if (!campaignId) {
-    const empty = '<tr><td colspan="3" class="text-center muted">Veuillez sélectionner ou lancer une campagne pour voir les DMs.</td></tr>';
-    inboundBody.innerHTML  = empty;
-    outboundBody.innerHTML = empty;
-    return;
-  }
+// 3. X Accounts
+async function loadXAccounts() {
+  const tbody = $('x-accounts-table-body');
+  tbody.innerHTML = '<tr><td colspan="5" class="text-center">Chargement des comptes...</td></tr>';
 
   try {
-    const response = await fetch(`/api/prospection/xdms?campaignId=${campaignId}`);
-    if (!response.ok) throw new Error('Failed to fetch X DMs');
-    const dms = await response.json();
+    const response = await fetch('/api/auth/x/status');
+    if (!response.ok) throw new Error('Failed to fetch X accounts status');
+    const accounts = await response.json();
 
-    const inbound  = dms.filter((d: any) => d.direction === 'in');
-    const outbound = dms.filter((d: any) => d.direction === 'out');
-
-    if (inbound.length === 0) {
-      inboundBody.innerHTML = '<tr><td colspan="3" class="text-center muted">Aucun DM reçu.</td></tr>';
-    } else {
-      inbound.forEach((d: any) => {
-        const row = document.createElement('tr');
-        row.style.cursor = 'pointer';
-        row.innerHTML = `
-          <td><strong style="font-family:monospace">${escapeHtml(d.recipient_handle)}</strong></td>
-          <td class="text-truncate" style="max-width:250px">${escapeHtml(d.body)}</td>
-          <td><span class="muted small">${formatDate(d.sent_at)}</span></td>
-        `;
-        row.addEventListener('click', () => openSimpleDrawer('X DM reçu', d.recipient_handle, d.body, d.sent_at, 'in'));
-        inboundBody.appendChild(row);
-      });
+    if (accounts.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center muted">Aucun compte X lié.</td></tr>';
+      return;
     }
 
-    if (outbound.length === 0) {
-      outboundBody.innerHTML = '<tr><td colspan="3" class="text-center muted">Aucun DM envoyé.</td></tr>';
-    } else {
-      outbound.forEach((d: any) => {
-        const row = document.createElement('tr');
-        row.style.cursor = 'pointer';
-        row.innerHTML = `
-          <td><strong style="font-family:monospace">${escapeHtml(d.recipient_handle)}</strong></td>
-          <td class="text-truncate" style="max-width:250px">${escapeHtml(d.body)}</td>
-          <td><span class="muted small">${formatDate(d.sent_at)}</span></td>
-        `;
-        row.addEventListener('click', () => openSimpleDrawer('X DM envoyé', d.recipient_handle, d.body, d.sent_at, 'out'));
-        outboundBody.appendChild(row);
-      });
-    }
+    tbody.innerHTML = '';
+    accounts.forEach((acc: any) => {
+      const row = document.createElement('tr');
+      
+      const badgeClass = acc.status === 'connected' ? 'ok' : 'new';
+      const badgeLabel = (acc.status || 'CONNECTED').toUpperCase();
+
+      row.innerHTML = `
+        <td><strong>${escapeHtml(acc.displayName || acc.handle)}</strong></td>
+        <td><span class="brand-domain">@${escapeHtml(acc.handle)}</span></td>
+        <td><span class="muted small">${escapeHtml(acc.accountId)}</span></td>
+        <td><span class="status-badge ${badgeClass}">${badgeLabel}</span></td>
+        <td class="text-center">
+          <button class="btn-signout btn-disconnect-x" data-id="${acc.id}">Déconnecter</button>
+        </td>
+      `;
+
+      const btnDisconnect = row.querySelector('.btn-disconnect-x') as HTMLButtonElement;
+      btnDisconnect.onclick = async () => {
+        if (!confirm(`Voulez-vous déconnecter le compte @${acc.handle} ?`)) return;
+        btnDisconnect.disabled = true;
+        btnDisconnect.textContent = 'Déconnexion...';
+        try {
+          const res = await fetch('/api/auth/x/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: acc.id })
+          });
+          if (res.ok) {
+            loadXAccounts();
+          } else {
+            const err = await res.json();
+            throw new Error(err.error || 'Failed to disconnect');
+          }
+        } catch (err) {
+          showError('Erreur de déconnexion : ' + (err as Error).message);
+          btnDisconnect.disabled = false;
+          btnDisconnect.textContent = 'Déconnecter';
+        }
+      };
+
+      tbody.appendChild(row);
+    });
   } catch (err) {
-    showError('Error loading X DMs: ' + (err as Error).message);
+    showError('Error loading X accounts: ' + (err as Error).message);
+  }
+}
+
+async function populateXAccountsDropdown(selectId: string) {
+  const select = $(selectId) as HTMLSelectElement;
+  if (!select) return;
+  
+  select.innerHTML = '<option value="">Sélectionner un compte X...</option>';
+  
+  try {
+    const response = await fetch('/api/auth/x/status');
+    if (!response.ok) throw new Error('Failed to fetch X accounts status');
+    const accounts = await response.json();
+    
+    accounts.forEach((acc: any) => {
+      const opt = document.createElement('option');
+      opt.value = acc.id;
+      opt.textContent = `${acc.displayName || acc.handle} (@${acc.handle})`;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('Error populating X accounts dropdown:', err);
   }
 }
 
 // 4. X Comments
 async function loadXComments(campaignId: string) {
   const tbody = $('xcomments-table-body');
-  tbody.innerHTML = '';
+  if (tbody) tbody.innerHTML = '';
+
+  // Reset page when campaign changes
+  currentXPostsPage = 1;
+  loadXScannedPosts(campaignId, currentXPostsPage).catch(console.error);
 
   if (!campaignId) {
-    tbody.innerHTML = '<tr><td colspan="4" class="text-center muted">Veuillez sélectionner ou lancer une campagne pour voir les commentaires.</td></tr>';
+    if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="text-center muted">Veuillez sélectionner ou lancer une campagne pour voir les commentaires.</td></tr>';
     return;
   }
 
@@ -364,24 +398,127 @@ async function loadXComments(campaignId: string) {
     const comments = await response.json();
 
     if (comments.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center muted">Aucun commentaire répondu.</td></tr>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="text-center muted">Aucun commentaire répondu.</td></tr>';
       return;
     }
 
     comments.forEach((c: any) => {
       const row = document.createElement('tr');
       row.style.cursor = 'pointer';
+      
+      const linkUrl = c.tweet_url || (c.in_reply_to_tweet_id ? `https://x.com/any/status/${c.in_reply_to_tweet_id}` : null);
+      const linkHtml = linkUrl 
+        ? `<a href="${linkUrl}" target="_blank" class="btn-action-primary" style="font-size: 11px; padding: 4px 8px; text-decoration: none; display: inline-block;" onclick="event.stopPropagation()">Voir sur 𝕏</a>`
+        : `<span class="muted small">Non disponible</span>`;
+
       row.innerHTML = `
         <td><strong style="font-family:monospace">${escapeHtml(c.recipient)}</strong></td>
-        <td class="text-truncate" style="max-width:350px">${escapeHtml(c.body)}</td>
+        <td class="text-truncate" style="max-width:300px">${escapeHtml(c.body)}</td>
         <td><span class="multi-hire-badge" style="background-color:var(--success-bg);color:var(--success);border-color:var(--success);">${escapeHtml(c.status)}</span></td>
         <td><span class="muted small">${formatDate(c.sent_at)}</span></td>
+        <td class="text-center" style="cursor: default;" onclick="event.stopPropagation()">${linkHtml}</td>
       `;
       row.addEventListener('click', () => openSimpleDrawer('Réponse X', c.recipient, c.body, c.sent_at, 'out'));
-      tbody.appendChild(row);
+      if (tbody) tbody.appendChild(row);
     });
   } catch (err) {
     showError('Error loading X comments: ' + (err as Error).message);
+  }
+}
+
+async function loadXScannedPosts(campaignId: string, page: number = 1) {
+  const tbody = $('xposts-table-body');
+  const loader = $('x-posts-loader');
+  const infoEl = $('xposts-pagination-info');
+  const prevBtn = $('btn-xposts-prev') as HTMLButtonElement | null;
+  const nextBtn = $('btn-xposts-next') as HTMLButtonElement | null;
+  
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="4" class="text-center">Chargement des posts...</td></tr>';
+  if (loader) loader.classList.remove('hidden');
+
+  try {
+    const url = campaignId 
+      ? `/api/prospection/x-scanned-posts?campaignId=${encodeURIComponent(campaignId)}&page=${page}`
+      : `/api/prospection/x-scanned-posts?page=${page}`;
+      
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to fetch X scanned posts');
+    const result = await response.json();
+    
+    tbody.innerHTML = '';
+    const posts = result.posts || [];
+    const total = result.total || 0;
+    const limit = result.limit || 20;
+    
+    if (posts.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center muted">Aucun post détecté avec des commentaires ou aucun compte connecté.</td></tr>';
+      if (infoEl) infoEl.textContent = 'Affichage des posts 0 - 0 sur 0';
+      if (prevBtn) prevBtn.disabled = true;
+      if (nextBtn) nextBtn.disabled = true;
+      return;
+    }
+
+    posts.forEach((p: any) => {
+      const row = document.createElement('tr');
+      
+      const linkUrl = p.status === 'commented' && p.replyTweetUrl ? p.replyTweetUrl : p.permalink;
+      const linkText = p.status === 'commented' ? 'Voir réponse 𝕏' : 'Voir post 𝕏';
+      
+      const linkHtml = linkUrl
+        ? `<a href="${linkUrl}" target="_blank" class="btn-action-primary" style="font-size: 11px; padding: 4px 8px; text-decoration: none; display: inline-block;">${escapeHtml(linkText)}</a>`
+        : `<span class="muted small">Non disponible</span>`;
+
+      const truncatedContent = p.content.length > 200
+        ? p.content.substring(0, 200) + '...'
+        : p.content;
+
+      let badgeStyle = 'background-color:var(--panel-2);color:var(--text);border-color:var(--border);';
+      if (p.status === 'commented') {
+        badgeStyle = 'background-color:var(--success-bg);color:var(--success);border-color:var(--success);';
+      } else if (p.status === 'failed') {
+        badgeStyle = 'background-color:#fee2e2;color:#ef4444;border-color:#fca5a5;';
+      }
+
+      row.innerHTML = `
+        <td><strong style="font-family:monospace">@${escapeHtml(p.accountUsername)}</strong></td>
+        <td>${escapeHtml(truncatedContent)}</td>
+        <td class="text-center"><span class="multi-hire-badge" style="font-size:12px; font-weight:bold; padding: 2px 8px; ${badgeStyle}">${escapeHtml(p.status || 'scanned')}</span></td>
+        <td class="text-center">${linkHtml}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    const startIdx = (page - 1) * limit + 1;
+    const endIdx = Math.min(page * limit, total);
+    if (infoEl) {
+      infoEl.textContent = `Affichage des posts ${startIdx} - ${endIdx} sur ${total}`;
+    }
+
+    if (prevBtn) {
+      prevBtn.disabled = page <= 1;
+      prevBtn.onclick = () => {
+        currentXPostsPage = page - 1;
+        loadXScannedPosts(campaignId, currentXPostsPage).catch(console.error);
+      };
+    }
+
+    if (nextBtn) {
+      nextBtn.disabled = page * limit >= total;
+      nextBtn.onclick = () => {
+        currentXPostsPage = page + 1;
+        loadXScannedPosts(campaignId, currentXPostsPage).catch(console.error);
+      };
+    }
+
+  } catch (err) {
+    console.error('Error loading X scanned posts:', err);
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Erreur: ${(err as Error).message}</td></tr>`;
+    if (infoEl) infoEl.textContent = 'Erreur de chargement';
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
+  } finally {
+    if (loader) loader.classList.add('hidden');
   }
 }
 
@@ -557,7 +694,25 @@ async function loadTabCampaigns(kind: string, selectId: string, loadDataFn: (cam
     campaigns.forEach((c: any) => {
       const opt = document.createElement('option');
       opt.value = c.id;
-      opt.textContent = c.name;
+      
+      let label = c.name;
+      const filters = c.target_filters || {};
+      const sentCount = c.sent_count || 0;
+      
+      if (kind === 'email') {
+        let total = 10;
+        if (filters.type === 'manual' && filters.emailsList) {
+          total = filters.emailsList.split(',').map((e: string) => e.trim()).filter(Boolean).length;
+        } else if (filters.limit) {
+          total = parseInt(filters.limit, 10);
+        }
+        label = `${c.name} (${sentCount} / ${total})`;
+      } else if (kind === 'x_reply') {
+        const total = parseInt(filters.max_posts_per_day || '10', 10);
+        label = `${c.name} (${sentCount} / ${total} par jour)`;
+      }
+      
+      opt.textContent = label;
       select.appendChild(opt);
     });
 
@@ -606,27 +761,42 @@ async function openEditCampaignModal(campaignId: string) {
     $<HTMLInputElement>('edit-campaign-name').value = campaign.name || '';
     $<HTMLInputElement>('edit-campaign-interval').value = campaign.send_interval_minutes || '5';
     
-    // Hide all sections
+    // Hide all sections and disable their inputs
     const sections = [
       'edit-section-email-manual',
       'edit-section-email-automated',
-      'edit-section-x-dm',
       'edit-section-x-reply',
       'edit-section-reddit'
     ];
-    sections.forEach(id => $(id).classList.add('hidden'));
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('hidden');
+        el.querySelectorAll('input, select, textarea').forEach(input => {
+          (input as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).disabled = true;
+        });
+      }
+    });
     
     const filters = campaign.target_filters || {};
     
     if (campaign.kind === 'email') {
       const type = filters.type || 'manual';
       if (type === 'manual') {
-        $('edit-section-email-manual').classList.remove('hidden');
+        const sec = $('edit-section-email-manual');
+        sec.classList.remove('hidden');
+        sec.querySelectorAll('input, select, textarea').forEach(input => {
+          (input as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).disabled = false;
+        });
         $<HTMLTextAreaElement>('edit-email-manual-list').value = filters.emailsList || '';
         $<HTMLInputElement>('edit-email-manual-subject').value = campaign.email_subject || '';
         $<HTMLTextAreaElement>('edit-email-manual-body').value = campaign.email_body || '';
       } else {
-        $('edit-section-email-automated').classList.remove('hidden');
+        const sec = $('edit-section-email-automated');
+        sec.classList.remove('hidden');
+        sec.querySelectorAll('input, select, textarea').forEach(input => {
+          (input as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).disabled = false;
+        });
         $<HTMLTextAreaElement>('edit-email-auto-keywords').value = filters.linkedinKeywords || '';
         $<HTMLInputElement>('edit-email-auto-location').value = filters.linkedinLocation || '';
         $<HTMLInputElement>('edit-email-auto-function').value = filters.linkedinFunction || '';
@@ -634,16 +804,24 @@ async function openEditCampaignModal(campaignId: string) {
         $<HTMLInputElement>('edit-email-auto-subject').value = campaign.email_subject || '';
         $<HTMLTextAreaElement>('edit-email-auto-body').value = campaign.email_body || '';
       }
-    } else if (campaign.kind === 'x_dm') {
-      $('edit-section-x-dm').classList.remove('hidden');
-      $<HTMLTextAreaElement>('edit-xdm-handles').value = filters.handlesList || '';
-      $<HTMLTextAreaElement>('edit-xdm-template').value = campaign.email_body || filters.template || '';
     } else if (campaign.kind === 'x_reply') {
-      $('edit-section-x-reply').classList.remove('hidden');
+      const sec = $('edit-section-x-reply');
+      sec.classList.remove('hidden');
+      sec.querySelectorAll('input, select, textarea').forEach(input => {
+        (input as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).disabled = false;
+      });
+      await populateXAccountsDropdown('edit-xreply-x-account-select');
+      $<HTMLSelectElement>('edit-xreply-x-account-select').value = filters.x_account_id || '';
       $<HTMLInputElement>('edit-xreply-keyword').value = filters.keyword || '';
+      $<HTMLInputElement>('edit-xreply-min-likes').value = filters.min_likes || '10';
+      $<HTMLInputElement>('edit-xreply-max-posts-per-day').value = filters.max_posts_per_day || '10';
       $<HTMLTextAreaElement>('edit-xreply-template').value = campaign.email_body || filters.template || '';
     } else if (campaign.kind === 'reddit') {
-      $('edit-section-reddit').classList.remove('hidden');
+      const sec = $('edit-section-reddit');
+      sec.classList.remove('hidden');
+      sec.querySelectorAll('input, select, textarea').forEach(input => {
+        (input as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).disabled = false;
+      });
       $<HTMLInputElement>('edit-reddit-subreddits').value = filters.subreddits || '';
       $<HTMLTextAreaElement>('edit-reddit-template').value = campaign.email_body || filters.template || '';
     }
@@ -687,8 +865,6 @@ function initEditForm() {
       // Reload dropdown based on campaign kind
       if (kind === 'email') {
         await loadTabCampaigns('email', 'email-campaign-select', loadEmails);
-      } else if (kind === 'x_dm') {
-        await loadTabCampaigns('x_dm', 'x-dm-campaign-select', loadXDMs);
       } else if (kind === 'x_reply') {
         await loadTabCampaigns('x_reply', 'x-comment-campaign-select', loadXComments);
       } else if (kind === 'reddit') {
@@ -719,8 +895,13 @@ function initModals() {
   };
 
   setupModal('modal-email-campaign',    'btn-new-email-campaign',    'btn-close-email-modal',    'btn-cancel-email-campaign');
-  setupModal('modal-x-dm-campaign',     'btn-new-x-dm-campaign',     'btn-close-xdm-modal',      'btn-cancel-xdm-campaign');
   setupModal('modal-x-comment-campaign','btn-new-x-comment-campaign','btn-close-xcomment-modal', 'btn-cancel-xcomment-campaign');
+  const btnNewXComment = $('btn-new-x-comment-campaign');
+  if (btnNewXComment) {
+    btnNewXComment.addEventListener('click', () => {
+      populateXAccountsDropdown('campaign-x-account-select');
+    });
+  }
   setupModal('modal-reddit-campaign',   'btn-new-reddit-campaign',   'btn-close-reddit-modal',   'btn-cancel-reddit-campaign');
 
   // Email outreach type toggle
@@ -774,7 +955,6 @@ function initModals() {
   };
 
   setupFormSubmit('form-email-campaign',    'modal-email-campaign',    'email',   'email-campaign-select',   loadEmails);
-  setupFormSubmit('form-x-dm-campaign',     'modal-x-dm-campaign',     'x_dm',   'x-dm-campaign-select',    loadXDMs);
   setupFormSubmit('form-x-comment-campaign','modal-x-comment-campaign','x_reply', 'x-comment-campaign-select', loadXComments);
   setupFormSubmit('form-reddit-campaign',   'modal-reddit-campaign',   'reddit',  'reddit-campaign-select',  loadRedditPosts);
 
@@ -991,7 +1171,7 @@ function openSimpleDrawer(type: string, contact: string, bodyText: string, sentA
   const messagesEl = $('drawer-messages');
   const fakeMsg = {
     direction,
-    from_address: direction === 'in' ? contact : 'grace@sideloot.xyz',
+    from_address: direction === 'in' ? contact : 'grace@bigbangloot.xyz',
     body_text: bodyText,
     sent_at: sentAt
   };
@@ -1029,7 +1209,7 @@ function renderThreadMessages(container: HTMLElement, messages: any[]) {
     const row   = document.createElement('div');
     row.className = `msg-bubble-row ${dir}`;
 
-    const sender  = dir === 'out' ? (msg.from_address || 'grace@sideloot.xyz') : (msg.from_address || 'Prospect');
+    const sender  = dir === 'out' ? (msg.from_address || 'grace@bigbangloot.xyz') : (msg.from_address || 'Prospect');
     const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
     row.innerHTML = `
@@ -1130,4 +1310,28 @@ function showError(msg: string) {
   box.textContent = msg;
   box.classList.remove('hidden');
   setTimeout(() => box.classList.add('hidden'), 5000);
+}
+
+function initXAccountsConnector() {
+  const btnConnectX = document.getElementById('btn-connect-x-account');
+  if (btnConnectX) {
+    btnConnectX.onclick = () => {
+      const width = 600;
+      const height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      window.open(
+        '/api/auth/x/login',
+        'Lier un compte X',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+    };
+  }
+
+  // Reload accounts when message is received from OAuth callback popup
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'x_linked') {
+      loadXAccounts();
+    }
+  });
 }
