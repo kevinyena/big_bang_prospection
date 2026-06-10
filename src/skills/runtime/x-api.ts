@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import crypto from 'node:crypto';
 dotenv.config();
 
 // ---------- Native X OAuth 2.0 PKCE ----------
@@ -13,17 +14,24 @@ export function buildAuthorizeUrl(host: string, state: string, codeVerifier: str
   const protocol = host.includes('localhost') ? 'http' : 'https';
   const redirectUri = `${protocol}://${host}/api/auth/x/callback`;
 
+  // Compute S256 code challenge
+  const codeChallenge = crypto
+    .createHash('sha256')
+    .update(codeVerifier)
+    .digest()
+    .toString('base64url');
+
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: clientId,
     redirect_uri: redirectUri,
     scope: 'tweet.read tweet.write users.read offline.access',
     state: state,
-    code_challenge: codeVerifier,
-    code_challenge_method: 'plain', // plain PKCE is widely supported and simpler
+    code_challenge: codeChallenge,
+    code_challenge_method: 'S256',
   });
 
-  return `https://twitter.com/i/oauth2/authorize?${params.toString()}`;
+  return `https://x.com/i/oauth2/authorize?${params.toString()}`;
 }
 
 export async function exchangeCodeForTokens(
