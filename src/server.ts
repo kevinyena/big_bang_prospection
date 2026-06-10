@@ -339,7 +339,7 @@ app.get('/api/auth/aws/status', (_req: Request, res: Response) => {
   res.json({
     configured: !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY),
     region: process.env.AWS_REGION || 'us-east-1',
-    modelId: process.env.AWS_BEDROCK_MODEL || 'us.anthropic.claude-3-5-sonnet-20241022-v2:0'
+    modelId: process.env.AWS_BEDROCK_MODEL || 'us.anthropic.claude-sonnet-4-6'
   });
 });
 
