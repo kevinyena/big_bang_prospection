@@ -68,6 +68,7 @@ function initDashboard() {
   initDrawerKeyboard();
   initDrawerStatusListener();
   initXAccountsConnector();
+  initRedditAccountConnector();
 
   // Setup Sign out button click
   const signOutBtn = $('signOutBtn');
@@ -178,7 +179,10 @@ function triggerTabLoad(tabId: string) {
       loadXAccounts();
       loadTabCampaigns('x_reply', 'x-comment-campaign-select', loadXComments);
       break;
-    case 'reddit-posts': loadTabCampaigns('reddit',  'reddit-campaign-select',  loadRedditPosts); break;
+    case 'reddit-posts': 
+      loadTabCampaigns('reddit',  'reddit-campaign-select',  loadRedditPosts); 
+      loadRedditAccountStatus();
+      break;
   }
 }
 
@@ -1332,6 +1336,112 @@ function initXAccountsConnector() {
   window.addEventListener('message', (e) => {
     if (e.data && e.data.type === 'x_linked') {
       loadXAccounts();
+    } else if (e.data && e.data.type === 'reddit_linked') {
+      loadRedditAccountStatus();
     }
   });
+}
+
+// ---------- Reddit Zernio Connector ----------
+
+async function loadRedditAccountStatus() {
+  try {
+    const response = await fetch('/api/auth/reddit/status');
+    if (!response.ok) throw new Error('Failed to fetch Reddit status');
+    const data = await response.json();
+
+    const notLinkedEl = $('reddit-account-not-linked');
+    const linkedEl = $('reddit-account-linked');
+
+    if (data.linked) {
+      notLinkedEl.style.display = 'none';
+      linkedEl.style.display = 'block';
+      $('reddit-username').textContent = `u/${data.displayName}`;
+      loadRedditSubreddits();
+    } else {
+      notLinkedEl.style.display = 'block';
+      linkedEl.style.display = 'none';
+    }
+  } catch (err) {
+    console.error('Error loading Reddit account status:', err);
+  }
+}
+
+async function loadRedditSubreddits() {
+  const container = $('reddit-subreddits-container');
+  container.innerHTML = '<p class="muted small" style="margin: 0; align-self: center;">Chargement des subreddits...</p>';
+  $('reddit-subreddits-count').textContent = '0';
+
+  try {
+    const response = await fetch('/api/auth/reddit/subreddits');
+    if (!response.ok) throw new Error('Failed to fetch subreddits');
+    const data = await response.json();
+    const list = data.subreddits || [];
+
+    $('reddit-subreddits-count').textContent = String(list.length);
+
+    if (list.length === 0) {
+      container.innerHTML = '<p class="muted small" style="margin: 0; align-self: center;">Aucun subreddit trouvé.</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    list.forEach((sub: string) => {
+      const badge = document.createElement('span');
+      badge.className = 'skill-tag';
+      badge.style.backgroundColor = '#ff4500';
+      badge.style.color = 'white';
+      badge.style.border = 'none';
+      badge.style.fontSize = '11px';
+      badge.style.padding = '4px 8px';
+      badge.style.fontWeight = '600';
+      badge.textContent = `r/${sub}`;
+      container.appendChild(badge);
+    });
+  } catch (err) {
+    container.innerHTML = `<p class="err small" style="margin: 0; align-self: center;">Erreur : ${(err as Error).message}</p>`;
+  }
+}
+
+function initRedditAccountConnector() {
+  try {
+    const btnConnect = $('btn-connect-reddit') as HTMLButtonElement;
+    btnConnect.onclick = () => {
+      const width = 600;
+      const height = 750;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      window.open(
+        '/api/auth/reddit/login',
+        'Lier un compte Reddit',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+    };
+  } catch (e) {
+    console.warn('Reddit connect button not found in current view');
+  }
+
+  try {
+    const btnLogout = $('btn-logout-reddit') as HTMLButtonElement;
+    btnLogout.onclick = async () => {
+      if (!confirm('Voulez-vous déconnecter votre compte Reddit ?')) return;
+      btnLogout.disabled = true;
+      btnLogout.textContent = 'Déconnexion...';
+      try {
+        const res = await fetch('/api/auth/reddit/logout', { method: 'POST' });
+        if (res.ok) {
+          loadRedditAccountStatus();
+        } else {
+          throw new Error('Logout request failed');
+        }
+      } catch (err) {
+        showError('Erreur de déconnexion Reddit : ' + (err as Error).message);
+      } finally {
+        btnLogout.disabled = false;
+        btnLogout.textContent = 'Déconnecter';
+      }
+    };
+  } catch (e) {
+    console.warn('Reddit logout button not found in current view');
+  }
 }

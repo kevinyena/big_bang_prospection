@@ -31,6 +31,13 @@ import {
   postVideo as postInstaVideo,
 } from './skills/runtime/insta-api.js';
 import {
+  buildRedditAuthUrl,
+  handleRedditCallback,
+  getRedditStatus,
+  redditUnlink,
+  getRedditSubreddits,
+} from './skills/runtime/reddit-api.js';
+import {
   loadDatabase,
   saveDatabase,
   processUserMessage,
@@ -442,6 +449,98 @@ app.post('/api/auth/insta/logout', async (_req: Request, res: Response) => {
   try {
     await instaUnlink();
     res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+// ---------- Reddit OAuth ----------
+app.get('/api/auth/reddit/login', async (req: Request, res: Response) => {
+  try {
+    const { url } = await buildRedditAuthUrl(req.headers.host);
+    res.redirect(url);
+  } catch (e) {
+    res.status(500).send(`Reddit OAuth login failed: ${(e as Error).message}`);
+  }
+});
+
+app.get('/api/auth/reddit/callback', async (req: Request, res: Response) => {
+  const error = req.query.error as string | undefined;
+  const errorMessage = req.query.error_message as string | undefined;
+  if (error) {
+    return res.status(400).send(`
+      <!doctype html><meta charset="utf-8">
+      <title>Erreur de connexion</title>
+      <style>body{font-family:system-ui;background:#0b0d12;color:#e7eaf0;padding:40px;max-width:520px;margin:auto}
+        a{color:#7c5cff}.err{color:#ff5050}</style>
+      <h1 class="err">✗ Échec de la connexion Reddit</h1>
+      <p><strong>Détails :</strong> ${escapeHtml(errorMessage ?? error)}</p>
+      <p>Essaie de fermer cet onglet et de recliquer sur le bouton de connexion.</p>
+      <a href="/">Retour</a>
+    `);
+  }
+
+  const accountId = req.query.accountId as string | undefined;
+  const username = req.query.username as string | undefined;
+  const profileId = req.query.profileId as string | undefined;
+
+  if (!accountId || !username || !profileId) {
+    return res.status(400).send(`
+      <!doctype html><meta charset="utf-8">
+      <title>Erreur de connexion</title>
+      <style>body{font-family:system-ui;background:#0b0d12;color:#e7eaf0;padding:40px;max-width:520px;margin:auto}
+        a{color:#7c5cff}</style>
+      <h1>Callback Zernio invalide</h1>
+      <p>Les paramètres requis sont absents de la réponse Zernio.</p>
+      <a href="/">Retour</a>
+    `);
+  }
+  try {
+    const stored = await handleRedditCallback({
+      accountId,
+      username,
+      profileId,
+    });
+    res.send(`
+      <!doctype html><meta charset="utf-8">
+      <title>Reddit linked</title>
+      <style>body{font-family:system-ui;background:#0b0d12;color:#e7eaf0;padding:40px;max-width:520px;margin:auto}
+        a{color:#7c5cff}.ok{color:#2bd4a0}</style>
+      <h1>✓ Compte Reddit linké via Zernio</h1>
+      <p>Connecté en tant que <strong>u/${stored.username}</strong></p>
+      <p>Tu peux fermer cet onglet et retourner sur <a href="/">l'app</a>.</p>
+      <script>window.opener && window.opener.postMessage({type:'reddit_linked', displayName:'${stored.username}'}, '*'); setTimeout(()=>window.close(), 1500);</script>
+    `);
+  } catch (e) {
+    res.status(500).send(`<h1>Reddit OAuth failed</h1><pre>${(e as Error).message}</pre><a href="/">Retour</a>`);
+  }
+});
+
+app.get('/api/auth/reddit/status', async (_req: Request, res: Response) => {
+  try {
+    res.json(await getRedditStatus());
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+app.post('/api/auth/reddit/logout', async (_req: Request, res: Response) => {
+  try {
+    await redditUnlink();
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+app.get('/api/auth/reddit/subreddits', async (req: Request, res: Response) => {
+  try {
+    const status = await getRedditStatus();
+    if (!status.linked || !status.openId) {
+      return res.status(200).json({ subreddits: [] });
+    }
+    const list = await getRedditSubreddits(status.openId);
+    res.json({ subreddits: list });
   } catch (e) {
     res.status(500).json({ error: (e as Error).message });
   }
