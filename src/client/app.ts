@@ -14,6 +14,7 @@ let currentPayingCustomers: any[] = [];
 let currentChurnedCustomers: any[] = [];
 let currentXPostsPage = 1;
 let currentJoinedSubreddits: string[] = [];
+let emailCampaignPollTimeout: any = null;
 
 // Initialize
 window.addEventListener('DOMContentLoaded', async () => {
@@ -173,6 +174,11 @@ function initDateFilters() {
 
 // Handle loading data based on tab selection
 function triggerTabLoad(tabId: string) {
+  if (tabId !== 'email' && emailCampaignPollTimeout) {
+    clearTimeout(emailCampaignPollTimeout);
+    emailCampaignPollTimeout = null;
+  }
+
   switch (tabId) {
     case 'metrics':      loadMetrics(); break;
     case 'email':        loadTabCampaigns('email',   'email-campaign-select',   loadEmails); break;
@@ -227,15 +233,77 @@ async function loadEmails(campaignId: string) {
   inboundBody.innerHTML  = '';
   outboundBody.innerHTML = '';
 
-  if (!campaignId) {
+  if (emailCampaignPollTimeout) {
+    clearTimeout(emailCampaignPollTimeout);
+    emailCampaignPollTimeout = null;
+  }
+
+  if (!campaignId || campaignId === 'none') {
     const emptyInbound = '<tr><td colspan="4" class="text-center muted">Veuillez sélectionner ou lancer une campagne pour voir les emails.</td></tr>';
     const emptyOutbound = '<tr><td colspan="3" class="text-center muted">Veuillez sélectionner ou lancer une campagne pour voir les emails.</td></tr>';
     inboundBody.innerHTML  = emptyInbound;
     outboundBody.innerHTML = emptyOutbound;
+
+    const panel = document.getElementById('email-campaign-status-panel');
+    if (panel) {
+      panel.style.display = 'none';
+    }
     return;
   }
 
   try {
+    // Fetch campaign status and logs
+    const statusRes = await fetch(`/api/prospection/campaigns/${campaignId}`);
+    if (statusRes.ok) {
+      const camp = await statusRes.json();
+      const panel = document.getElementById('email-campaign-status-panel');
+      if (panel) {
+        panel.style.display = 'block';
+      }
+      
+      const indicator = document.getElementById('campaign-status-indicator');
+      const statusText = document.getElementById('campaign-status-text');
+      const logsWindow = document.getElementById('campaign-logs-window');
+      const countSent = document.getElementById('campaign-count-sent');
+      
+      if (indicator) {
+        let color = '#95a5a6'; // gray (idle)
+        if (camp.status === 'scraping') color = '#f39c12'; // orange
+        else if (camp.status === 'sending') color = '#3498db'; // blue
+        else if (camp.status === 'completed') color = '#2ecc71'; // green
+        else if (camp.status === 'failed') color = '#e74c3c'; // red
+        indicator.style.backgroundColor = color;
+      }
+      
+      if (statusText) {
+        statusText.textContent = camp.status_text || 'Aucun statut';
+      }
+      
+      if (logsWindow) {
+        logsWindow.textContent = camp.logs || '// Pas encore de logs.';
+        logsWindow.scrollTop = logsWindow.scrollHeight;
+      }
+      
+      if (countSent) {
+        const filters = camp.target_filters || {};
+        let total = 0;
+        if (campaignId === 'd01ec15b-17c9-429a-9043-428ed29f10e0') {
+          total = 1000;
+        } else if (filters.type === 'manual' && filters.emailsList) {
+          total = filters.emailsList.split(',').map((e: string) => e.trim()).filter(Boolean).length;
+        } else if (filters.limit) {
+          total = parseInt(filters.limit, 10);
+        }
+        
+        const sentCount = camp.sent_count || 0;
+        if (total > 0) {
+          countSent.textContent = `${sentCount} / ${total}`;
+        } else {
+          countSent.textContent = `${sentCount}`;
+        }
+      }
+    }
+
     const response = await fetch(`/api/prospection/emails?campaignId=${campaignId}`);
     if (!response.ok) throw new Error('Failed to fetch emails');
     const emails = await response.json();
@@ -295,6 +363,17 @@ async function loadEmails(campaignId: string) {
     }
   } catch (err) {
     showError('Error loading emails: ' + (err as Error).message);
+  } finally {
+    try {
+      const currentSelectVal = ($('email-campaign-select') as HTMLSelectElement).value;
+      if (currentSelectVal === campaignId && activeTab === 'email') {
+        emailCampaignPollTimeout = setTimeout(() => {
+          loadEmails(campaignId).catch(console.error);
+        }, 3000);
+      }
+    } catch (e) {
+      // Elements might not exist yet during startup
+    }
   }
 }
 

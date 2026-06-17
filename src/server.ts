@@ -1151,6 +1151,13 @@ async function initAuthDatabase() {
       ALTER TABLE public.prospection_sends ALTER COLUMN task_id TYPE text;
     `);
 
+    // Ensure prospection_campaigns status and logs columns exist
+    await pool.query(`
+      ALTER TABLE public.prospection_campaigns ADD COLUMN IF NOT EXISTS status VARCHAR(100) DEFAULT 'idle';
+      ALTER TABLE public.prospection_campaigns ADD COLUMN IF NOT EXISTS status_text TEXT DEFAULT 'Créée';
+      ALTER TABLE public.prospection_campaigns ADD COLUMN IF NOT EXISTS logs TEXT DEFAULT '';
+    `);
+
     const checkUser = await pool.query("SELECT id FROM public.dashboard_users WHERE email = $1 LIMIT 1", ['toedembo@gmail.com']);
     if (checkUser.rows.length === 0) {
       const password = 'SideBiBang35!@';
@@ -1810,6 +1817,30 @@ app.post('/api/prospection/scrape/preview', async (req: Request, res: Response) 
   }
 });
 
+async function updateCampaignStatus(campaignId: string, status: string, statusText: string, logLine?: string) {
+  try {
+    if (logLine) {
+      const timePrefix = `[${new Date().toLocaleTimeString('fr-FR')}] `;
+      await pool.query(`
+        UPDATE public.prospection_campaigns
+        SET status = $1,
+            status_text = $2,
+            logs = COALESCE(logs, '') || $3 || '\n'
+        WHERE id = $4
+      `, [status, statusText, timePrefix + logLine, campaignId]);
+    } else {
+      await pool.query(`
+        UPDATE public.prospection_campaigns
+        SET status = $1,
+            status_text = $2
+        WHERE id = $3
+      `, [status, statusText, campaignId]);
+    }
+  } catch (err) {
+    console.error(`[updateCampaignStatus Error] campaign ${campaignId}:`, err);
+  }
+}
+
 // Stands for running campaign outreach in background
 async function runCampaignOutreach(campaignId: string, kind: string, payload: any) {
   const {
@@ -1854,70 +1885,92 @@ async function runCampaignOutreach(campaignId: string, kind: string, payload: an
       
       // Send emails in background
       (async () => {
-        for (let i = 0; i < emails.length; i++) {
-          if (i > 0) {
-            await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
-          }
-          const email = emails[i];
-          let finalLeadId;
-          let leadName = '';
-          const existingLead = await pool.query("SELECT id, full_name FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
-          if (existingLead.rows.length > 0) {
-            finalLeadId = existingLead.rows[0].id;
-            leadName = existingLead.rows[0].full_name || '';
-          } else {
-            finalLeadId = crypto.randomUUID();
-            leadName = email.split('@')[0];
+        try {
+          // Clear logs of campaign initially
+          await pool.query("UPDATE public.prospection_campaigns SET logs = '' WHERE id = $1", [campaignId]);
+          await updateCampaignStatus(campaignId, 'sending', `Préparation (0/${emails.length})`, `Lancement de la campagne manuelle pour ${emails.length} destinataires.`);
+
+          for (let i = 0; i < emails.length; i++) {
+            if (i > 0) {
+              await updateCampaignStatus(campaignId, 'sending', `Attente (${i}/${emails.length})`, `Attente de ${interval} minute(s) avant le prochain envoi...`);
+              await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
+            }
+            const email = emails[i];
+            let finalLeadId;
+            let leadName = '';
+            const existingLead = await pool.query("SELECT id, full_name FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
+            if (existingLead.rows.length > 0) {
+              finalLeadId = existingLead.rows[0].id;
+              leadName = existingLead.rows[0].full_name || '';
+            } else {
+              finalLeadId = crypto.randomUUID();
+              leadName = email.split('@')[0];
+              await pool.query(`
+                INSERT INTO public.leads (id, business_id, full_name, email, source)
+                VALUES ($1, $2, $3, $4, 'manual')
+                ON CONFLICT DO NOTHING
+              `, [finalLeadId, BUSINESS_ID, leadName, email]);
+              
+              const retryFetch = await pool.query("SELECT id, full_name FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
+              if (retryFetch.rows.length > 0) {
+                finalLeadId = retryFetch.rows[0].id;
+                leadName = retryFetch.rows[0].full_name || leadName;
+              }
+            }
+
+            // Extract first name for manual email replacement
+            let firstName = '';
+            if (leadName) {
+              const firstPart = leadName.split(' ')[0]?.split('.')[0] || '';
+              if (firstPart) {
+                firstName = firstPart.charAt(0).toUpperCase() + firstPart.slice(1).toLowerCase();
+              }
+            }
+
+            const finalSubject = (subject || '').replace(/{first_name}/gi, firstName);
+            const finalBody = (body || '').replace(/{first_name}/gi, firstName);
+
+            const threadId = crypto.randomUUID();
             await pool.query(`
-              INSERT INTO public.leads (id, business_id, full_name, email, source)
-              VALUES ($1, $2, $3, $4, 'manual')
-              ON CONFLICT DO NOTHING
-            `, [finalLeadId, BUSINESS_ID, leadName, email]);
-            
-            const retryFetch = await pool.query("SELECT id, full_name FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
-            if (retryFetch.rows.length > 0) {
-              finalLeadId = retryFetch.rows[0].id;
-              leadName = retryFetch.rows[0].full_name || leadName;
+              INSERT INTO public.email_threads (id, business_id, mailbox_id, lead_id, subject)
+              VALUES ($1, $2, $3, $4, $5)
+            `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, finalSubject]);
+
+            try {
+              await sendMailgunEmail(email, finalSubject, finalBody);
+              await pool.query(`
+                INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, sent_at, campaign_id)
+                VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'sent', NOW(), $7)
+              `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, campaignId]);
+              await updateCampaignStatus(campaignId, 'sending', `Envoi en cours (${i + 1}/${emails.length})`, `E-mail envoyé avec succès à ${email}`);
+            } catch (err) {
+              console.error(`[Manual Email Campaign] Failed for ${email}:`, err);
+              await pool.query(`
+                INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, error, sent_at, campaign_id)
+                VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'failed', $7, NOW(), $8)
+              `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, (err as Error).message, campaignId]);
+              await updateCampaignStatus(campaignId, 'sending', `Envoi en cours (${i + 1}/${emails.length})`, `Erreur serveur lors de l'envoi à ${email}: ${(err as Error).message}`);
             }
           }
-
-          // Extract first name for manual email replacement
-          let firstName = '';
-          if (leadName) {
-            const firstPart = leadName.split(' ')[0]?.split('.')[0] || '';
-            if (firstPart) {
-              firstName = firstPart.charAt(0).toUpperCase() + firstPart.slice(1).toLowerCase();
-            }
-          }
-
-          const finalSubject = (subject || '').replace(/{first_name}/gi, firstName);
-          const finalBody = (body || '').replace(/{first_name}/gi, firstName);
-
-          const threadId = crypto.randomUUID();
-          await pool.query(`
-            INSERT INTO public.email_threads (id, business_id, mailbox_id, lead_id, subject)
-            VALUES ($1, $2, $3, $4, $5)
-          `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, finalSubject]);
-
-          try {
-            await sendMailgunEmail(email, finalSubject, finalBody);
-            await pool.query(`
-              INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, sent_at, campaign_id)
-              VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'sent', NOW(), $7)
-            `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, campaignId]);
-          } catch (err) {
-            console.error(`[Manual Email Campaign] Failed for ${email}:`, err);
-            await pool.query(`
-              INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, error, sent_at, campaign_id)
-              VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'failed', $7, NOW(), $8)
-            `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, (err as Error).message, campaignId]);
-          }
+          await updateCampaignStatus(campaignId, 'completed', `Terminée (${emails.length}/${emails.length})`, `Campagne manuelle terminée. Tous les e-mails ont été traités.`);
+        } catch (globalErr) {
+          console.error(`[Manual Email Campaign Error]:`, globalErr);
+          await updateCampaignStatus(campaignId, 'failed', 'Erreur critique', `Erreur générale dans la campagne : ${(globalErr as Error).message}`);
         }
       })();
     } else if (type === 'automated') {
       // Run Apify scraping in background
       (async () => {
         try {
+          // Clear logs of campaign initially
+          await pool.query("UPDATE public.prospection_campaigns SET logs = '' WHERE id = $1", [campaignId]);
+          await updateCampaignStatus(
+            campaignId,
+            'scraping',
+            'Recherche d\'emails (Apify)...',
+            `Lancement du scraping LinkedIn Apify (Keywords: "${linkedinKeywords || ''}", Poste: "${linkedinFunction || ''}", Localisation: "${linkedinLocation || ''}", Limite: ${limit})...`
+          );
+
           const prospects = await fetchLinkedInProspects({
             keywords: linkedinKeywords || '',
             location: linkedinLocation || '',
@@ -1925,11 +1978,32 @@ async function runCampaignOutreach(campaignId: string, kind: string, payload: an
             limit: Number(limit) || 10
           });
           
+          const validProspects = prospects.filter(p => p.email);
+          
+          await updateCampaignStatus(
+            campaignId,
+            'sending',
+            `Recherche terminée: ${validProspects.length} emails`,
+            `Scraping Apify complété. ${prospects.length} profils scannés, ${validProspects.length} profils avec e-mail trouvés.`
+          );
+
+          if (validProspects.length === 0) {
+            await updateCampaignStatus(campaignId, 'completed', 'Aucun prospect', 'Aucun prospect avec adresse e-mail valide n\'a été trouvé par Apify. Fin de la campagne.');
+            return;
+          }
+
           let first = true;
-          for (const p of prospects) {
-            if (p.email) {
-              const email = p.email;
+          let sentCount = 0;
+          for (const p of validProspects) {
+            const email = p.email;
+            if (email) {
               if (!first) {
+                await updateCampaignStatus(
+                  campaignId,
+                  'sending',
+                  `Envoi en cours (${sentCount}/${validProspects.length})`,
+                  `Attente de ${interval} minute(s) avant le prochain envoi...`
+                );
                 await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
               }
               first = false;
@@ -1973,16 +2047,42 @@ async function runCampaignOutreach(campaignId: string, kind: string, payload: an
                   INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, sent_at, campaign_id)
                   VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'sent', NOW(), $7)
                 `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, campaignId]);
+                sentCount++;
+                await updateCampaignStatus(
+                  campaignId,
+                  'sending',
+                  `Envoi en cours (${sentCount}/${validProspects.length})`,
+                  `E-mail envoyé avec succès à ${email}`
+                );
               } catch (err) {
                 await pool.query(`
                   INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, error, sent_at, campaign_id)
                   VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'failed', $7, NOW(), $8)
                 `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, (err as Error).message, campaignId]);
+                sentCount++;
+                await updateCampaignStatus(
+                  campaignId,
+                  'sending',
+                  `Envoi en cours (${sentCount}/${validProspects.length})`,
+                  `Erreur de serveur Mailgun pour ${email}: ${(err as Error).message}`
+                );
               }
             }
           }
+          await updateCampaignStatus(
+            campaignId,
+            'completed',
+            `Terminée (${sentCount}/${validProspects.length})`,
+            `Nombre maximal d'e-mails à envoyer atteint (${sentCount} e-mails traités).`
+          );
         } catch (err) {
           console.error('[Apify LinkedIn Scrape Campaign Error]:', err);
+          await updateCampaignStatus(
+            campaignId,
+            'failed',
+            'Erreur de scraping',
+            `Erreur serveur Apify / LinkedIn: ${(err as Error).message}`
+          );
         }
       })();
     }
@@ -2161,9 +2261,16 @@ app.get('/api/prospection/campaigns/:id', async (req: Request, res: Response) =>
   try {
     const { id } = req.params;
     const result = await pool.query(`
-      SELECT id, name, kind, description, active, created_at, email_subject, email_body, send_interval_minutes, target_filters
-      FROM public.prospection_campaigns
-      WHERE business_id = $1 AND id = $2
+      SELECT c.id, c.name, c.kind, c.description, c.active, c.created_at, c.email_subject, c.email_body, c.send_interval_minutes, c.target_filters, c.status, c.status_text, c.logs,
+             CASE 
+               WHEN c.kind = 'email' THEN 
+                 (SELECT COUNT(*)::int FROM public.email_messages m WHERE m.campaign_id = c.id AND m.direction = 'out')
+               WHEN c.kind = 'x_reply' THEN
+                 (SELECT COUNT(*)::int FROM public.prospection_sends s WHERE s.campaign_id = c.id AND s.sent_at >= CURRENT_DATE)
+               ELSE 0
+             END as sent_count
+      FROM public.prospection_campaigns c
+      WHERE c.business_id = $1 AND c.id = $2
     `, [BUSINESS_ID, id]);
     
     if (result.rows.length === 0) {
@@ -2228,10 +2335,10 @@ app.post('/api/prospection/campaigns/:id/relaunch', async (req: Request, res: Re
 
     const campaign = result.rows[0];
     
-    // Set campaign as active in DB
+    // Set campaign as active in DB and reset status and logs
     await pool.query(`
       UPDATE public.prospection_campaigns
-      SET active = true, updated_at = NOW()
+      SET active = true, status = 'idle', status_text = 'Relancée', logs = '', updated_at = NOW()
       WHERE id = $1
     `, [id]);
 
@@ -2977,6 +3084,13 @@ async function runDailyEmailAutomation() {
       isScrapingDaily = true;
       console.log("[Daily Outreach Worker] Queue running dry. Selecting a target domain using Bedrock/Claude...");
       
+      await updateCampaignStatus(
+        dailyCampaignId,
+        'scraping',
+        'Recherche d\'emails (Apify)...',
+        'La file d\'attente est presque vide (< 10 e-mails). Recherche d\'un nouveau secteur cible et lancement du scraping LinkedIn avec Apify...'
+      );
+
       (async () => {
         try {
           // Fetch unique tags used in the last 30 days
@@ -3010,6 +3124,12 @@ ${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following posi
           }
 
           console.log(`[Daily Outreach Worker] Chosen domain position: "${keyword}". Initiating Apify LinkedIn Scraping...`);
+          await updateCampaignStatus(
+            dailyCampaignId,
+            'scraping',
+            `Scraping LinkedIn: "${keyword}"`,
+            `Poste sélectionné par l'IA : "${keyword}". Lancement du scraper LinkedIn Apify (USA, Canada, Australie, UK, Singapore, Dubai)...`
+          );
           
           // Fetch 1000 prospects
           const prospects = await fetchLinkedInProspects({
@@ -3037,8 +3157,20 @@ ${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following posi
             }
           }
           console.log(`[Daily Outreach Worker] Successfully queued ${addedCount} new prospects.`);
+          await updateCampaignStatus(
+            dailyCampaignId,
+            'sending',
+            'Envoi quotidien en cours',
+            `Scraping Apify terminé. ${prospects.length} profils trouvés pour "${keyword}", ${addedCount} nouveaux e-mails uniques ajoutés à la file d'attente.`
+          );
         } catch (err) {
           console.error('[Daily Outreach Worker Scraping Error]:', err);
+          await updateCampaignStatus(
+            dailyCampaignId,
+            'failed',
+            'Erreur scraping quotidien',
+            `Erreur serveur / Apify lors de la recherche quotidienne : ${(err as Error).message}`
+          );
         } finally {
           isScrapingDaily = false;
         }
@@ -3064,6 +3196,12 @@ ${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following posi
         }
 
         console.log(`[Daily Outreach Worker] Sending email to ${email} (First Name: ${firstName}, Tag: ${nextEmail.domain_tag})...`);
+        await updateCampaignStatus(
+          dailyCampaignId,
+          'sending',
+          'Envoi quotidien en cours',
+          `Tentative d'envoi d'e-mail à ${email} (${firstName}) - Tag secteur : "${nextEmail.domain_tag}"...`
+        );
 
         // Prepare email content
         const rawSubject = 'Side business run by AI autonomously';
@@ -3118,6 +3256,12 @@ Would love to hear what you think.`;
           `, [nextEmail.id]);
           
           console.log(`[Daily Outreach Worker] Email successfully sent to ${email}`);
+          await updateCampaignStatus(
+            dailyCampaignId,
+            'sending',
+            'Envoi quotidien en cours',
+            `E-mail envoyé avec succès à ${email} (${firstName}).`
+          );
         } catch (sendErr) {
           console.error(`[Daily Outreach Worker Send Error] for ${email}:`, sendErr);
           
@@ -3131,6 +3275,13 @@ Would love to hear what you think.`;
             SET status = 'failed', processed_at = NOW() 
             WHERE id = $1
           `, [nextEmail.id]);
+
+          await updateCampaignStatus(
+            dailyCampaignId,
+            'sending',
+            'Envoi quotidien en cours',
+            `Erreur serveur Mailgun lors de l'envoi à ${email} : ${(sendErr as Error).message}`
+          );
         }
       }
     }
