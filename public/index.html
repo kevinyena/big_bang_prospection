@@ -350,6 +350,7 @@
               <p class="muted">Promotional experiences shared by Sideloot AI in subreddits</p>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
+              <div id="reddit-posts-loader" class="loader-spinner hidden" style="border: 2px solid #f3f3f3; border-top: 2px solid #7c5cff; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite;"></div>
               <span style="font-weight:600; font-family:var(--mono); font-size:12px;">Filter:</span>
               <select id="reddit-subreddit-filter" class="form-control" style="width:160px; padding:4px 8px; border-radius:6px; border:1.5px solid var(--border); background-color:var(--bg); font-family:var(--mono); font-size:12px;">
                 <option value="all">All subreddits</option>
@@ -364,10 +365,11 @@
                   <th>Post Body</th>
                   <th>Status</th>
                   <th>Date</th>
+                  <th>Lien Reddit</th>
                 </tr>
               </thead>
               <tbody id="reddit-posts-table-body">
-                <tr><td colspan="4" class="text-center">Chargement des posts Reddit...</td></tr>
+                <tr><td colspan="5" class="text-center">Chargement des posts Reddit...</td></tr>
               </tbody>
             </table>
           </div>
@@ -574,8 +576,11 @@
         </div>
 
         <div class="form-group">
-          <label>Subreddits (séparés par des virgules)</label>
-          <input type="text" name="subreddits" class="form-control" placeholder="ex: startup, sidehustle, entrepreneur" required />
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="margin: 0;">Subreddits (séparés par des virgules)</label>
+            <button type="button" id="btn-reddit-all-subreddits" class="btn-action-primary" style="padding: 4px 10px; font-size: 11px; margin: 0; width: auto; background-color: var(--accent); color: white; border-color: var(--accent); cursor: pointer;">Tous les subreddits</button>
+          </div>
+          <input type="text" name="subreddits" id="create-reddit-subreddits" class="form-control" placeholder="ex: startup, sidehustle, entrepreneur" required />
         </div>
 
         <div class="form-group">
@@ -690,7 +695,10 @@
         <!-- Section: Reddit -->
         <div id="edit-section-reddit" class="form-section hidden">
           <div class="form-group">
-            <label>Subreddits (séparés par des virgules)</label>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label style="margin: 0;">Subreddits (séparés par des virgules)</label>
+              <button type="button" id="btn-reddit-edit-all-subreddits" class="btn-action-primary" style="padding: 4px 10px; font-size: 11px; margin: 0; width: auto; background-color: var(--accent); color: white; border-color: var(--accent); cursor: pointer;">Tous les subreddits</button>
+            </div>
             <input type="text" name="subreddits" id="edit-reddit-subreddits" class="form-control" placeholder="ex: startup, sidehustle" />
           </div>
           <div class="form-group">

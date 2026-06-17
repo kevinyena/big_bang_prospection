@@ -11,6 +11,7 @@ function apifyToken(): string {
 
 export interface LinkedInProspect {
   name: string;
+  firstName?: string;
   email: string | null;
   functionName: string;
   location: string;
@@ -106,6 +107,7 @@ export async function fetchLinkedInProspects(
 
       const prospect = {
         name,
+        firstName: it.firstName || '',
         email,
         functionName,
         location: locationText,

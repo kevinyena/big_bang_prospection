@@ -36,6 +36,8 @@ import {
   getRedditStatus,
   redditUnlink,
   getRedditSubreddits,
+  createRedditPost,
+  deleteRedditPost,
 } from './skills/runtime/reddit-api.js';
 import {
   loadDatabase,
@@ -944,6 +946,30 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+import { callBedrockConverse } from './skills/runtime/bedrock.js';
+
+async function generateWithClaude(userMessage: string, systemPrompt?: string): Promise<string> {
+  const modelId = process.env.AWS_BEDROCK_MODEL || 'us.anthropic.claude-opus-4-6-v1';
+  try {
+    const rules = "\nCRITICAL: Do NOT use any long dashes (em-dash '—' or en-dash '–'), asterisks ('*'), or hash symbols ('#') in your response. NEVER use them.";
+    const res = await callBedrockConverse({
+      modelId,
+      system: (systemPrompt || 'You are a professional assistant.') + rules,
+      userMessage,
+    });
+    let text = res.output?.message?.content?.[0]?.text || '';
+    
+    // Safety fallback: scrub forbidden characters programmatically
+    text = text.replace(/[\u2014\u2013]/g, '-'); // Replace long dashes with standard short hyphen
+    text = text.replace(/[*#]/g, ''); // Remove all asterisks and hash/diez characters
+    
+    return text;
+  } catch (err) {
+    console.error(`[Bedrock / Claude Generation Error]:`, err);
+    throw err;
+  }
+}
+
 const BUSINESS_ID = '8490ff47-45cf-4b96-b149-aa1961280032';
 
 
@@ -1079,6 +1105,19 @@ async function initAuthDatabase() {
 
     await pool.query(`
       ALTER TABLE public.prospection_sends ADD COLUMN IF NOT EXISTS tweet_url TEXT;
+    `);
+
+    // Ensure prospection_sends status check constraint permits 'pending' and 'generating'
+    await pool.query(`
+      ALTER TABLE public.prospection_sends DROP CONSTRAINT IF EXISTS prospection_sends_status_check;
+    `);
+    await pool.query(`
+      ALTER TABLE public.prospection_sends ADD CONSTRAINT prospection_sends_status_check CHECK (status = ANY (ARRAY['queued'::text, 'sent'::text, 'failed'::text, 'skipped'::text, 'pending'::text, 'generating'::text]));
+    `);
+
+    // Ensure task_id type is text to accommodate Mongo ObjectIDs from Zernio
+    await pool.query(`
+      ALTER TABLE public.prospection_sends ALTER COLUMN task_id TYPE text;
     `);
 
     const checkUser = await pool.query("SELECT id FROM public.dashboard_users WHERE email = $1 LIMIT 1", ['toedembo@gmail.com']);
@@ -1690,6 +1729,24 @@ app.get('/api/prospection/campaigns', async (req: Request, res: Response) => {
 app.delete('/api/prospection/campaigns/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
+    // Fetch Zernio post IDs (stored in task_id) for Reddit sends to delete them on Reddit
+    const sendsRes = await pool.query(`
+      SELECT task_id 
+      FROM public.prospection_sends 
+      WHERE campaign_id = $1 AND campaign_kind = 'reddit' AND task_id IS NOT NULL
+    `, [id]);
+
+    if (sendsRes.rows.length > 0) {
+      await Promise.all(sendsRes.rows.map(async (row) => {
+        try {
+          await deleteRedditPost(row.task_id);
+        } catch (err) {
+          console.error(`[Delete Reddit Post Error] taskId ${row.task_id}:`, err);
+        }
+      }));
+    }
+
     await pool.query("DELETE FROM public.email_messages WHERE business_id = $1 AND campaign_id = $2", [BUSINESS_ID, id]);
     await pool.query("DELETE FROM public.prospection_sends WHERE campaign_id = $1", [id]);
     await pool.query("DELETE FROM public.x_scanned_posts WHERE campaign_id = $1", [id]);
@@ -1772,41 +1829,55 @@ async function runCampaignOutreach(campaignId: string, kind: string, payload: an
           }
           const email = emails[i];
           let finalLeadId;
-          const existingLead = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
+          let leadName = '';
+          const existingLead = await pool.query("SELECT id, full_name FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
           if (existingLead.rows.length > 0) {
             finalLeadId = existingLead.rows[0].id;
+            leadName = existingLead.rows[0].full_name || '';
           } else {
             finalLeadId = crypto.randomUUID();
+            leadName = email.split('@')[0];
             await pool.query(`
               INSERT INTO public.leads (id, business_id, full_name, email, source)
               VALUES ($1, $2, $3, $4, 'manual')
               ON CONFLICT DO NOTHING
-            `, [finalLeadId, BUSINESS_ID, email.split('@')[0], email]);
+            `, [finalLeadId, BUSINESS_ID, leadName, email]);
             
-            const retryFetch = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
+            const retryFetch = await pool.query("SELECT id, full_name FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
             if (retryFetch.rows.length > 0) {
               finalLeadId = retryFetch.rows[0].id;
+              leadName = retryFetch.rows[0].full_name || leadName;
             }
           }
+
+          // Extract first name for manual email replacement
+          let firstName = '';
+          if (leadName) {
+            const firstPart = leadName.split(' ')[0].split('.')[0];
+            firstName = firstPart.charAt(0).toUpperCase() + firstPart.slice(1).toLowerCase();
+          }
+
+          const finalSubject = (subject || '').replace(/{first_name}/gi, firstName);
+          const finalBody = (body || '').replace(/{first_name}/gi, firstName);
 
           const threadId = crypto.randomUUID();
           await pool.query(`
             INSERT INTO public.email_threads (id, business_id, mailbox_id, lead_id, subject)
             VALUES ($1, $2, $3, $4, $5)
-          `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, subject]);
+          `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, finalSubject]);
 
           try {
-            await sendMailgunEmail(email, subject || '', body || '');
+            await sendMailgunEmail(email, finalSubject, finalBody);
             await pool.query(`
               INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, sent_at, campaign_id)
               VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'sent', NOW(), $7)
-            `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, campaignId]);
+            `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, campaignId]);
           } catch (err) {
             console.error(`[Manual Email Campaign] Failed for ${email}:`, err);
             await pool.query(`
               INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, error, sent_at, campaign_id)
               VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'failed', $7, NOW(), $8)
-            `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, (err as Error).message, campaignId]);
+            `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, (err as Error).message, campaignId]);
           }
         }
       })();
@@ -1848,23 +1919,32 @@ async function runCampaignOutreach(campaignId: string, kind: string, payload: an
                 }
               }
 
+              // Extract first name for automated email replacement
+              let firstName = (p.firstName || p.name.split(' ')[0] || '').trim();
+              if (firstName) {
+                firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+              }
+
+              const finalSubject = (subject || '').replace(/{first_name}/gi, firstName);
+              const finalBody = (body || '').replace(/{first_name}/gi, firstName);
+
               const threadId = crypto.randomUUID();
               await pool.query(`
                 INSERT INTO public.email_threads (id, business_id, mailbox_id, lead_id, subject)
                 VALUES ($1, $2, $3, $4, $5)
-              `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, subject]);
+              `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, finalSubject]);
 
               try {
-                await sendMailgunEmail(email, subject || '', body || '');
+                await sendMailgunEmail(email, finalSubject, finalBody);
                 await pool.query(`
                   INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, sent_at, campaign_id)
                   VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'sent', NOW(), $7)
-                `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, campaignId]);
+                `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, campaignId]);
               } catch (err) {
                 await pool.query(`
                   INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, error, sent_at, campaign_id)
                   VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'failed', $7, NOW(), $8)
-                `, [threadId, BUSINESS_ID, mailboxId, email, subject, body, (err as Error).message, campaignId]);
+                `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, (err as Error).message, campaignId]);
               }
             }
           }
@@ -1883,34 +1963,123 @@ async function runCampaignOutreach(campaignId: string, kind: string, payload: an
     const subList = (subreddits || '').split(',').map((s: string) => s.trim()).filter(Boolean);
 
     (async () => {
-      for (let i = 0; i < subList.length; i++) {
-        if (i > 0) {
-          await new Promise(resolve => setTimeout(resolve, interval * 60 * 1000));
-        }
-        const sub = subList[i];
-        try {
-          const prompt = `Rédige un post Reddit de partage d'expérience pour la communauté ${sub}.
-Sujet : ${template}
-Génère un titre accrocheur et un court texte de partage d'expérience.`;
+      try {
+        // Clean up previous sends for this campaign to avoid duplicates on relaunch
+        await pool.query(`DELETE FROM public.prospection_sends WHERE campaign_id = $1`, [campaignId]);
 
-          const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: prompt }],
-            max_tokens: 300
-          });
-
-          const aiResponse = completion.choices[0]?.message?.content || '';
-
+        // 1. Immediately insert all subreddits as 'pending'
+        const postIds = await Promise.all(subList.map(async (sub) => {
+          const id = crypto.randomUUID();
           await pool.query(`
             INSERT INTO public.prospection_sends (
               id, campaign_id, campaign_kind, recipient, body, status, sent_at, created_at
             ) VALUES (
-              gen_random_uuid(), $1, 'reddit', $2, $3, 'sent', NOW(), NOW()
+              $1, $2, 'reddit', $3, '', 'pending', NOW(), NOW()
             )
-          `, [campaignId, sub, aiResponse]);
-        } catch (err) {
-          console.error('[Reddit Campaign Error]:', err);
+          `, [id, campaignId, sub]);
+          return { id, sub };
+        }));
+
+        // 1. Get linked Reddit account
+        const redditStatus = await getRedditStatus();
+        const redditAccountId = redditStatus.openId;
+        if (!redditStatus.linked || !redditAccountId) {
+          throw new Error('Aucun compte Reddit connecté via Zernio.');
         }
+
+        // 2. Post to all subreddits sequentially with a delay to respect Zernio/Reddit rate limits
+        for (let i = 0; i < postIds.length; i++) {
+          const { id, sub } = postIds[i];
+
+          if (i > 0) {
+            // Respect campaign interval, minimum 2.5 minutes (150 seconds) to stay under Zernio's 25 posts/hour limit
+            const delayMinutes = Math.max(2.5, interval || 0);
+            console.log(`[Reddit Campaign] Waiting ${delayMinutes} minutes before posting to r/${sub}...`);
+            await new Promise(resolve => setTimeout(resolve, delayMinutes * 60 * 1000));
+          }
+
+          try {
+            // Update status to 'generating'
+            await pool.query(`
+              UPDATE public.prospection_sends
+              SET status = 'generating'
+              WHERE id = $1
+            `, [id]);
+
+            const prompt = `Write a Reddit post sharing an experience for the community r/${sub} in English.
+Subject: ${template}
+Generate a catchy title starting with "Title: [The title]" and a short experience text.
+CRITICAL: The entire post must be written in English. Do not write in French under any circumstances.`;
+
+            console.log(`[Reddit Campaign] Generating post for r/${sub}...`);
+            const aiResponse = await generateWithClaude(prompt, "You are a professional copywriter writing Reddit posts. Always write in English.");
+
+            // Extract title and body
+            let title = `Experience sharing on r/${sub}`;
+            let body = aiResponse;
+            const titleMatch = aiResponse.match(/(?:Title|Titre)\s*:\s*(.+)/i);
+            if (titleMatch && titleMatch[1]) {
+              title = titleMatch[1].trim();
+              body = aiResponse.replace(/(?:Title|Titre)\s*:\s*(.+)/i, '').trim();
+            }
+
+            // Create post on Reddit via Zernio API
+            console.log(`[Reddit Campaign] Posting to r/${sub}...`);
+            const { postId, publicPostUrl } = await createRedditPost(redditAccountId, sub, title, body);
+
+            // Update to 'sent'
+            await pool.query(`
+              UPDATE public.prospection_sends
+              SET status = 'sent', body = $1, sent_at = NOW(), task_id = $2, tweet_url = $3
+              WHERE id = $4
+            `, [aiResponse, postId, publicPostUrl || null, id]);
+            console.log(`[Reddit Campaign] Successfully posted to r/${sub}. Link: ${publicPostUrl}`);
+          } catch (err) {
+            console.error(`[Reddit Campaign Error] for subreddit ${sub}:`, err);
+            
+            const errMsg = (err as Error).message;
+            if (errMsg.includes('temporarily rate-limited') && errMsg.includes('rateLimitedUntil')) {
+              try {
+                const match = errMsg.match(/\{"error".*\}/);
+                if (match) {
+                  const data = JSON.parse(match[0]);
+                  const until = data.details?.rateLimitedUntil || data.rateLimitedUntil;
+                  if (until) {
+                    const waitTimeMs = new Date(until).getTime() - Date.now();
+                    if (waitTimeMs > 0) {
+                      console.log(`[Reddit Campaign] Zernio rate limit hit. Sleeping for ${Math.round(waitTimeMs / 1000 / 60)} minutes (until ${until})...`);
+                      
+                      // Put this send back to 'pending' status in DB so it doesn't show as failed in UI
+                      await pool.query(`
+                        UPDATE public.prospection_sends
+                        SET status = 'pending'
+                        WHERE id = $1
+                      `, [id]);
+                      
+                      // Wait until rate limit expires
+                      await new Promise(resolve => setTimeout(resolve, waitTimeMs));
+                      
+                      // Decrement i to retry this post
+                      i--;
+                      continue;
+                    }
+                  }
+                }
+              } catch (parseErr) {
+                console.error('[Reddit Campaign] Failed to parse rateLimit JSON from error:', parseErr);
+              }
+            }
+
+            // Update to 'failed'
+            await pool.query(`
+              UPDATE public.prospection_sends
+              SET status = 'failed', body = $1, sent_at = NOW()
+              WHERE id = $2
+            `, [`Error: ${(err as Error).message}`, id]);
+          }
+        }
+      } catch (err) {
+        console.error('[Reddit Campaign Insertion Error]:', err);
       }
     })();
   }
@@ -1918,6 +2087,7 @@ Génère un titre accrocheur et un court texte de partage d'expérience.`;
 
 app.post('/api/prospection/campaigns', async (req: Request, res: Response) => {
   try {
+    console.log('[POST /api/prospection/campaigns] req.body:', JSON.stringify(req.body));
     const { name, kind, send_interval_minutes, subject, body, template } = req.body;
     if (!name || !kind) {
       return res.status(400).json({ error: 'name et kind requis' });
@@ -2332,10 +2502,10 @@ app.get('/api/prospection/reddit', async (req: Request, res: Response) => {
       return res.json([]);
     }
     const result = await pool.query(`
-      SELECT s.id, s.recipient as subreddit, s.body, s.status, s.sent_at
+      SELECT s.id, s.recipient as subreddit, s.body, s.status, s.sent_at, s.tweet_url
       FROM public.prospection_sends s
       WHERE s.campaign_id = $1 AND s.campaign_kind = 'reddit'
-      ORDER BY s.sent_at DESC
+      ORDER BY s.created_at DESC
     `, [campaignId]);
     res.json(result.rows);
   } catch (e) {
@@ -2367,43 +2537,40 @@ app.post('/api/prospection/run', async (req: Request, res: Response) => {
     
     switch (actionType) {
       case 'email_outreach':
-        prompt = `Rédige un email d'outreach court et percutant pour un prospect.
+        prompt = `Write a short and punchy B2B outreach email for a prospect in English.
 Prospect: ${lead.full_name}
-Entreprise: ${lead.company_name || 'Cabinet médical'}
-Secteur: ${lead.industry || 'Santé / Dentaire'}
-L'expéditeur est 'Big Bang Loot' (une IA qui lance et fait tourner des side business autonomes). 
-L'email doit proposer notre solution automatisée. Ne mets pas de placeholders (ex: [Votre Nom]), signe 'L'équipe Big Bang Loot'.`;
+Company: ${lead.company_name || 'Medical clinic'}
+Industry: ${lead.industry || 'Health / Dental'}
+The sender is 'Big Bang Loot' (an AI that launches and runs autonomous side businesses).
+The email must pitch our automated operations solution. Do not include placeholders (e.g., [Your Name]), sign "The Big Bang Loot Team".
+CRITICAL: The entire email must be written in English. Do not write in French.`;
         break;
       case 'email_reply':
-        prompt = `Rédige une réponse d'assistance ou de suivi par email pour le prospect ${lead.full_name} qui s'intéresse à Big Bang Loot.
-Entreprise: ${lead.company_name || 'Cabinet médical'}
-Fais une réponse concise, polie et directe, en l'invitant à réserver un appel de démo. Signe 'L'équipe Big Bang Loot'.`;
+        prompt = `Write a follow-up or support email reply for prospect ${lead.full_name} who is interested in Big Bang Loot in English.
+Company: ${lead.company_name || 'Medical clinic'}
+Make the reply concise, polite, and direct, inviting them to book a demo call. Sign "The Big Bang Loot Team".
+CRITICAL: The entire email must be written in English. Do not write in French.`;
         break;
 
       case 'x_reply':
-        prompt = `Rédige une réponse courte à un commentaire de ${lead.x_handle || '@prospect'} sur Twitter/X.
+        prompt = `Write a short reply to a comment by ${lead.x_handle || '@prospect'} on Twitter/X in English.
 Prospect: ${lead.full_name}
-Sujet: L'automatisation par IA des tâches chronophages.
-La réponse doit faire moins de 150 caractères, être punchy, naturelle, et mentionner discrètement que Big Bang Loot s'occupe de tout. Pas de hashtags.`;
+Subject: AI automation of time-consuming tasks.
+The reply must be under 150 characters, punchy, natural, and discreetly mention that Big Bang Loot handles everything. No hashtags.
+CRITICAL: The entire reply must be written in English. Do not write in French.`;
         break;
       case 'reddit':
-        prompt = `Rédige un post Reddit de partage d'expérience pour la communauté r/startup ou r/sidehustle.
-Le post explique comment Big Bang Loot a aidé un business dans le secteur '${lead.industry || 'Services'}' à s'automatiser à 100%.
-Donne un titre accrocheur et un court texte récapitulatif.`;
+        prompt = `Write a Reddit post sharing an experience for the community r/startup or r/sidehustle in English.
+The post explains how Big Bang Loot helped a business in the '${lead.industry || 'Services'}' industry to automate 100% of their operations.
+Give a catchy title and a short summary text.
+CRITICAL: The entire post must be written in English. Do not write in French.`;
         break;
       default:
         return res.status(400).json({ error: 'actionType non valide' });
     }
 
-    console.log(`[ChatGPT Run] Calling OpenAI for action ${actionType} on lead ${lead.id}...`);
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 300,
-      temperature: 0.7
-    });
-
-    const aiResponse = completion.choices[0]?.message?.content || '';
+    console.log(`[Claude Run] Calling Bedrock/Claude for action ${actionType} on lead ${lead.id}...`);
+    const aiResponse = await generateWithClaude(prompt, "You are a professional marketing copywriter. Write the response according to instructions.");
 
     // Insert into respective tables based on type
     if (actionType === 'email_outreach' || actionType === 'email_reply') {
@@ -2671,18 +2838,12 @@ ${campaignTemplate ? `Custom instructions to follow: ${campaignTemplate}` : ''}`
 
         let aiResponse = '';
         try {
-          const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [{ role: 'user', content: systemPrompt }],
-            max_tokens: 150,
-            temperature: 0.8
-          });
-          aiResponse = completion.choices[0]?.message?.content || '';
+          aiResponse = await generateWithClaude(systemPrompt, "You are a helpful human-like social media assistant writing short replies in English.");
           aiResponse = aiResponse.replace(/[#*`\-–—]/g, '').replace(/\s+/g, ' ').trim();
           // Ensure sideloot.co link format
           aiResponse = aiResponse.replace(/\b(sideloot|sideload|sidelot)(?:\.[a-z]+)?\b/gi, 'sideloot.co');
         } catch (e) {
-          console.error('[comments-worker] OpenAI generation failed:', e);
+          console.error('[comments-worker] Claude generation failed:', e);
           continue;
         }
 

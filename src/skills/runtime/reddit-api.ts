@@ -257,3 +257,85 @@ export async function getRedditSubreddits(accountId: string): Promise<string[]> 
 
   return [];
 }
+
+// ---------- Post Creation & Deletion ----------
+
+export async function createRedditPost(accountId: string, subreddit: string, title: string, content: string): Promise<{
+  postId: string;
+  publicPostUrl?: string;
+}> {
+  const apiKey = process.env.ZERNIO_API_KEY;
+  if (!apiKey) throw new Error('ZERNIO_API_KEY manquante dans .env.');
+
+  const postBody = {
+    content: content,
+    publishNow: true,
+    platforms: [
+      {
+        platform: 'reddit',
+        accountId: accountId,
+        platformSpecificData: {
+          title: title,
+          subreddit: subreddit
+        }
+      }
+    ]
+  };
+
+  const res = await fetch('https://zernio.com/api/v1/posts', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(postBody)
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Zernio Reddit post failed (${res.status}): ${errText}`);
+  }
+
+  const data = await res.json() as any;
+  const postId = data.post?._id;
+
+  // Poll for status to get the publicPostUrl
+  let publicPostUrl: string | undefined;
+  const interval = 2000;
+  const timeout = 60 * 1000; // 60s timeout
+  const deadline = Date.now() + timeout;
+
+  while (Date.now() < deadline) {
+    await new Promise(r => setTimeout(r, interval));
+    const statusRes = await fetch(`https://zernio.com/api/v1/posts/${postId}`, {
+      headers: { Authorization: `Bearer ${apiKey}` }
+    });
+    if (!statusRes.ok) continue;
+    const statusData = await statusRes.json() as any;
+    const target = statusData.post?.platforms?.find((p: any) => p.platform === 'reddit');
+    if (target) {
+      if (target.status === 'published') {
+        publicPostUrl = target.platformPostUrl || undefined;
+        break;
+      } else if (target.status === 'failed') {
+        throw new Error(`Reddit post failed: ${target.errorMessage || 'Unknown Zernio error'}`);
+      }
+    }
+  }
+
+  return { postId, publicPostUrl };
+}
+
+export async function deleteRedditPost(postId: string): Promise<void> {
+  const apiKey = process.env.ZERNIO_API_KEY;
+  if (!apiKey) return;
+
+  const res = await fetch(`https://zernio.com/api/v1/posts/${postId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
+
+  if (!res.ok) {
+    console.error(`[Zernio Reddit delete failed] postId ${postId}: HTTP ${res.status}`);
+  }
+}

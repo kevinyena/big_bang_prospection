@@ -13,6 +13,7 @@ let activeDays = '30';
 let currentPayingCustomers: any[] = [];
 let currentChurnedCustomers: any[] = [];
 let currentXPostsPage = 1;
+let currentJoinedSubreddits: string[] = [];
 
 // Initialize
 window.addEventListener('DOMContentLoaded', async () => {
@@ -528,15 +529,31 @@ async function loadXScannedPosts(campaignId: string, page: number = 1) {
 
 // 5. Reddit Posts
 let allRedditPosts: any[] = [];
+let redditPollTimeout: any = null;
+let lastLoadedCampaignId = '';
 
 async function loadRedditPosts(campaignId: string) {
+  if (redditPollTimeout) {
+    clearTimeout(redditPollTimeout);
+    redditPollTimeout = null;
+  }
+
   const tbody = $('reddit-posts-table-body');
-  tbody.innerHTML = '';
+  const loader = $('reddit-posts-loader');
 
   if (!campaignId) {
-    tbody.innerHTML = '<tr><td colspan="4" class="text-center muted">Veuillez sélectionner ou lancer une campagne pour voir les posts Reddit.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center muted">Veuillez sélectionner ou lancer une campagne pour voir les posts Reddit.</td></tr>';
+    lastLoadedCampaignId = '';
+    if (loader) loader.classList.add('hidden');
     return;
   }
+
+  if (lastLoadedCampaignId !== campaignId) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center muted">Chargement des posts Reddit...</td></tr>';
+    lastLoadedCampaignId = campaignId;
+  }
+
+  if (loader) loader.classList.remove('hidden');
 
   try {
     const response = await fetch(`/api/prospection/reddit?campaignId=${campaignId}`);
@@ -559,8 +576,16 @@ async function loadRedditPosts(campaignId: string) {
     filterSelect.value = selectedSubreddit;
     filterSelect.onchange = renderRedditPostsFiltered;
     renderRedditPostsFiltered();
+
+    // Setup polling if any post is pending or generating
+    const hasActive = allRedditPosts.some((p: any) => p.status === 'pending' || p.status === 'generating');
+    if (hasActive) {
+      redditPollTimeout = setTimeout(() => loadRedditPosts(campaignId), 3000);
+    }
   } catch (err) {
     showError('Error loading Reddit posts: ' + (err as Error).message);
+  } finally {
+    if (loader) loader.classList.add('hidden');
   }
 }
 
@@ -575,20 +600,46 @@ function renderRedditPostsFiltered() {
     : allRedditPosts.filter((p: any) => p.subreddit === filterVal);
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" class="text-center muted">Aucun post Reddit trouvé.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center muted">Aucun post Reddit trouvé.</td></tr>';
     return;
   }
 
   filtered.forEach((p: any) => {
     const row = document.createElement('tr');
     row.style.cursor = 'pointer';
+    
+    let badgeStyle = 'background-color:var(--accent-light);color:var(--accent);border-color:var(--accent);';
+    let statusLabel = escapeHtml(p.status);
+    let bodyText = p.body ? escapeHtml(p.body) : '<span class="muted italic">En attente de génération...</span>';
+    
+    if (p.status === 'sent') {
+      badgeStyle = 'background-color:var(--success-bg);color:var(--success);border-color:var(--success);';
+      statusLabel = '✅ SENT';
+    } else if (p.status === 'pending') {
+      badgeStyle = 'background-color:#FFF2E6;color:#E07A5F;border-color:#E07A5F;';
+      statusLabel = '⏳ PENDING';
+    } else if (p.status === 'generating') {
+      badgeStyle = 'background-color:#FFF9E6;color:#D4A373;border-color:#D4A373;';
+      statusLabel = '⚡ GENERATING';
+      bodyText = '<span class="muted italic">Génération du post en cours...</span>';
+    } else if (p.status === 'failed') {
+      badgeStyle = 'background-color:var(--danger-bg);color:var(--danger);border-color:var(--danger);';
+      statusLabel = '❌ FAILED';
+    }
+    
+    let linkHtml = '<span class="muted">-</span>';
+    if (p.status === 'sent' && p.tweet_url) {
+      linkHtml = `<a href="${escapeHtml(p.tweet_url)}" target="_blank" class="accent-link" style="color:var(--accent); font-weight:600; text-decoration:underline;" onclick="event.stopPropagation();">Ouvrir ↗</a>`;
+    }
+
     row.innerHTML = `
       <td><span class="skill-tag">${escapeHtml(p.subreddit)}</span></td>
-      <td class="text-truncate" style="max-width:350px">${escapeHtml(p.body)}</td>
-      <td><span class="multi-hire-badge" style="background-color:var(--accent-light);color:var(--accent);border-color:var(--accent);">${escapeHtml(p.status)}</span></td>
+      <td class="text-truncate" style="max-width:350px">${bodyText}</td>
+      <td><span class="multi-hire-badge" style="${badgeStyle}">${statusLabel}</span></td>
       <td><span class="muted small">${formatDate(p.sent_at)}</span></td>
+      <td>${linkHtml}</td>
     `;
-    row.addEventListener('click', () => openSimpleDrawer('Post Reddit', 'r/' + p.subreddit, p.body, p.sent_at, 'out'));
+    row.addEventListener('click', () => openSimpleDrawer('Post Reddit', 'r/' + p.subreddit, p.body || 'Post en attente de génération.', p.sent_at, 'out'));
     tbody.appendChild(row);
   });
 }
@@ -930,10 +981,22 @@ function initModals() {
     const form = $(formId) as HTMLFormElement;
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      // Read form data BEFORE disabling inputs, otherwise they won't be collected by FormData
       const formData = new FormData(form);
       const data: Record<string, any> = {};
       formData.forEach((value, key) => { data[key] = value; });
       data.kind = kind;
+
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+      const originalText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '⏳ Lancement...';
+      }
+
+      const inputs = form.querySelectorAll('input, textarea, select, button');
+      inputs.forEach(el => (el as any).disabled = true);
 
       try {
         const response = await fetch('/api/prospection/campaigns', {
@@ -954,6 +1017,12 @@ function initModals() {
         await loadTabCampaigns(kind, selectId, loadDataFn);
       } catch (err) {
         showError('Erreur lors du lancement : ' + (err as Error).message);
+      } finally {
+        inputs.forEach(el => (el as any).disabled = false);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
       }
     });
   };
@@ -1377,6 +1446,7 @@ async function loadRedditSubreddits() {
     if (!response.ok) throw new Error('Failed to fetch subreddits');
     const data = await response.json();
     const list = data.subreddits || [];
+    currentJoinedSubreddits = list;
 
     $('reddit-subreddits-count').textContent = String(list.length);
 
@@ -1402,7 +1472,6 @@ async function loadRedditSubreddits() {
     container.innerHTML = `<p class="err small" style="margin: 0; align-self: center;">Erreur : ${(err as Error).message}</p>`;
   }
 }
-
 function initRedditAccountConnector() {
   try {
     const btnConnect = $('btn-connect-reddit') as HTMLButtonElement;
@@ -1444,4 +1513,24 @@ function initRedditAccountConnector() {
   } catch (e) {
     console.warn('Reddit logout button not found in current view');
   }
+
+  // Bind 'Tous les subreddits' buttons for Reddit Campaign Creation / Modification
+  const setupAllSubredditsBtn = (btnId: string, inputId: string) => {
+    try {
+      const btn = $(btnId);
+      btn.onclick = () => {
+        if (currentJoinedSubreddits.length === 0) {
+          alert("Aucun subreddit disponible. Connectez d'abord votre compte Reddit ou attendez sa synchronisation.");
+          return;
+        }
+        const input = $(inputId) as HTMLInputElement;
+        input.value = currentJoinedSubreddits.join(', ');
+      };
+    } catch (e) {
+      // Ignored if button is not in DOM
+    }
+  };
+
+  setupAllSubredditsBtn('btn-reddit-all-subreddits', 'create-reddit-subreddits');
+  setupAllSubredditsBtn('btn-reddit-edit-all-subreddits', 'edit-reddit-subreddits');
 }

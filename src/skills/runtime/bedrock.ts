@@ -36,7 +36,7 @@ export function getBedrockClient(): BedrockRuntimeClient {
 export async function callBedrockConverse({
   system = "You are a creative and strategic expert. Answer strictly according to instructions.",
   userMessage,
-  modelId = 'us.anthropic.claude-sonnet-4-6',
+  modelId = 'us.anthropic.claude-opus-4-6-v1',
   tools,
   toolChoice,
 }: CallBedrockConverseOpts): Promise<any> {
