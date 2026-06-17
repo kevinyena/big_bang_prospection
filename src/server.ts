@@ -1156,6 +1156,7 @@ async function initAuthDatabase() {
       ALTER TABLE public.prospection_campaigns ADD COLUMN IF NOT EXISTS status VARCHAR(100) DEFAULT 'idle';
       ALTER TABLE public.prospection_campaigns ADD COLUMN IF NOT EXISTS status_text TEXT DEFAULT 'Créée';
       ALTER TABLE public.prospection_campaigns ADD COLUMN IF NOT EXISTS logs TEXT DEFAULT '';
+      ALTER TABLE public.prospection_campaigns ADD COLUMN IF NOT EXISTS current_position VARCHAR(255);
     `);
 
     const checkUser = await pool.query("SELECT id FROM public.dashboard_users WHERE email = $1 LIMIT 1", ['toedembo@gmail.com']);
