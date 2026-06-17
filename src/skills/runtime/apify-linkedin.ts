@@ -40,7 +40,7 @@ export async function fetchLinkedInProspects(
   const allProspects: LinkedInProspect[] = []; // to fall back to if safety limit is reached
   
   let currentStartPage = 1;
-  let currentMaxItems = limit;
+  let currentMaxItems = limit > 10 ? Math.min(1500, limit * 5) : limit; // Start with larger chunk for big limits to get more emails in run #1
   let iteration = 0;
   const maxIterations = 15; // safety limit to prevent infinite loops
 
@@ -49,7 +49,9 @@ export async function fetchLinkedInProspects(
     
     // For subsequent runs, request a solid chunk to reach the target emails limit
     if (iteration > 1) {
-      currentMaxItems = Math.max(200, targetEmailsCount - prospectsWithEmails.length);
+      const remainingEmails = targetEmailsCount - prospectsWithEmails.length;
+      // Request 5x the remaining emails, but clamp between 500 and 1500
+      currentMaxItems = Math.min(1500, Math.max(500, remainingEmails * 5));
     }
     
     const takePages = Math.max(1, Math.ceil(currentMaxItems / 10));

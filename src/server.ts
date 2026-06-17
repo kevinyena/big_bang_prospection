@@ -3186,8 +3186,12 @@ ${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following posi
 
           let addedCount = 0;
           let prospectsListLog = '';
+          let totalScrapedWithEmail = 0;
           for (const p of prospects) {
             if (p.email) {
+              totalScrapedWithEmail++;
+              prospectsListLog += `- ${totalScrapedWithEmail}. ${p.name} (${p.email}) - ${p.functionName}\n`;
+
               // Check if we already sent an email to this address in the queue or lead list to avoid duplicates
               const dupCheck = await pool.query("SELECT id FROM public.sideloot_email_queue WHERE email = $1 LIMIT 1", [p.email]);
               if (dupCheck.rows.length === 0) {
@@ -3197,17 +3201,16 @@ ${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following posi
                   VALUES ($1, $2, $3, $4, $5, 'pending')
                 `, [id, dailyCampaignId, p.email, p.firstName || p.name.split(' ')[0] || 'there', keyword]);
                 addedCount++;
-                prospectsListLog += `- ${addedCount}. ${p.name} (${p.email}) - ${p.functionName}\n`;
               }
             }
           }
           console.log(`[Daily Outreach Worker] Successfully queued ${addedCount} new prospects.`);
           
           let logOutput = `Scraping Apify terminé. ${prospects.length} profils trouvés pour "${keyword}". ${addedCount} nouveaux e-mails uniques ajoutés à la file d'attente.\n\n`;
-          if (addedCount > 0) {
-            logOutput += `Liste des profils ajoutés :\n` + prospectsListLog;
+          if (prospectsListLog) {
+            logOutput += `Liste des profils trouvés avec adresse e-mail :\n` + prospectsListLog;
           } else {
-            logOutput += `Aucun nouveau profil unique n'a été ajouté à la file d'attente.`;
+            logOutput += `Aucun profil avec adresse e-mail n'a été trouvé.`;
           }
 
           await updateCampaignStatus(
