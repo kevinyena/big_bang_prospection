@@ -2987,10 +2987,10 @@ async function runDailyEmailAutomation() {
           `);
           const usedTags = usedTagsRes.rows.map(r => r.domain_tag.toLowerCase().trim()).filter(Boolean);
 
-          const selectPrompt = `Choose an interesting professional profile/domain category on LinkedIn to pitch 'Sideloot' to.
+          const selectPrompt = `Choose an interesting job title / position on LinkedIn to pitch 'Sideloot' to.
 Sideloot is an AI that builds and launches side businesses 100% autonomously for busy professionals who lack time.
-Provide ONLY a single job title keyword or tag in English (e.g. "sales representative", "freelancer", "designer", "real estate agent", "developer"). Do not write any other text, intro, or explanation.
-${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following tags as they have been used in the last 30 days: ${usedTags.join(', ')}` : ''}`;
+Provide ONLY a single job title / position in English (e.g. "sales representative", "freelancer", "designer", "real estate agent", "developer"). Do not write any other text, intro, or explanation.
+${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following positions as they have been used in the last 30 days: ${usedTags.join(', ')}` : ''}`;
           
           let keyword = '';
           for (let attempt = 1; attempt <= 3; attempt++) {
@@ -3009,11 +3009,13 @@ ${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following tags
             keyword = unusedFallbacks[0] || 'sales';
           }
 
-          console.log(`[Daily Outreach Worker] Chosen domain keyword: "${keyword}". Initiating Apify LinkedIn Scraping...`);
+          console.log(`[Daily Outreach Worker] Chosen domain position: "${keyword}". Initiating Apify LinkedIn Scraping...`);
           
           // Fetch 1000 prospects
           const prospects = await fetchLinkedInProspects({
-            keywords: keyword,
+            keywords: '',
+            location: 'United States, Canada, Australia, United Kingdom, Singapore, Dubai',
+            functionName: keyword,
             limit: 1000
           });
 

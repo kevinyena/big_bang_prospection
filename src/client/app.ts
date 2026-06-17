@@ -978,12 +978,25 @@ function initModals() {
 
     // Pre-fill Sideloot automated outreach values
     const kwField = document.querySelector('#email-automated-fields textarea[name="linkedinKeywords"]') as HTMLTextAreaElement | null;
+    const locField = document.querySelector('#email-automated-fields input[name="linkedinLocation"]') as HTMLInputElement | null;
+    const funcField = document.querySelector('#email-automated-fields input[name="linkedinFunction"]') as HTMLInputElement | null;
+    const limitField = document.querySelector('#email-automated-fields input[name="limit"]') as HTMLInputElement | null;
+    
     const subField = document.querySelector('#form-email-campaign input[name="subject"]') as HTMLInputElement | null;
     const bodyField = document.querySelector('#form-email-campaign textarea[name="body"]') as HTMLTextAreaElement | null;
     const intervalField = document.querySelector('#form-email-campaign input[name="send_interval_minutes"]') as HTMLInputElement | null;
 
     if (kwField) {
-      kwField.value = 'student, professor, marketer, sales representative, nurse, dentist, accountant, lawyer, designer, developer, copywriter, freelancer, entrepreneur, startup founder, real estate agent, architect, manager, recruiter, product manager, consultant, coach, artist, writer, editor, analyst, engineer, virtual assistant, social media manager, content creator, photographer, videographer, web designer, seo expert, translator, teacher, tutor, instructor, personal trainer, nutritionist, therapist, doctor, pharmacist, veterinarian, chef, baker, caterer, event planner, travel agent, advisor, specialist';
+      kwField.value = ''; // Empty keywords as we search by position/job title instead
+    }
+    if (locField) {
+      locField.value = 'United States, Canada, Australia, United Kingdom, Singapore, Dubai';
+    }
+    if (funcField) {
+      funcField.value = 'student, professor, marketer, sales representative, nurse, dentist, accountant, lawyer, designer, developer, copywriter, freelancer, entrepreneur, startup founder, real estate agent, architect, manager, recruiter, product manager, consultant, coach, artist, writer, editor, analyst, engineer, virtual assistant, social media manager, content creator, photographer, videographer, web designer, seo expert, translator, teacher, tutor, instructor, personal trainer, nutritionist, therapist, doctor, pharmacist, veterinarian, chef, baker, caterer, event planner, travel agent, advisor, specialist';
+    }
+    if (limitField) {
+      limitField.value = '1000';
     }
     if (subField) {
       subField.value = 'Side business run by AI autonomously';
