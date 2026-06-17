@@ -47,9 +47,9 @@ export async function fetchLinkedInProspects(
   while (prospectsWithEmails.length < targetEmailsCount && iteration < maxIterations) {
     iteration++;
     
-    // For subsequent runs, request 5% of the limit (minimum 1)
+    // For subsequent runs, request a solid chunk to reach the target emails limit
     if (iteration > 1) {
-      currentMaxItems = Math.max(1, Math.ceil(limit * 0.05));
+      currentMaxItems = Math.max(200, targetEmailsCount - prospectsWithEmails.length);
     }
     
     const takePages = Math.max(1, Math.ceil(currentMaxItems / 10));
@@ -125,19 +125,8 @@ export async function fetchLinkedInProspects(
     currentStartPage += takePages;
   }
 
-  // Return the collected prospects with emails up to our target count, or all of them if we didn't reach it
-  if (prospectsWithEmails.length >= targetEmailsCount) {
-    return prospectsWithEmails.slice(0, targetEmailsCount);
-  }
-  
-  // If we couldn't find enough emails, return all prospects we found that have emails, supplemented by prospects without emails to match limit
-  const result = [...prospectsWithEmails];
-  for (const p of allProspects) {
-    if (!p.email && result.length < limit) {
-      result.push(p);
-    }
-  }
-  return result;
+  // Return only prospects with emails, sliced up to our target emails count
+  return prospectsWithEmails.slice(0, targetEmailsCount);
 }
 
 const POLL_INTERVAL_MS = 4000;

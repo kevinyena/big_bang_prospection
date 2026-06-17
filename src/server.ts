@@ -1973,29 +1973,46 @@ async function runCampaignOutreach(campaignId: string, kind: string, payload: an
       // Run Apify scraping in background
       (async () => {
         try {
+          // Parse list of job titles and select one randomly
+          const jobTitles = (linkedinFunction || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+          const selectedJobTitle = jobTitles[Math.floor(Math.random() * jobTitles.length)] || '';
+
+          // Save chosen position in database
+          await pool.query("UPDATE public.prospection_campaigns SET current_position = $1 WHERE id = $2", [selectedJobTitle, campaignId]);
+
           // Clear logs of campaign initially
           await pool.query("UPDATE public.prospection_campaigns SET logs = '' WHERE id = $1", [campaignId]);
           await updateCampaignStatus(
             campaignId,
             'scraping',
             'Recherche d\'emails (Apify)...',
-            `Lancement du scraping LinkedIn Apify (Keywords: "${linkedinKeywords || ''}", Poste: "${linkedinFunction || ''}", Localisation: "${linkedinLocation || ''}", Limite: ${limit})...`
+            `Lancement du scraping LinkedIn Apify pour le poste : "${selectedJobTitle}" (Localisation: "${linkedinLocation || ''}", Limite: ${limit})...`
           );
 
           const prospects = await fetchLinkedInProspects({
             keywords: linkedinKeywords || '',
             location: linkedinLocation || '',
-            functionName: linkedinFunction || '',
+            functionName: selectedJobTitle,
             limit: Number(limit) || 10
           });
           
           const validProspects = prospects.filter(p => p.email);
           
+          let logOutput = `Scraping Apify complété. ${prospects.length} profils scannés, ${validProspects.length} profils avec e-mail trouvés.\n\n`;
+          if (validProspects.length > 0) {
+            logOutput += `Liste des profils trouvés avec adresse e-mail :\n`;
+            validProspects.forEach((p, idx) => {
+              logOutput += `- ${idx + 1}. ${p.name} (${p.email}) - ${p.functionName}\n`;
+            });
+          } else {
+            logOutput += `Aucun profil avec adresse e-mail valide n'a été trouvé.`;
+          }
+
           await updateCampaignStatus(
             campaignId,
             'sending',
             `Recherche terminée: ${validProspects.length} emails`,
-            `Scraping Apify complété. ${prospects.length} profils scannés, ${validProspects.length} profils avec e-mail trouvés.`
+            logOutput
           );
 
           if (validProspects.length === 0) {
@@ -3145,6 +3162,10 @@ ${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following posi
           }
 
           console.log(`[Daily Outreach Worker] Chosen domain position: "${keyword}". Initiating Apify LinkedIn Scraping...`);
+          
+          // Save chosen position in database
+          await pool.query("UPDATE public.prospection_campaigns SET current_position = $1 WHERE id = $2", [keyword, dailyCampaignId]);
+
           await updateCampaignStatus(
             dailyCampaignId,
             'scraping',
@@ -3163,6 +3184,7 @@ ${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following posi
           console.log(`[Daily Outreach Worker] Retrieved ${prospects.length} prospects from Apify for tag "${keyword}". Queuing them...`);
 
           let addedCount = 0;
+          let prospectsListLog = '';
           for (const p of prospects) {
             if (p.email) {
               // Check if we already sent an email to this address in the queue or lead list to avoid duplicates
@@ -3174,15 +3196,24 @@ ${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following posi
                   VALUES ($1, $2, $3, $4, $5, 'pending')
                 `, [id, dailyCampaignId, p.email, p.firstName || p.name.split(' ')[0] || 'there', keyword]);
                 addedCount++;
+                prospectsListLog += `- ${addedCount}. ${p.name} (${p.email}) - ${p.functionName}\n`;
               }
             }
           }
           console.log(`[Daily Outreach Worker] Successfully queued ${addedCount} new prospects.`);
+          
+          let logOutput = `Scraping Apify terminé. ${prospects.length} profils trouvés pour "${keyword}". ${addedCount} nouveaux e-mails uniques ajoutés à la file d'attente.\n\n`;
+          if (addedCount > 0) {
+            logOutput += `Liste des profils ajoutés :\n` + prospectsListLog;
+          } else {
+            logOutput += `Aucun nouveau profil unique n'a été ajouté à la file d'attente.`;
+          }
+
           await updateCampaignStatus(
             dailyCampaignId,
             'sending',
             'Envoi quotidien en cours',
-            `Scraping Apify terminé. ${prospects.length} profils trouvés pour "${keyword}", ${addedCount} nouveaux e-mails uniques ajoutés à la file d'attente.`
+            logOutput
           );
         } catch (err) {
           console.error('[Daily Outreach Worker Scraping Error]:', err);
