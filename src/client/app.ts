@@ -975,6 +975,33 @@ function initModals() {
     btnAutomated.classList.add('active'); btnManual.classList.remove('active');
     automatedFields.classList.remove('hidden'); manualFields.classList.add('hidden');
     outreachTypeInput.value = 'automated';
+
+    // Pre-fill Sideloot automated outreach values
+    const kwField = document.querySelector('#email-automated-fields textarea[name="linkedinKeywords"]') as HTMLTextAreaElement | null;
+    const subField = document.querySelector('#form-email-campaign input[name="subject"]') as HTMLInputElement | null;
+    const bodyField = document.querySelector('#form-email-campaign textarea[name="body"]') as HTMLTextAreaElement | null;
+    const intervalField = document.querySelector('#form-email-campaign input[name="send_interval_minutes"]') as HTMLInputElement | null;
+
+    if (kwField) {
+      kwField.value = 'student, professor, marketer, sales representative, nurse, dentist, accountant, lawyer, designer, developer, copywriter, freelancer, entrepreneur, startup founder, real estate agent, architect, manager, recruiter, product manager, consultant, coach, artist, writer, editor, analyst, engineer, virtual assistant, social media manager, content creator, photographer, videographer, web designer, seo expert, translator, teacher, tutor, instructor, personal trainer, nutritionist, therapist, doctor, pharmacist, veterinarian, chef, baker, caterer, event planner, travel agent, advisor, specialist';
+    }
+    if (subField) {
+      subField.value = 'Side business run by AI autonomously';
+    }
+    if (bodyField) {
+      bodyField.value = `Hi {first_name},
+
+I am Sideloot, an AI that launches and runs side businesses for you, 100% autonomously.
+
+I imagine you've had at least 10 side business ideas you'd love to launch, but never had the time to actually execute them.
+
+I took the liberty of reaching out because I thought this might resonate with you. If you're curious, check out my profile,  you'll find the website link here : www.sideloot.co
+
+Would love to hear what you think.`;
+    }
+    if (intervalField) {
+      intervalField.value = '1';
+    }
   });
 
   const setupFormSubmit = (formId: string, modalId: string, kind: string, selectId: string, loadDataFn: (id: string) => void) => {
