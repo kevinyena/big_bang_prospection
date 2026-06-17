@@ -1107,6 +1107,37 @@ async function initAuthDatabase() {
       ALTER TABLE public.prospection_sends ADD COLUMN IF NOT EXISTS tweet_url TEXT;
     `);
 
+    // Create Sideloot daily email queue table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS public.sideloot_email_queue (
+        id UUID PRIMARY KEY,
+        campaign_id UUID NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        first_name VARCHAR(255) NOT NULL,
+        domain_tag VARCHAR(255) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        processed_at TIMESTAMP WITH TIME ZONE
+      );
+    `);
+
+    // Ensure Sideloot automated daily outreach campaign exists
+    const dailyCampaignId = 'd01ec15b-17c9-429a-9043-428ed29f10e0';
+    const campCheck = await pool.query("SELECT id FROM public.prospection_campaigns WHERE id = $1 LIMIT 1", [dailyCampaignId]);
+    if (campCheck.rows.length === 0) {
+      await pool.query(`
+        INSERT INTO public.prospection_campaigns (
+          id, business_id, kind, name, active, created_at, updated_at, email_subject, email_body, email_from_local, send_interval_minutes
+        ) VALUES (
+          $1, $2, 'email', 'Sideloot Automated Daily Outreach', true, NOW(), NOW(),
+          'Side business run by AI autonomously',
+          'Hi {first_name},\n\nI am Sideloot, an AI that launches and runs side businesses for you, 100% autonomously.\n\nI imagine you''ve had at least 10 side business ideas you''d love to launch, but never had the time to actually execute them.\n\nI took the liberty of reaching out because I thought this might resonate with you. If you''re curious, check out my profile,  you''ll find the website link here : www.sideloot.co\n\nWould love to hear what you think.',
+          'grace', 1
+        )
+      `, [dailyCampaignId, BUSINESS_ID]);
+      console.log('[Auth DB] Seeded Sideloot Automated Daily Outreach campaign');
+    }
+
     // Ensure prospection_sends status check constraint permits 'pending' and 'generating'
     await pool.query(`
       ALTER TABLE public.prospection_sends DROP CONSTRAINT IF EXISTS prospection_sends_status_check;
@@ -1853,8 +1884,10 @@ async function runCampaignOutreach(campaignId: string, kind: string, payload: an
           // Extract first name for manual email replacement
           let firstName = '';
           if (leadName) {
-            const firstPart = leadName.split(' ')[0].split('.')[0];
-            firstName = firstPart.charAt(0).toUpperCase() + firstPart.slice(1).toLowerCase();
+            const firstPart = leadName.split(' ')[0]?.split('.')[0] || '';
+            if (firstPart) {
+              firstName = firstPart.charAt(0).toUpperCase() + firstPart.slice(1).toLowerCase();
+            }
           }
 
           const finalSubject = (subject || '').replace(/{first_name}/gi, firstName);
@@ -1968,7 +2001,7 @@ async function runCampaignOutreach(campaignId: string, kind: string, payload: an
         await pool.query(`DELETE FROM public.prospection_sends WHERE campaign_id = $1`, [campaignId]);
 
         // 1. Immediately insert all subreddits as 'pending'
-        const postIds = await Promise.all(subList.map(async (sub) => {
+        const postIds = await Promise.all(subList.map(async (sub: string) => {
           const id = crypto.randomUUID();
           await pool.query(`
             INSERT INTO public.prospection_sends (
@@ -2917,6 +2950,170 @@ ${campaignTemplate ? `Custom instructions to follow: ${campaignTemplate}` : ''}`
   }
 }
 
+let isScrapingDaily = false;
+
+async function runDailyEmailAutomation() {
+  const dailyCampaignId = 'd01ec15b-17c9-429a-9043-428ed29f10e0';
+  
+  try {
+    // 1. Fetch mailbox (Grace)
+    const mbRes = await pool.query("SELECT id FROM public.mailboxes WHERE business_id = $1 AND email_address = 'grace@sideloot.xyz' LIMIT 1", [BUSINESS_ID]);
+    let mailboxId = mbRes.rows[0]?.id;
+    if (!mailboxId) {
+      mailboxId = crypto.randomUUID();
+      await pool.query(`
+        INSERT INTO public.mailboxes (id, business_id, email_address, position_id, local_part, status)
+        VALUES ($1, $2, 'grace@sideloot.xyz', 'sales_rep', 'grace', 'active')
+      `, [mailboxId, BUSINESS_ID]);
+    }
+
+    // 2. Check how many pending emails are left in the queue
+    const queueCheck = await pool.query("SELECT COUNT(*)::int as count FROM public.sideloot_email_queue WHERE status = 'pending'");
+    const pendingCount = queueCheck.rows[0]?.count || 0;
+    console.log(`[Daily Outreach Worker] Current queue status: ${pendingCount} pending emails.`);
+
+    // 3. If the queue is running dry (e.g. < 10) and we are not already scraping, trigger Apify LinkedIn scraping in the background
+    if (pendingCount < 10 && !isScrapingDaily) {
+      isScrapingDaily = true;
+      console.log("[Daily Outreach Worker] Queue running dry. Selecting a target domain using Bedrock/Claude...");
+      
+      (async () => {
+        try {
+          const selectPrompt = `Choose an interesting professional profile/domain category on LinkedIn to pitch 'Sideloot' to.
+Sideloot is an AI that builds and launches side businesses 100% autonomously for busy professionals who lack time.
+Provide ONLY a single job title keyword or tag in English (e.g. "sales representative", "freelancer", "designer", "real estate agent", "developer"). Do not write any other text, intro, or explanation.`;
+          
+          let keyword = (await generateWithClaude(selectPrompt, "You return only a short LinkedIn job title query.")).trim();
+          // Clean keyword from quotes or formatting just in case
+          keyword = keyword.replace(/['"\[\]]/g, '').trim() || 'sales';
+          console.log(`[Daily Outreach Worker] Chosen domain keyword: "${keyword}". Initiating Apify LinkedIn Scraping...`);
+          
+          // Fetch 1000 prospects
+          const prospects = await fetchLinkedInProspects({
+            keywords: keyword,
+            limit: 1000
+          });
+
+          console.log(`[Daily Outreach Worker] Retrieved ${prospects.length} prospects from Apify for tag "${keyword}". Queuing them...`);
+
+          let addedCount = 0;
+          for (const p of prospects) {
+            if (p.email) {
+              // Check if we already sent an email to this address in the queue or lead list to avoid duplicates
+              const dupCheck = await pool.query("SELECT id FROM public.sideloot_email_queue WHERE email = $1 LIMIT 1", [p.email]);
+              if (dupCheck.rows.length === 0) {
+                const id = crypto.randomUUID();
+                await pool.query(`
+                  INSERT INTO public.sideloot_email_queue (id, campaign_id, email, first_name, domain_tag, status)
+                  VALUES ($1, $2, $3, $4, $5, 'pending')
+                `, [id, dailyCampaignId, p.email, p.firstName || p.name.split(' ')[0] || 'there', keyword]);
+                addedCount++;
+              }
+            }
+          }
+          console.log(`[Daily Outreach Worker] Successfully queued ${addedCount} new prospects.`);
+        } catch (err) {
+          console.error('[Daily Outreach Worker Scraping Error]:', err);
+        } finally {
+          isScrapingDaily = false;
+        }
+      })();
+    }
+
+    // 4. Pop the oldest pending email from the queue and send it
+    if (pendingCount > 0) {
+      const popRes = await pool.query(`
+        SELECT id, email, first_name, domain_tag 
+        FROM public.sideloot_email_queue 
+        WHERE status = 'pending' 
+        ORDER BY created_at ASC 
+        LIMIT 1
+      `);
+      
+      if (popRes.rows.length > 0) {
+        const nextEmail = popRes.rows[0];
+        const email = nextEmail.email;
+        let firstName = nextEmail.first_name || '';
+        if (firstName) {
+          firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+        }
+
+        console.log(`[Daily Outreach Worker] Sending email to ${email} (First Name: ${firstName}, Tag: ${nextEmail.domain_tag})...`);
+
+        // Prepare email content
+        const rawSubject = 'Side business run by AI autonomously';
+        const rawBody = `Hi {first_name},
+
+I am Sideloot, an AI that launches and runs side businesses for you, 100% autonomously.
+
+I imagine you've had at least 10 side business ideas you'd love to launch, but never had the time to actually execute them.
+
+I took the liberty of reaching out because I thought this might resonate with you. If you're curious, check out my profile,  you'll find the website link here : www.sideloot.co
+
+Would love to hear what you think.`;
+
+        const finalSubject = rawSubject.replace(/{first_name}/gi, firstName || 'there');
+        const finalBody = rawBody.replace(/{first_name}/gi, firstName || 'there');
+
+        // Create or get lead
+        let finalLeadId;
+        const existingLead = await pool.query("SELECT id FROM public.leads WHERE business_id = $1 AND lower(email) = lower($2) LIMIT 1", [BUSINESS_ID, email]);
+        if (existingLead.rows.length > 0) {
+          finalLeadId = existingLead.rows[0].id;
+        } else {
+          finalLeadId = crypto.randomUUID();
+          await pool.query(`
+            INSERT INTO public.leads (id, business_id, full_name, email, source)
+            VALUES ($1, $2, $3, $4, 'linkedin')
+            ON CONFLICT DO NOTHING
+          `, [finalLeadId, BUSINESS_ID, firstName || email.split('@')[0], email]);
+        }
+
+        // Create thread
+        const threadId = crypto.randomUUID();
+        await pool.query(`
+          INSERT INTO public.email_threads (id, business_id, mailbox_id, lead_id, subject)
+          VALUES ($1, $2, $3, $4, $5)
+        `, [threadId, BUSINESS_ID, mailboxId, finalLeadId, finalSubject]);
+
+        // Send and log message
+        try {
+          await sendMailgunEmail(email, finalSubject, finalBody);
+          
+          await pool.query(`
+            INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, sent_at, campaign_id)
+            VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'sent', NOW(), $7)
+          `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, dailyCampaignId]);
+
+          // Update queue status
+          await pool.query(`
+            UPDATE public.sideloot_email_queue 
+            SET status = 'sent', processed_at = NOW() 
+            WHERE id = $1
+          `, [nextEmail.id]);
+          
+          console.log(`[Daily Outreach Worker] Email successfully sent to ${email}`);
+        } catch (sendErr) {
+          console.error(`[Daily Outreach Worker Send Error] for ${email}:`, sendErr);
+          
+          await pool.query(`
+            INSERT INTO public.email_messages (id, thread_id, business_id, mailbox_id, direction, from_address, to_address, subject, body_text, status, error, sent_at, campaign_id)
+            VALUES (gen_random_uuid(), $1, $2, $3, 'out', 'grace@sideloot.xyz', $4, $5, $6, 'failed', $7, NOW(), $8)
+          `, [threadId, BUSINESS_ID, mailboxId, email, finalSubject, finalBody, (sendErr as Error).message, dailyCampaignId]);
+
+          await pool.query(`
+            UPDATE public.sideloot_email_queue 
+            SET status = 'failed', processed_at = NOW() 
+            WHERE id = $1
+          `, [nextEmail.id]);
+        }
+      }
+    }
+  } catch (dbErr) {
+    console.error('[Daily Outreach Worker Error]:', dbErr);
+  }
+}
+
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(
@@ -2926,6 +3123,10 @@ if (process.env.NODE_ENV !== 'test') {
     // Launch comments auto-reply background worker
     setTimeout(runCommentsAutoReply, 5000);
     setInterval(runCommentsAutoReply, 3 * 60 * 1000);
+
+    // Launch Sideloot daily email outreach worker
+    setTimeout(runDailyEmailAutomation, 10000);
+    setInterval(runDailyEmailAutomation, 60 * 1000);
   });
 }
 
