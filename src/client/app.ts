@@ -226,6 +226,42 @@ async function loadMetrics() {
   }
 }
 
+function updateStepUI(stepId: string, state: 'pending' | 'in_progress' | 'succeed' | 'failed', stepNum: string) {
+  const icon = document.getElementById(`step-${stepId}-icon`);
+  const statusEl = document.getElementById(`step-${stepId}-status`);
+  if (!icon || !statusEl) return;
+
+  if (state === 'pending') {
+    icon.style.background = 'var(--panel-2)';
+    icon.style.borderColor = 'var(--border)';
+    icon.style.color = 'var(--text-muted)';
+    icon.textContent = stepNum;
+    statusEl.textContent = 'En attente';
+    statusEl.style.color = '';
+  } else if (state === 'in_progress') {
+    icon.style.background = 'rgba(243, 156, 18, 0.15)';
+    icon.style.borderColor = '#f39c12';
+    icon.style.color = '#f39c12';
+    icon.textContent = stepNum;
+    statusEl.textContent = 'En cours... ⏳';
+    statusEl.style.color = '#f39c12';
+  } else if (state === 'succeed') {
+    icon.style.background = 'rgba(46, 204, 113, 0.15)';
+    icon.style.borderColor = '#2ecc71';
+    icon.style.color = '#2ecc71';
+    icon.textContent = '✓';
+    statusEl.textContent = 'Terminé ✅';
+    statusEl.style.color = '#2ecc71';
+  } else if (state === 'failed') {
+    icon.style.background = 'rgba(231, 76, 60, 0.15)';
+    icon.style.borderColor = '#e74c3c';
+    icon.style.color = '#e74c3c';
+    icon.textContent = '✗';
+    statusEl.textContent = 'Échec ❌';
+    statusEl.style.color = '#e74c3c';
+  }
+}
+
 // 2. Emails
 async function loadEmails(campaignId: string) {
   const inboundBody  = $('email-inbound-table-body');
@@ -282,6 +318,58 @@ async function loadEmails(campaignId: string) {
       if (logsWindow) {
         logsWindow.textContent = camp.logs || '// Pas encore de logs.';
         logsWindow.scrollTop = logsWindow.scrollHeight;
+      }
+
+      // Stepper visibility and states
+      const filters = camp.target_filters || {};
+      const isManual = (filters.type === 'manual');
+      
+      const stepScraping = document.getElementById('step-scraping');
+      const stepConnector = document.getElementById('step-connector');
+      if (stepScraping && stepConnector) {
+        if (isManual) {
+          stepScraping.style.display = 'none';
+          stepConnector.style.display = 'none';
+        } else {
+          stepScraping.style.display = 'flex';
+          stepConnector.style.display = 'block';
+        }
+      }
+
+      let scrapingState: 'pending' | 'in_progress' | 'succeed' | 'failed' = 'pending';
+      let sendingState: 'pending' | 'in_progress' | 'succeed' | 'failed' = 'pending';
+
+      const status = camp.status || 'idle';
+      const statusTextVal = (camp.status_text || '').toLowerCase();
+      const logsVal = (camp.logs || '').toLowerCase();
+
+      if (status === 'scraping') {
+        scrapingState = 'in_progress';
+        sendingState = 'pending';
+      } else if (status === 'sending') {
+        scrapingState = 'succeed';
+        sendingState = 'in_progress';
+      } else if (status === 'completed') {
+        scrapingState = 'succeed';
+        sendingState = 'succeed';
+      } else if (status === 'failed') {
+        if (statusTextVal.includes('scraping') || statusTextVal.includes('apify') || statusTextVal.includes('recherche') || logsVal.includes('apify') || logsVal.includes('scraping')) {
+          scrapingState = 'failed';
+          sendingState = 'pending';
+        } else {
+          scrapingState = 'succeed';
+          sendingState = 'failed';
+        }
+      } else {
+        scrapingState = 'pending';
+        sendingState = 'pending';
+      }
+
+      updateStepUI('scraping', scrapingState, '1');
+      updateStepUI('sending', sendingState, '2');
+      
+      if (stepConnector) {
+        stepConnector.style.backgroundColor = (scrapingState === 'succeed') ? '#2ecc71' : 'var(--border)';
       }
       
       if (countSent) {

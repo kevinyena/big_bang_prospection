@@ -191,8 +191,31 @@
                 Progression : <span id="campaign-count-sent" style="color: var(--accent);">0</span>
               </div>
             </div>
-          </div>
           <div style="padding: 15px;">
+            <!-- Stepper Container -->
+            <div id="campaign-stepper" style="display: flex; justify-content: space-around; align-items: center; background: var(--panel-2); padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1.5px solid var(--border); gap: 20px; flex-wrap: wrap;">
+              <!-- Step 1 -->
+              <div class="stepper-step" id="step-scraping" style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px;">
+                <div class="step-icon" id="step-scraping-icon" style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--border); font-size: 14px; font-weight: bold; border: 2.5px solid var(--border); transition: all 0.3s ease;">1</div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 700;" id="step-scraping-label">Recherche d'emails (Apify)</div>
+                  <div style="font-size: 11px; font-weight: 600;" class="muted" id="step-scraping-status">En attente</div>
+                </div>
+              </div>
+              
+              <!-- Connector Line -->
+              <div class="step-connector" id="step-connector" style="height: 2px; background: var(--border); flex: 0.5; min-width: 40px; transition: all 0.3s ease;"></div>
+              
+              <!-- Step 2 -->
+              <div class="stepper-step" id="step-sending" style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px;">
+                <div class="step-icon" id="step-sending-icon" style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--border); font-size: 14px; font-weight: bold; border: 2.5px solid var(--border); transition: all 0.3s ease;">2</div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 700;" id="step-sending-label">Envoi d'e-mails (Mailgun)</div>
+                  <div style="font-size: 11px; font-weight: 600;" class="muted" id="step-sending-status">En attente</div>
+                </div>
+              </div>
+            </div>
+
             <div class="logs-window" id="campaign-logs-window" style="background-color: #0c0c14; color: #88ff88; font-family: var(--mono); font-size: 11px; padding: 12px; border-radius: 8px; max-height: 180px; overflow-y: auto; border: 1.5px solid var(--border); line-height: 1.6; white-space: pre-wrap; word-break: break-all;">
 // En attente d'événements...
             </div>
