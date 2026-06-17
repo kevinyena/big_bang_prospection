@@ -1758,7 +1758,18 @@ app.get('/api/prospection/campaigns', async (req: Request, res: Response) => {
       WHERE c.business_id = $1 AND c.kind = $2
       ORDER BY c.created_at DESC
     `, [BUSINESS_ID, kind]);
-    res.json(result.rows);
+
+    const campaigns = result.rows;
+    for (const c of campaigns) {
+      if (c.id === 'd01ec15b-17c9-429a-9043-428ed29f10e0') {
+        const tagRes = await pool.query("SELECT domain_tag FROM public.sideloot_email_queue ORDER BY created_at DESC LIMIT 1");
+        c.current_position = tagRes.rows[0]?.domain_tag || 'sales';
+      } else {
+        const filters = c.target_filters || {};
+        c.current_position = filters.linkedinFunction || '';
+      }
+    }
+    res.json(campaigns);
   } catch (e) {
     res.status(500).json({ error: (e as Error).message });
   }
@@ -2276,7 +2287,17 @@ app.get('/api/prospection/campaigns/:id', async (req: Request, res: Response) =>
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Campagne non trouvée' });
     }
-    res.json(result.rows[0]);
+    
+    const campaign = result.rows[0];
+    if (campaign.id === 'd01ec15b-17c9-429a-9043-428ed29f10e0') {
+      const tagRes = await pool.query("SELECT domain_tag FROM public.sideloot_email_queue ORDER BY created_at DESC LIMIT 1");
+      campaign.current_position = tagRes.rows[0]?.domain_tag || 'sales';
+    } else {
+      const filters = campaign.target_filters || {};
+      campaign.current_position = filters.linkedinFunction || '';
+    }
+    
+    res.json(campaign);
   } catch (e) {
     res.status(500).json({ error: (e as Error).message });
   }

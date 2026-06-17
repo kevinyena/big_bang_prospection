@@ -226,7 +226,7 @@ async function loadMetrics() {
   }
 }
 
-function updateStepUI(stepId: string, state: 'pending' | 'in_progress' | 'succeed' | 'failed', stepNum: string) {
+function updateStepUI(stepId: string, state: 'pending' | 'in_progress' | 'succeed' | 'failed' | 'skipped', stepNum: string) {
   const icon = document.getElementById(`step-${stepId}-icon`);
   const statusEl = document.getElementById(`step-${stepId}-status`);
   if (!icon || !statusEl) return;
@@ -259,6 +259,13 @@ function updateStepUI(stepId: string, state: 'pending' | 'in_progress' | 'succee
     icon.textContent = '✗';
     statusEl.textContent = 'Échec ❌';
     statusEl.style.color = '#e74c3c';
+  } else if (state === 'skipped') {
+    icon.style.background = 'var(--panel-2)';
+    icon.style.borderColor = 'var(--border)';
+    icon.style.color = 'var(--text-muted)';
+    icon.textContent = '-';
+    statusEl.textContent = 'Aucun email envoyé ➡️';
+    statusEl.style.color = 'var(--text-muted)';
   }
 }
 
@@ -323,6 +330,7 @@ async function loadEmails(campaignId: string) {
       // Stepper visibility and states
       const filters = camp.target_filters || {};
       const isManual = (filters.type === 'manual');
+      const sentCount = camp.sent_count || 0;
       
       const stepScraping = document.getElementById('step-scraping');
       const stepConnector = document.getElementById('step-connector');
@@ -336,8 +344,17 @@ async function loadEmails(campaignId: string) {
         }
       }
 
-      let scrapingState: 'pending' | 'in_progress' | 'succeed' | 'failed' = 'pending';
-      let sendingState: 'pending' | 'in_progress' | 'succeed' | 'failed' = 'pending';
+      const scrapingLabel = document.getElementById('step-scraping-label');
+      if (scrapingLabel) {
+        if (camp.current_position) {
+          scrapingLabel.textContent = `Recherche d'emails (${camp.current_position})`;
+        } else {
+          scrapingLabel.textContent = "Recherche d'emails (Apify)";
+        }
+      }
+
+      let scrapingState: 'pending' | 'in_progress' | 'succeed' | 'failed' | 'skipped' = 'pending';
+      let sendingState: 'pending' | 'in_progress' | 'succeed' | 'failed' | 'skipped' = 'pending';
 
       const status = camp.status || 'idle';
       const statusTextVal = (camp.status_text || '').toLowerCase();
@@ -351,7 +368,7 @@ async function loadEmails(campaignId: string) {
         sendingState = 'in_progress';
       } else if (status === 'completed') {
         scrapingState = 'succeed';
-        sendingState = 'succeed';
+        sendingState = (sentCount > 0) ? 'succeed' : 'skipped';
       } else if (status === 'failed') {
         if (statusTextVal.includes('scraping') || statusTextVal.includes('apify') || statusTextVal.includes('recherche') || logsVal.includes('apify') || logsVal.includes('scraping')) {
           scrapingState = 'failed';
@@ -383,7 +400,6 @@ async function loadEmails(campaignId: string) {
           total = parseInt(filters.limit, 10);
         }
         
-        const sentCount = camp.sent_count || 0;
         if (total > 0) {
           countSent.textContent = `${sentCount} / ${total}`;
         } else {
@@ -928,7 +944,14 @@ async function loadTabCampaigns(kind: string, selectId: string, loadDataFn: (cam
         } else if (filters.limit) {
           total = parseInt(filters.limit, 10);
         }
-        label = `${c.name} (${sentCount} / ${total})`;
+        
+        let labelName = c.name;
+        if (c.id === 'd01ec15b-17c9-429a-9043-428ed29f10e0' && c.current_position) {
+          labelName = `${c.name} - Poste : ${c.current_position}`;
+        } else if (c.current_position) {
+          labelName = `${c.name} (${c.current_position})`;
+        }
+        label = `${labelName} (${sentCount} / ${total})`;
       } else if (kind === 'x_reply') {
         const total = parseInt(filters.max_posts_per_day || '10', 10);
         label = `${c.name} (${sentCount} / ${total} par jour)`;
