@@ -54,7 +54,7 @@ export async function fetchLinkedInProspects(
       currentMaxItems = Math.min(1500, Math.max(500, remainingEmails * 5));
     }
     
-    const takePages = Math.max(1, Math.ceil(currentMaxItems / 10));
+    const takePages = Math.min(100, Math.max(1, Math.ceil(currentMaxItems / 10)));
 
     const locations = params.location
       ? params.location.split(',').map((s) => s.trim()).filter(Boolean)
