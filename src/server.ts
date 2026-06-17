@@ -2979,13 +2979,36 @@ async function runDailyEmailAutomation() {
       
       (async () => {
         try {
+          // Fetch unique tags used in the last 30 days
+          const usedTagsRes = await pool.query(`
+            SELECT DISTINCT domain_tag 
+            FROM public.sideloot_email_queue 
+            WHERE created_at >= NOW() - INTERVAL '30 days'
+          `);
+          const usedTags = usedTagsRes.rows.map(r => r.domain_tag.toLowerCase().trim()).filter(Boolean);
+
           const selectPrompt = `Choose an interesting professional profile/domain category on LinkedIn to pitch 'Sideloot' to.
 Sideloot is an AI that builds and launches side businesses 100% autonomously for busy professionals who lack time.
-Provide ONLY a single job title keyword or tag in English (e.g. "sales representative", "freelancer", "designer", "real estate agent", "developer"). Do not write any other text, intro, or explanation.`;
+Provide ONLY a single job title keyword or tag in English (e.g. "sales representative", "freelancer", "designer", "real estate agent", "developer"). Do not write any other text, intro, or explanation.
+${usedTags.length > 0 ? `CRITICAL: You MUST NOT choose any of the following tags as they have been used in the last 30 days: ${usedTags.join(', ')}` : ''}`;
           
-          let keyword = (await generateWithClaude(selectPrompt, "You return only a short LinkedIn job title query.")).trim();
-          // Clean keyword from quotes or formatting just in case
-          keyword = keyword.replace(/['"\[\]]/g, '').trim() || 'sales';
+          let keyword = '';
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            const response = (await generateWithClaude(selectPrompt, "You return only a short LinkedIn job title query.")).trim();
+            const cleaned = response.replace(/['"\[\]]/g, '').trim();
+            if (cleaned && !usedTags.includes(cleaned.toLowerCase())) {
+              keyword = cleaned;
+              break;
+            }
+          }
+
+          if (!keyword) {
+            // Fallback list of common job titles if Claude fails to produce a unique one
+            const fallbacks = ['sales', 'freelancer', 'nurse', 'accountant', 'real estate agent', 'designer', 'copywriter', 'consultant', 'developer', 'marketer'];
+            const unusedFallbacks = fallbacks.filter(f => !usedTags.includes(f));
+            keyword = unusedFallbacks[0] || 'sales';
+          }
+
           console.log(`[Daily Outreach Worker] Chosen domain keyword: "${keyword}". Initiating Apify LinkedIn Scraping...`);
           
           // Fetch 1000 prospects
